@@ -1,0 +1,19 @@
+TODO:
+Recipe Suggestion
+Meal planning
+Likes / Dislikes
+OrbitDB or Auth
+Quantity normalisation
+Shopping list generator
+Pantry Management
+Smart pantry
+Substitutions
+Woolies or coles integration
+Recipe search and browse
+History
+Ratings
+Vibes
+Use-me soon
+Ingredients to avoid
+More recipe sources
+Meal planning algorithm
