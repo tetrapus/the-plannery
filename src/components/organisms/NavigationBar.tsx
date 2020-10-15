@@ -13,7 +13,11 @@ export default function NavigationBar() {
       }}
     >
       <Link to="/">
-        <img src="/logo.png" css={{ objectFit: `cover`, height: "100%" }}></img>
+        <img
+          src="/logo.png"
+          css={{ objectFit: `cover`, height: "100%" }}
+          alt="The Plannery Logo"
+        />
       </Link>
     </Flex>
   );

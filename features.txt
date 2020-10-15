@@ -1,15 +1,20 @@
 TODO:
 Recipe Suggestion
 Meal planning
-Likes / Dislikes
-OrbitDB or Auth
 Quantity normalisation
+Navigation
+Sharable plan links
 Shopping list generator
+Likes / Dislikes
+Responsive
+Hosting
+OrbitDB or Auth
 Pantry Management
 Smart pantry
 Substitutions
 Woolies or coles integration
 Recipe search and browse
+Logo
 History
 Ratings
 Vibes
@@ -17,3 +22,5 @@ Use-me soon
 Ingredients to avoid
 More recipe sources
 Meal planning algorithm
+Pantry staples
+Recipe blocking

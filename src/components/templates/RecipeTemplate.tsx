@@ -2,10 +2,9 @@ import React from "react";
 import { Recipe } from "../../models/Recipe";
 import { css } from "@emotion/core";
 import ReactMarkdown from "react-markdown";
-import { Tag } from "../atoms/Tag";
-import { IngredientCard } from "../molecules/IngredientCard";
 import { TagList } from "../molecules/TagList";
 import { Stack } from "../atoms/Stack";
+import { IngredientList } from "../organisms/IngredientList";
 
 interface Props {
   recipe: Recipe;
@@ -22,6 +21,7 @@ export default function RecipeTemplate({ recipe }: Props) {
           height: 40vh;
           object-fit: cover;
         `}
+        alt={recipe.name}
       ></img>
       <div
         css={css`
@@ -52,20 +52,7 @@ export default function RecipeTemplate({ recipe }: Props) {
         <ReactMarkdown>{recipe.description}</ReactMarkdown>
         <TagList items={recipe.tags}></TagList>
         <h2>Ingredients</h2>
-        <div
-          css={css`
-            display: flex;
-            flex-wrap: wrap;
-            padding: 24px;
-          `}
-        >
-          {recipe.ingredients.map((ingredient) => (
-            <IngredientCard
-              key={ingredient.type.id}
-              ingredient={ingredient}
-            ></IngredientCard>
-          ))}
-        </div>
+        <IngredientList ingredients={recipe.ingredients} />
         <h2>Utensils</h2>
         <TagList items={recipe.utensils}></TagList>
         <h2>Method</h2>
@@ -100,6 +87,7 @@ export default function RecipeTemplate({ recipe }: Props) {
                     css={css`
                       width: 250px;
                     `}
+                    alt=""
                   ></img>
                 ))}
               </div>

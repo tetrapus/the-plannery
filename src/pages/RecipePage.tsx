@@ -2,8 +2,7 @@ import React from "react";
 import { useParams } from "react-router-dom";
 import RecipeTemplate from "../components/templates/RecipeTemplate";
 import { NotFoundTemplate } from "../components/templates/NotFoundTemplate";
-import { getRecipe, getRecipes } from "../data/recipes";
-import { Recipe } from "../models/Recipe";
+import { getRecipe } from "../data/recipes";
 
 interface Props {}
 
