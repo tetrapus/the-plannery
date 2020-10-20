@@ -2,6 +2,7 @@ TODO:
 Recipe Suggestion
 Meal planning
 Quantity normalisation
+Meal plan day-by-day
 Navigation
 Sharable plan links
 Shopping list generator

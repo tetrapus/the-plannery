@@ -90,14 +90,15 @@ function getIngredients(ingredients: any[], types: any[]): Ingredient[] {
   if (!ingredients) {
     return [];
   }
-  return ingredients.map((ingredient) =>
-    normaliseIngredient({
-      qty: ingredient.amount || 1,
-      unit: ingredient.unit || "unit",
-      type: getIngredientType(
-        types.find((type) => type.id === ingredient.id)
-      ) as IngredientType,
-    })
+  return ingredients.map(
+    (ingredient) =>
+      normaliseIngredient({
+        qty: ingredient.amount || 1,
+        unit: ingredient.unit || "unit",
+        type: getIngredientType(
+          types.find((type) => type.id === ingredient.id)
+        ) as IngredientType,
+      }) as Ingredient
   );
 }
 

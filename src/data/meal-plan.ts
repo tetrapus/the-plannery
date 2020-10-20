@@ -1,26 +1,21 @@
 import Ingredient from "../models/Ingredient";
 import { MealPlan } from "../models/MealPlan";
-import { CollectionFactory } from "./CollectionFactory";
 import { getRecipe } from "./recipes";
-
-export const MealPlanCollection = CollectionFactory<MealPlan>("meal-plan", {
-  recipes: [],
-});
 
 export function getIngredientsForMealPlan(mealPlan: MealPlan): Ingredient[] {
   const ingredientTypes = {} as any;
   const ingredients = {} as any;
-  mealPlan.recipes.forEach((slug) => {
+  mealPlan.recipes.forEach(({ slug }) => {
     getRecipe(slug)?.ingredients.forEach((ingredient) => {
       let qtys = ingredientTypes[ingredient.type.id];
       if (!qtys) {
         ingredientTypes[ingredient.type.id] = {};
         qtys = ingredientTypes[ingredient.type.id];
       }
-      if (qtys[ingredient.unit]) {
-        qtys[ingredient.unit] += ingredient.qty;
+      if (qtys[ingredient.unit as string]) {
+        qtys[ingredient.unit as string] += ingredient.qty;
       } else {
-        qtys[ingredient.unit] = ingredient.qty;
+        qtys[ingredient.unit as string] = ingredient.qty;
         ingredients[ingredient.type.id] = ingredient.type;
       }
     });

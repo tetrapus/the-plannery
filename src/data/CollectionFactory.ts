@@ -16,17 +16,18 @@ export function CollectionFactory<T>(key: string, initialState: T) {
   return {
     initialState,
     subscribe: (setState: (t: T) => any) => {
-      subject.subscribe(setState);
+      const subscription = subject.subscribe(setState);
       if (!loaded) {
         loaded = true;
         init();
       }
+      return subscription.unsubscribe;
     },
     set: (value: T) => {
-      const data = JSON.stringify(value);
-      localStorage.setItem(key, data);
       state = value;
       subject.next(state);
+      const data = JSON.stringify(value);
+      localStorage.setItem(key, data);
     },
     get: () => {
       return state;
@@ -47,11 +48,12 @@ export function ExternalCollectionFactory<T>(url: string, initialState: T) {
   return {
     initialState,
     subscribe: (setState: (t: T) => any) => {
-      subject.subscribe(setState);
+      const subscription = subject.subscribe(setState);
       if (!loaded) {
         loaded = true;
         init();
       }
+      return subscription.unsubscribe;
     },
     get: () => {
       return state;

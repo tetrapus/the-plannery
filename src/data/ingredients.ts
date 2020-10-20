@@ -23,20 +23,40 @@ const ingredientNormalisers: { [name: string]: { [unit: string]: Amount } } = {
   "Asian greens": {
     unit: { unit: "bunch", qty: 1 },
   },
+  butter: {
+    ml: { unit: "g", qty: 1 },
+  },
+  "baby spinach leaves": {
+    bag: { unit: "g", qty: 60 },
+  },
+  bacon: {
+    packet: { unit: "g", qty: 200 },
+  },
+  "pork mince": { packet: { unit: "g", qty: 500 } },
+  "chicken breast": { packet: { unit: "g", qty: 500 } },
+  "sugar snap peas": { bag: { unit: "g", qty: 150 } },
 };
 
 export function normaliseIngredient(ingredient: Ingredient) {
-  const normaliser = {
-    ...globalNormalisers,
-    ...(ingredientNormalisers[ingredient.type.name] || {}),
-  }[ingredient.unit];
-  if (normaliser) {
-    return {
-      ...ingredient,
-      qty: ingredient.qty * normaliser.qty,
-      unit: normaliser.unit,
-    };
+  let normaliser;
+
+  if (!ingredient.qty || !ingredient.unit) {
+    return;
   }
+
+  do {
+    normaliser = {
+      ...globalNormalisers,
+      ...(ingredientNormalisers[ingredient.type.name] || {}),
+    }[ingredient.unit as string];
+    if (normaliser) {
+      ingredient = {
+        ...ingredient,
+        qty: (ingredient.qty as number) * normaliser.qty,
+        unit: normaliser.unit,
+      };
+    }
+  } while (normaliser);
   return ingredient;
 }
 
@@ -45,7 +65,12 @@ interface DisplayAmount {
   qty: string;
 }
 
-export function denormaliseIngredient(ingredient: Ingredient): DisplayAmount {
+export function denormaliseIngredient(
+  ingredient: Ingredient
+): DisplayAmount | undefined {
+  if (!ingredient.qty || !ingredient.unit) {
+    return;
+  }
   const tiers = Object.entries(globalNormalisers)
     .filter(([unit, normaliser]) => ingredient.unit === normaliser.unit)
     .sort((a, b) => b[1].qty - a[1].qty);

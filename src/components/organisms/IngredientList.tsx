@@ -38,6 +38,12 @@ export function IngredientList({ ingredients }: Props) {
     const pantryItem = pantry.items.find((item) =>
       isSameIngredient(item, ingredient)
     );
+    if (!pantryItem?.qty) {
+      return true;
+    }
+    if (!ingredient?.qty) {
+      return false;
+    }
     return !!pantryItem && pantryItem.qty >= ingredient.qty;
   };
 
@@ -45,7 +51,6 @@ export function IngredientList({ ingredients }: Props) {
     <Flex
       css={css`
         flex-wrap: wrap;
-        padding: 24px;
       `}
     >
       {ingredients

@@ -2,6 +2,6 @@ import { IngredientType } from "./IngredientType";
 
 export default interface Ingredient {
   type: IngredientType;
-  qty: number;
-  unit: string;
+  qty?: number;
+  unit?: string;
 }
