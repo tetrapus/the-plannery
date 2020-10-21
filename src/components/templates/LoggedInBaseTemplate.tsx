@@ -46,12 +46,12 @@ export function LoggedInBaseTemplate({ children }: Props) {
     >
       {loading ? (
         <Spinner />
+      ) : !currentUser ? (
+        <LoggedOutTemplate />
       ) : !household ? (
         <GetStartedTemplate />
-      ) : currentUser ? (
-        <div>{children}</div>
       ) : (
-        <LoggedOutTemplate />
+        <div>{children}</div>
       )}
     </HouseholdContext.Provider>
   );
