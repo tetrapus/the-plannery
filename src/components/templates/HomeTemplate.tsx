@@ -12,7 +12,7 @@ import {
   RecipesCollection,
 } from "../../data/recipes";
 import { IngredientList } from "../organisms/IngredientList";
-import { Pantry, PantryCollection } from "../../data/pantry";
+import { Pantry, PantryItem } from "../../data/pantry";
 import { SuggestedRecipesSection } from "../organisms/SuggestedRecipesSection";
 import { Spinner } from "../atoms/Spinner";
 import { MealPlan, MealPlanItem } from "../../models/MealPlan";
@@ -27,7 +27,7 @@ interface State {
 export default function HomeTemplate() {
   const initialState = {
     mealPlan: { recipes: [] },
-    pantry: PantryCollection.initialState,
+    pantry: { items: [] },
     recipes: RecipesCollection.initialState,
   };
   const [{ mealPlan, pantry, recipes }, setState] = useState<State>(
@@ -49,10 +49,19 @@ export default function HomeTemplate() {
           }))
         )
       );
+      hooks.push(
+        ref.collection("pantry").onSnapshot((snapshot) =>
+          setState((state) => ({
+            ...state,
+            pantry: {
+              items: snapshot.docs.map(
+                (doc) => ({ ref: doc.ref, ...doc.data() } as PantryItem)
+              ),
+            },
+          }))
+        )
+      );
     }
-    PantryCollection.subscribe((value) =>
-      setState((state) => ({ ...state, pantry: value }))
-    );
     RecipesCollection.subscribe((value) =>
       setState((state) => ({ ...state, recipes: value }))
     );
@@ -82,6 +91,7 @@ export default function HomeTemplate() {
               <h2>Shopping list</h2>
               <IngredientList
                 ingredients={getIngredientsForMealPlan(mealPlan)}
+                pantry={pantry}
               />
             </>
           ) : null}
@@ -93,9 +103,12 @@ export default function HomeTemplate() {
       ) : (
         <Spinner />
       )}
-      <Stack css={{ maxWidth: "calc(50vw - 400px)" }}>
+      <Stack css={{ width: "calc(50vw - 400px)" }}>
         <h2>Pantry</h2>
-        <IngredientList ingredients={pantry.items} />
+        <IngredientList
+          ingredients={pantry.items.map((item) => item.ingredient)}
+          pantry={pantry}
+        />
       </Stack>
     </Flex>
   );

@@ -11,7 +11,6 @@ interface Props {
 }
 
 export default function RecipeTemplate({ recipe }: Props) {
-  console.log(recipe);
   return (
     <div>
       <img
@@ -52,7 +51,10 @@ export default function RecipeTemplate({ recipe }: Props) {
         <ReactMarkdown>{recipe.description}</ReactMarkdown>
         <TagList items={recipe.tags}></TagList>
         <h2>Ingredients</h2>
-        <IngredientList ingredients={recipe.ingredients} />
+        <IngredientList
+          ingredients={recipe.ingredients}
+          pantry={{ items: [] }}
+        />
         <h2>Utensils</h2>
         <TagList items={recipe.utensils}></TagList>
         <h2>Method</h2>

@@ -1,10 +1,11 @@
 import Ingredient from "../models/Ingredient";
-import { CollectionFactory } from "./CollectionFactory";
 
-export interface Pantry {
-  items: Ingredient[];
+export interface PantryItem {
+  ref: firebase.firestore.DocumentReference;
+  ingredient: Ingredient;
+  by: string;
 }
 
-export const PantryCollection = CollectionFactory<Pantry>("pantry", {
-  items: [],
-});
+export interface Pantry {
+  items: PantryItem[];
+}

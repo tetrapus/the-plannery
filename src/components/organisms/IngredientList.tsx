@@ -1,50 +1,55 @@
-import React, { useEffect, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import Ingredient from "../../models/Ingredient";
 import { Flex } from "../atoms/Flex";
 import { IngredientCard } from "../molecules/IngredientCard";
 import { css } from "@emotion/core";
-import { PantryCollection } from "../../data/pantry";
+import { Pantry } from "../../data/pantry";
 import { isSameIngredient } from "../../data/ingredients";
+import { HouseholdContext } from "../../data/household";
+import { AuthStateContext } from "../../data/auth-state";
 
 interface Props {
   ingredients: Ingredient[];
+  pantry: Pantry;
 }
 
-export function IngredientList({ ingredients }: Props) {
-  const [pantry, setPantry] = useState(PantryCollection.initialState);
-  useEffect(() => PantryCollection.subscribe(setPantry), []);
-  const addToPantry = (inPantry: boolean, ingredient: Ingredient) => {
+export function IngredientList({ ingredients, pantry }: Props) {
+  const { ref } = useContext(HouseholdContext);
+  const { currentUser } = useContext(AuthStateContext);
+
+  const togglePantry = (inPantry: boolean, ingredient: Ingredient) => {
+    if (!ref) {
+      return;
+    }
     if (inPantry) {
-      PantryCollection.set({
-        items: [
-          ...PantryCollection.get().items.filter(
-            (pantryItem) => !isSameIngredient(pantryItem, ingredient)
-          ),
-        ],
-      });
+      ref
+        .collection("pantry")
+        .where("ingredient.type.id", "==", ingredient.type.id)
+        .where("ingredient.unit", "==", ingredient.unit)
+        .get()
+        .then((v) => v.docs.forEach((doc) => doc.ref.delete()));
     } else {
-      PantryCollection.set({
-        items: [
-          ...PantryCollection.get().items.filter(
-            (pantryItem) => !isSameIngredient(pantryItem, ingredient)
-          ),
-          ingredient,
-        ],
+      ref.collection("pantry").add({
+        ingredient,
+        by: currentUser.uid,
       });
     }
   };
 
   const inPantry = (ingredient: Ingredient) => {
     const pantryItem = pantry.items.find((item) =>
-      isSameIngredient(item, ingredient)
+      isSameIngredient(item.ingredient, ingredient)
     );
-    if (!pantryItem?.qty) {
+    if (!pantryItem) {
+      return false;
+    }
+    if (!pantryItem?.ingredient.qty) {
       return true;
     }
     if (!ingredient?.qty) {
       return false;
     }
-    return !!pantryItem && pantryItem.qty >= ingredient.qty;
+    return !!pantryItem && pantryItem.ingredient.qty >= ingredient.qty;
   };
 
   return (
@@ -68,7 +73,7 @@ export function IngredientList({ ingredients }: Props) {
               key={JSON.stringify(ingredient)}
               ingredient={ingredient}
               inPantry={inPantry}
-              onClick={() => addToPantry(inPantry, ingredient)}
+              onClick={() => togglePantry(inPantry, ingredient)}
             ></IngredientCard>
           );
         })}
