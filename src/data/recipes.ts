@@ -7,7 +7,7 @@ import { ExternalCollectionFactory } from "./CollectionFactory";
 import { normaliseIngredient } from "./ingredients";
 
 export const RecipesCollection = ExternalCollectionFactory(
-  "/recipe-data.json",
+  "https://firebasestorage.googleapis.com/v0/b/the-plannery.appspot.com/o/recipe-data.json?alt=media&token=a1514430-d46e-4e82-9112-765f243ed627",
   []
 );
 

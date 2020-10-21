@@ -26,3 +26,5 @@ export function initFirebase() {
 initFirebase();
 
 export const db = firebase.firestore();
+
+window.firebase = firebase;

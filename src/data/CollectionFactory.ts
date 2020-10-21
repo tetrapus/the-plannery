@@ -41,7 +41,7 @@ export function ExternalCollectionFactory<T>(url: string, initialState: T) {
   let state: T = initialState;
   let loaded = false;
   const init = async () => {
-    const response = await fetch("/recipe-data.json");
+    const response = await fetch(url);
     state = await response.json();
     subject.next(state);
   };
