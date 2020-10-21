@@ -101,7 +101,10 @@ export default function HomeTemplate() {
           />
         </Stack>
       ) : (
-        <Spinner />
+        <Stack css={{ width: 800, marginLeft: "auto", alignItems: "center" }}>
+          <Spinner />
+          Downloading recipe database...
+        </Stack>
       )}
       <Stack css={{ width: "calc(50vw - 400px)" }}>
         <h2>Pantry</h2>

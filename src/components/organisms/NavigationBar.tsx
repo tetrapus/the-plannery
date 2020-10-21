@@ -1,6 +1,5 @@
 import firebase from "firebase";
 import React, { useContext } from "react";
-import { StyledFirebaseAuth } from "react-firebaseui";
 import { Link } from "react-router-dom";
 import { Flex } from "../atoms/Flex";
 import { Stack } from "../atoms/Stack";

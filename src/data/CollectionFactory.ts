@@ -41,8 +41,18 @@ export function ExternalCollectionFactory<T>(url: string, initialState: T) {
   let state: T = initialState;
   let loaded = false;
   const init = async () => {
-    const response = await fetch(url);
-    state = await response.json();
+    const cache = await caches.open("recipe-cache");
+    const cachedResponse = await cache.match(url);
+    let response;
+    if (!cachedResponse) {
+      response = await fetch(url);
+      await cache.put(url, response);
+      response = await cache.match(url);
+    } else {
+      response = cachedResponse;
+    }
+
+    state = await response?.json();
     subject.next(state);
   };
   return {

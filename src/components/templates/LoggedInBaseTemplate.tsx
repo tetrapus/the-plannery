@@ -33,7 +33,7 @@ export function LoggedInBaseTemplate({ children }: Props) {
           : {};
         setState({ household });
       });
-  }, [currentUser?.uid]);
+  }, [currentUser]);
 
   return (
     <HouseholdContext.Provider
