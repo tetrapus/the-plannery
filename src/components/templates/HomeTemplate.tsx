@@ -3,7 +3,7 @@ import { RecipeCard } from "../molecules/RecipeCard";
 import { Recipe } from "../../models/Recipe";
 import { Stack } from "../atoms/Stack";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faTimes } from "@fortawesome/free-solid-svg-icons";
+import { faTimes, faUserPlus } from "@fortawesome/free-solid-svg-icons";
 import { Flex } from "../atoms/Flex";
 import { getIngredientsForMealPlan } from "../../data/meal-plan";
 import {
@@ -17,6 +17,7 @@ import { SuggestedRecipesSection } from "../organisms/SuggestedRecipesSection";
 import { Spinner } from "../atoms/Spinner";
 import { MealPlan, MealPlanItem } from "../../models/MealPlan";
 import { HouseholdContext } from "../../data/household";
+import firebase from "firebase";
 
 interface State {
   mealPlan: MealPlan;
@@ -33,7 +34,7 @@ export default function HomeTemplate() {
   const [{ mealPlan, pantry, recipes }, setState] = useState<State>(
     initialState
   );
-  const { ref } = useContext(HouseholdContext);
+  const { ref, doc } = useContext(HouseholdContext);
   useEffect(() => {
     const hooks: (() => void)[] = [];
     if (ref) {
@@ -67,6 +68,8 @@ export default function HomeTemplate() {
     );
     return () => hooks.forEach((hook) => hook());
   }, [ref]);
+
+  const addUser = React.createRef<HTMLInputElement>();
 
   return (
     <Flex>
@@ -107,6 +110,29 @@ export default function HomeTemplate() {
         </Stack>
       )}
       <Stack css={{ width: "calc(50vw - 400px)" }}>
+        <h2>Invites</h2>
+        {doc?.invitees.map((email) => (
+          <div key={email} css={{ marginBottom: 4 }}>
+            {email}
+          </div>
+        ))}
+        <Flex>
+          <input placeholder="Invite by email" ref={addUser}></input>
+          <FontAwesomeIcon
+            icon={faUserPlus}
+            css={{ marginLeft: 8 }}
+            onClick={() => {
+              if (addUser.current) {
+                ref?.update({
+                  invitees: firebase.firestore.FieldValue.arrayUnion(
+                    addUser.current?.value
+                  ),
+                });
+                addUser.current.value = "";
+              }
+            }}
+          />
+        </Flex>
         <h2>Pantry</h2>
         <IngredientList
           ingredients={pantry.items.map((item) => item.ingredient)}

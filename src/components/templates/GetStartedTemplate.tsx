@@ -1,4 +1,4 @@
-import React, { useContext } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import { Stack } from "../atoms/Stack";
 import { Button } from "../atoms/Button";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
@@ -7,20 +7,39 @@ import { AuthStateContext } from "../../data/auth-state";
 import { db } from "../../init/firebase";
 import { HouseholdContext } from "../../data/household";
 import { Spinner } from "../atoms/Spinner";
+import firebase from "firebase";
 
 export function GetStartedTemplate() {
   const { currentUser } = useContext(AuthStateContext);
   const { doc } = useContext(HouseholdContext);
+  const [{ invitations }, setState] = useState({
+    invitations: [] as firebase.firestore.QueryDocumentSnapshot[],
+  });
+  useEffect(() => {
+    if (!currentUser) {
+      return;
+    }
+    db.collection("household")
+      .where("invitees", "array-contains", currentUser?.email)
+      .get()
+      .then((response) => setState({ invitations: response.docs }));
+  }, [currentUser]);
+
   if (doc === undefined) {
     return <Spinner />;
   }
+
   return (
     <Stack css={{ marginLeft: "auto", marginRight: "auto", marginTop: 64 }}>
       <h1>Welcome to The Plannery</h1>
       <Button
         css={{ marginBottom: 8 }}
         onClick={() =>
-          db.collection("household").add({ members: [currentUser.uid] })
+          db.collection("household").add({
+            members: [currentUser.uid],
+            ownerName: currentUser.displayName,
+            invitees: [],
+          })
         }
       >
         <FontAwesomeIcon
@@ -29,13 +48,27 @@ export function GetStartedTemplate() {
         />
         Create a new plan
       </Button>
-      <Button>
-        <FontAwesomeIcon
-          icon={faUserPlus}
-          css={{ opacity: 0.4, marginRight: 12 }}
-        />
-        Join a household
-      </Button>
+      {invitations.map((household) => (
+        <Button
+          key={household.id}
+          onClick={() =>
+            household.ref.update({
+              members: firebase.firestore.FieldValue.arrayUnion(
+                currentUser.uid
+              ),
+              invitees: firebase.firestore.FieldValue.arrayRemove(
+                currentUser.email
+              ),
+            })
+          }
+        >
+          <FontAwesomeIcon
+            icon={faUserPlus}
+            css={{ opacity: 0.4, marginRight: 12 }}
+          />
+          Join {household.get("ownerName")}'s home
+        </Button>
+      ))}
     </Stack>
   );
 }

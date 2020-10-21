@@ -11,7 +11,7 @@ interface Props {
 }
 
 interface State {
-  household: Household | undefined | {};
+  household: Household | undefined | null;
 }
 
 export function LoggedInBaseTemplate({ children }: Props) {
@@ -29,8 +29,11 @@ export function LoggedInBaseTemplate({ children }: Props) {
       .where("members", "array-contains", currentUser?.uid)
       .onSnapshot((querySnapshot) => {
         const household = querySnapshot.docs.length
-          ? { id: querySnapshot.docs[0].id, ...querySnapshot.docs[0].data() }
-          : {};
+          ? ({
+              id: querySnapshot.docs[0].id,
+              ...querySnapshot.docs[0].data(),
+            } as Household)
+          : null;
         setState({ household });
       });
   }, [currentUser]);
@@ -39,9 +42,9 @@ export function LoggedInBaseTemplate({ children }: Props) {
     <HouseholdContext.Provider
       value={{
         doc: household,
-        ref:
-          household &&
-          db.collection("household").doc((household as Household).id),
+        ref: household?.id
+          ? db.collection("household").doc(household.id)
+          : undefined,
       }}
     >
       {loading ? (
