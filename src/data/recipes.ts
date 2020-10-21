@@ -83,6 +83,7 @@ function getRecipeStep(step: any): RecipeStep {
       (stepImage: any) =>
         `https://img.hellofresh.com/hellofresh_s3${stepImage.path}`
     ),
+    ingredients: step.ingredients,
   };
 }
 

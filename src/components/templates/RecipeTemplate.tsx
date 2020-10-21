@@ -1,10 +1,12 @@
 import React from "react";
 import { Recipe } from "../../models/Recipe";
-import { css } from "@emotion/core";
+import { css, Interpolation } from "@emotion/core";
 import ReactMarkdown from "react-markdown";
 import { TagList } from "../molecules/TagList";
 import { Stack } from "../atoms/Stack";
 import { IngredientList } from "../organisms/IngredientList";
+import { RecipeStep } from "../organisms/RecipeStep";
+import Ingredient from "../../models/Ingredient";
 
 interface Props {
   recipe: Recipe;
@@ -60,47 +62,22 @@ export default function RecipeTemplate({ recipe }: Props) {
         <h2>Method</h2>
         <div>
           {recipe.steps.map((step, idx) => (
-            <div
+            <RecipeStep
               key={idx}
-              css={css`
-                margin-bottom: 16px;
-                display: flex;
-                min-height: 100px;
-                align-items: center;
-                &:not(:last-child) {
-                  border-bottom: 1px solid #eee;
-                  padding-bottom: 8px;
-                }
-              `}
-            >
-              <h1
-                css={css`
-                  position: absolute;
-                  left: -36px;
-                  margin: 0;
-                `}
-              >
-                {idx + 1}
-              </h1>
-              <div css={{ marginRight: "8px" }}>
-                {step.images.map((img) => (
-                  <img
-                    src={img}
-                    css={css`
-                      width: 250px;
-                    `}
-                    alt=""
-                  ></img>
-                ))}
-              </div>
-              <div
-                css={css`
-                  padding: 16px 8px;
-                `}
-              >
-                <ReactMarkdown>{step.method}</ReactMarkdown>
-              </div>
-            </div>
+              step={step}
+              stepNumber={idx + 1}
+              ingredients={step.ingredients
+                .map((ingredient) =>
+                  recipe.ingredients.find(
+                    (recipeIngredient) =>
+                      recipeIngredient.type.id === ingredient
+                  )
+                )
+                .filter(
+                  (ingredient): ingredient is Ingredient =>
+                    ingredient !== undefined
+                )}
+            ></RecipeStep>
           ))}
         </div>
       </div>
