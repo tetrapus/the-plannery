@@ -66,7 +66,7 @@ export default function HomeTemplate() {
       setState((state) => ({ ...state, recipes: value }))
     );
     return () => hooks.forEach((hook) => hook());
-  }, []);
+  }, [ref]);
 
   return (
     <Flex>

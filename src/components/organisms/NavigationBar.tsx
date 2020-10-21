@@ -36,6 +36,7 @@ export default function NavigationBar() {
           <img
             src={currentUser?.photoURL || "#"}
             css={{ width: 48, height: 48, borderRadius: 3 }}
+            alt="Profile"
           />
           <Stack css={{ margin: 8 }}>
             <div>{currentUser?.displayName}</div>

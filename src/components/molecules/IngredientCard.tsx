@@ -71,6 +71,7 @@ export function IngredientCard({ ingredient, inPantry, onClick }: Props) {
             ingredient.type.name
           )}&sortBy=TraderRelevance`}
           target="_blank"
+          rel="noopener noreferrer"
           onClick={(e) => e.stopPropagation()}
         >
           <FontAwesomeIcon

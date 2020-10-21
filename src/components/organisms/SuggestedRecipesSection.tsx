@@ -29,8 +29,8 @@ export function SuggestedRecipesSection({ recipes, mealPlan }: Props) {
       <h1>Suggested for you</h1>
       {suggestedRecipes.map((recipe) => {
         return (
-          <Flex>
-            <RecipeCard key={recipe.slug} recipe={recipe} />
+          <Flex key={recipe.slug}>
+            <RecipeCard recipe={recipe} />
             <Stack css={{ fontSize: 36, margin: 42, color: "grey" }}>
               <FontAwesomeIcon
                 icon={faPlus}
