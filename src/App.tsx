@@ -17,10 +17,12 @@ initFirebase();
 
 function App() {
   const [{ isSignedIn }, setState] = useState<State>({});
-  useEffect(() =>
-    firebase
-      .auth()
-      .onAuthStateChanged((user) => setState({ isSignedIn: !!user }))
+  useEffect(
+    () =>
+      firebase
+        .auth()
+        .onAuthStateChanged((user) => setState({ isSignedIn: !!user })),
+    []
   );
 
   return (

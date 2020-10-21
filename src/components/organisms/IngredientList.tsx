@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useState } from "react";
+import React, { useContext } from "react";
 import Ingredient from "../../models/Ingredient";
 import { Flex } from "../atoms/Flex";
 import { IngredientCard } from "../molecules/IngredientCard";
