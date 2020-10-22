@@ -1,13 +1,10 @@
 import { faPlus } from "@fortawesome/free-solid-svg-icons";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import React, { useContext } from "react";
-import { Flex } from "../atoms/Flex";
-import { RecipeCard } from "../molecules/RecipeCard";
-import { Stack } from "../atoms/Stack";
 import { HouseholdContext } from "../../data/household";
 import { AuthStateContext } from "../../data/auth-state";
 import { Recipe } from "../../data/recipes";
 import { MealPlan } from "../../data/meal-plan";
+import { RecipeList } from "./RecipeList";
 
 interface Props {
   recipes: Recipe[];
@@ -27,23 +24,18 @@ export function SuggestedRecipesSection({ recipes, mealPlan }: Props) {
   return (
     <div>
       <h1>Suggested for you</h1>
-      {suggestedRecipes.map((recipe) => {
-        return (
-          <Flex key={recipe.slug}>
-            <RecipeCard recipe={recipe} />
-            <Stack css={{ fontSize: 36, margin: 42, color: "grey" }}>
-              <FontAwesomeIcon
-                icon={faPlus}
-                onClick={() =>
-                  ref
-                    ?.collection("mealplan")
-                    .add({ slug: recipe.slug, by: currentUser.uid })
-                }
-              />
-            </Stack>
-          </Flex>
-        );
-      })}
+      <RecipeList
+        recipes={suggestedRecipes}
+        actions={[
+          {
+            icon: faPlus,
+            onClick: (recipe) => () =>
+              ref
+                ?.collection("mealplan")
+                .add({ slug: recipe.slug, by: currentUser.uid }),
+          },
+        ]}
+      ></RecipeList>
     </div>
   );
 }

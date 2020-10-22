@@ -4,6 +4,7 @@ import ReactMarkdown from "react-markdown";
 import Ingredient from "../../data/ingredients";
 import { Flex } from "../atoms/Flex";
 import { IngredientList } from "./IngredientList";
+import { Breakpoint } from "../styles/Breakpoint";
 
 interface Step {
   images: string[];
@@ -19,31 +20,30 @@ interface Props {
 export function RecipeStep({ step, stepNumber, ingredients }: Props) {
   return (
     <Flex
-      css={css`
-        margin-bottom: 16px;
-        min-height: 100px;
-        align-items: center;
-        position: relative;
-        &:not(:last-child) {
-          border-bottom: 1px solid #eee;
-          padding-bottom: 8px;
-        }
-        @media only screen and (max-width: 768px) {
-          flex-direction: column;
-        }
-      `}
+      css={{
+        marginBottom: 16,
+        minHeight: 100,
+        alignItems: "center",
+        position: "relative",
+        "&:not(:last-child)": {
+          borderBottom: "1px solid #eee",
+          paddingBottom: 8,
+        },
+        [Breakpoint.MOBILE]: {
+          flexDirection: "column",
+        },
+      }}
     >
       <h1
-        css={css`
-          position: absolute;
-          left: -48px;
-          margin: 0;
+        css={{
+          position: "absolute",
+          left: -48,
+          margin: 0,
 
-          @media only screen and (max-width: 768px) {
-            left: 0;
-            top: 0;
-          }
-        `}
+          [Breakpoint.TABLET]: {
+            left: 4,
+          },
+        }}
       >
         {stepNumber}
       </h1>
