@@ -29,7 +29,7 @@ export function RecipeCard({ recipe, children }: Props) {
   }
 
   return (
-    <>
+    <Flex>
       <Link to={`/recipes/${recipe.slug}`} className="RecipeCard">
         <Flex
           css={css(CardStyle, {
@@ -39,10 +39,16 @@ export function RecipeCard({ recipe, children }: Props) {
             marginBottom: 16,
             position: "relative",
 
+            [Breakpoint.TABLET]: {
+              width: "100vw",
+              marginBottom: 0,
+            },
+
             [Breakpoint.MOBILE]: {
               flexDirection: "column",
               height: "auto",
               width: "100%",
+              marginBottom: 16,
             },
           })}
         >
@@ -101,9 +107,17 @@ export function RecipeCard({ recipe, children }: Props) {
             <div css={{ fontSize: 28, fontWeight: "bold" }}>{recipe.name}</div>
             <div css={{ fontSize: 24 }}>{recipe.subtitle}</div>
           </Stack>
+          <div
+            css={{
+              display: "none",
+              [Breakpoint.TABLET]: { display: "inherit" },
+            }}
+          >
+            {children}
+          </div>
         </Flex>
       </Link>
       <div css={{ [Breakpoint.TABLET]: { display: "none" } }}>{children}</div>
-    </>
+    </Flex>
   );
 }

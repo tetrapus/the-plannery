@@ -1,10 +1,10 @@
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import React from "react";
-import { Flex } from "../atoms/Flex";
 import { RecipeCard } from "../molecules/RecipeCard";
 import { Stack } from "../atoms/Stack";
 import { Recipe } from "../../data/recipes";
 import { IconProp } from "@fortawesome/fontawesome-svg-core";
+import { Breakpoint } from "../styles/Breakpoint";
 
 interface Action {
   icon: IconProp;
@@ -18,24 +18,29 @@ interface Props {
 
 export function RecipeList({ recipes, actions }: Props) {
   return (
-    <>
+    <Stack css={{ [Breakpoint.TABLET]: { alignItems: "center" } }}>
       {recipes.map((recipe) => {
         return (
-          <Flex key={recipe.slug}>
-            <RecipeCard recipe={recipe}>
-              <Stack css={{ fontSize: 36, margin: 42, color: "grey" }}>
-                {actions.map((action, idx) => (
-                  <FontAwesomeIcon
-                    key={idx}
-                    icon={action.icon}
-                    onClick={action.onClick(recipe)}
-                  />
-                ))}
-              </Stack>
-            </RecipeCard>
-          </Flex>
+          <RecipeCard recipe={recipe} key={recipe.slug}>
+            <Stack
+              css={{
+                fontSize: 36,
+                margin: 42,
+                color: "grey",
+                [Breakpoint.MOBILE]: { margin: 8 },
+              }}
+            >
+              {actions.map((action, idx) => (
+                <FontAwesomeIcon
+                  key={idx}
+                  icon={action.icon}
+                  onClick={action.onClick(recipe)}
+                />
+              ))}
+            </Stack>
+          </RecipeCard>
         );
       })}
-    </>
+    </Stack>
   );
 }
