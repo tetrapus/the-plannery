@@ -84,7 +84,7 @@ export default function HomeTemplate() {
       setState((state) => ({ ...state, recipes: value }))
     );
     return () => hooks.forEach((hook) => hook());
-  }, [household?.ref]);
+  }, [household]);
 
   const addUser = React.createRef<HTMLInputElement>();
 

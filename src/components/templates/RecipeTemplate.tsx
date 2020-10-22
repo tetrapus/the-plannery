@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useContext, useEffect, useState } from "react";
 import { css } from "@emotion/core";
 import ReactMarkdown from "react-markdown";
 import { TagList } from "../molecules/TagList";
@@ -7,12 +7,36 @@ import { IngredientList } from "../organisms/IngredientList";
 import { RecipeStep } from "../organisms/RecipeStep";
 import { Recipe } from "../../data/recipes";
 import Ingredient from "../../data/ingredients";
+import { AuthStateContext } from "../../data/auth-state";
+import { Pantry, PantryItem } from "../../data/pantry";
 
 interface Props {
   recipe: Recipe;
 }
 
+interface State {
+  pantry?: Pantry;
+}
+
 export default function RecipeTemplate({ recipe }: Props) {
+  const { household } = useContext(AuthStateContext);
+  const [{ pantry }, setState] = useState<State>({});
+
+  useEffect(
+    () =>
+      household?.ref.collection("pantry").onSnapshot((snapshot) =>
+        setState((state) => ({
+          ...state,
+          pantry: {
+            items: snapshot.docs.map(
+              (doc) => ({ ref: doc.ref, ...doc.data() } as PantryItem)
+            ),
+          },
+        }))
+      ),
+    [household]
+  );
+
   return (
     <div>
       <img
@@ -53,10 +77,7 @@ export default function RecipeTemplate({ recipe }: Props) {
         <ReactMarkdown>{recipe.description}</ReactMarkdown>
         <TagList items={recipe.tags}></TagList>
         <h2>Ingredients</h2>
-        <IngredientList
-          ingredients={recipe.ingredients}
-          pantry={{ items: [] }}
-        />
+        <IngredientList ingredients={recipe.ingredients} pantry={pantry} />
         <h2>Utensils</h2>
         <TagList items={recipe.utensils}></TagList>
         <h2>Method</h2>

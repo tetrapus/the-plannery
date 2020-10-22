@@ -8,11 +8,11 @@ import { Stack } from "../atoms/Stack";
 
 interface Props {
   ingredient: Ingredient;
-  inPantry: boolean;
+  pantryRef?: firebase.firestore.DocumentReference;
   onClick: () => void;
 }
 
-export function IngredientCard({ ingredient, inPantry, onClick }: Props) {
+export function IngredientCard({ ingredient, pantryRef, onClick }: Props) {
   const displayAmount = denormaliseIngredient(ingredient);
 
   return (
@@ -26,8 +26,8 @@ export function IngredientCard({ ingredient, inPantry, onClick }: Props) {
         position: relative;
       `}
       style={{
-        background: inPantry ? "inherit" : "white",
-        boxShadow: inPantry ? "inherit" : "grey 1px 1px 4px",
+        background: pantryRef ? "inherit" : "white",
+        boxShadow: pantryRef ? "inherit" : "grey 1px 1px 4px",
       }}
       onClick={onClick}
       className="IngredientCard"
@@ -52,7 +52,7 @@ export function IngredientCard({ ingredient, inPantry, onClick }: Props) {
         </div>
         <div>{ingredient.type.name}</div>
       </Stack>
-      {inPantry ? (
+      {pantryRef && (ingredient.qty || ingredient.unit) ? (
         <FontAwesomeIcon
           icon={faThumbtack}
           css={{
@@ -63,6 +63,13 @@ export function IngredientCard({ ingredient, inPantry, onClick }: Props) {
             ".IngredientCard:not(:hover) &": { display: "none" },
           }}
           color="grey"
+          onClick={(e) => {
+            pantryRef.update({
+              "ingredient.qty": null,
+              "ingredient.unit": null,
+            });
+            e.stopPropagation();
+          }}
         />
       ) : (
         <a

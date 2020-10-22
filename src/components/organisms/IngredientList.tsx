@@ -8,23 +8,21 @@ import { AuthStateContext } from "../../data/auth-state";
 
 interface Props {
   ingredients: Ingredient[];
-  pantry: Pantry;
+  pantry?: Pantry;
 }
 
 export function IngredientList({ ingredients, pantry }: Props) {
   const { currentUser, household } = useContext(AuthStateContext);
 
-  const togglePantry = (inPantry: boolean, ingredient: Ingredient) => {
+  const togglePantry = (
+    pantryRef: firebase.firestore.DocumentReference | undefined,
+    ingredient: Ingredient
+  ) => {
     if (!household?.ref) {
       return;
     }
-    if (inPantry) {
-      household.ref
-        .collection("pantry")
-        .where("ingredient.type.id", "==", ingredient.type.id)
-        .where("ingredient.unit", "==", ingredient.unit)
-        .get()
-        .then((v) => v.docs.forEach((doc) => doc.ref.delete()));
+    if (pantryRef) {
+      pantryRef.delete();
     } else {
       household.ref.collection("pantry").add({
         ingredient,
@@ -34,19 +32,21 @@ export function IngredientList({ ingredients, pantry }: Props) {
   };
 
   const inPantry = (ingredient: Ingredient) => {
-    const pantryItem = pantry.items.find((item) =>
+    const pantryItem = pantry?.items.find((item) =>
       isSameIngredient(item.ingredient, ingredient)
     );
     if (!pantryItem) {
-      return false;
+      return;
     }
     if (!pantryItem?.ingredient.qty) {
-      return true;
+      return pantryItem.ref;
     }
     if (!ingredient?.qty) {
-      return false;
+      return pantryItem.ref;
     }
-    return !!pantryItem && pantryItem.ingredient.qty >= ingredient.qty;
+    return !!pantryItem && pantryItem.ingredient.qty >= ingredient.qty
+      ? pantryItem.ref
+      : undefined;
   };
 
   return (
@@ -58,7 +58,7 @@ export function IngredientList({ ingredients, pantry }: Props) {
       {ingredients
         .map((ingredient) => ({ ingredient, inPantry: inPantry(ingredient) }))
         .sort((a, b) =>
-          a.inPantry === b.inPantry
+          !!a.inPantry === !!b.inPantry
             ? a.ingredient.type.name.localeCompare(b.ingredient.type.name)
             : a.inPantry
             ? 1
@@ -69,7 +69,7 @@ export function IngredientList({ ingredients, pantry }: Props) {
             <IngredientCard
               key={JSON.stringify(ingredient)}
               ingredient={ingredient}
-              inPantry={inPantry}
+              pantryRef={inPantry}
               onClick={() => togglePantry(inPantry, ingredient)}
             ></IngredientCard>
           );

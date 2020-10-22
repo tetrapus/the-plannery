@@ -130,4 +130,4 @@ export function denormaliseIngredient(
 }
 
 export const isSameIngredient = (a: Ingredient, b: Ingredient) =>
-  a.type.id === b.type.id && a.unit === b.unit;
+  a.type.id === b.type.id && (a.unit === b.unit || !a.unit || !b.unit);
