@@ -22,6 +22,7 @@ import { HouseholdContext } from "../../data/household";
 import firebase from "firebase";
 import { Like, LikesContext } from "../../data/likes";
 import { RecipeList } from "../organisms/RecipeList";
+import { Breakpoint } from "../styles/Breakpoint";
 
 interface State {
   mealPlan: MealPlan;
@@ -135,7 +136,12 @@ export default function HomeTemplate() {
             Downloading recipe database...
           </Stack>
         )}
-        <Stack css={{ width: "calc(50vw - 400px)" }}>
+        <Stack
+          css={{
+            width: "calc(50vw - 400px)",
+            [Breakpoint.TABLET]: { display: "none" },
+          }}
+        >
           <h2>Invites</h2>
           {doc?.invitees.map((email) => (
             <div key={email} css={{ marginBottom: 4 }}>
