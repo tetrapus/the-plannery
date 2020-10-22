@@ -31,7 +31,6 @@ export function RecipeCard({ recipe, children }: Props) {
       <Link to={`/recipes/${recipe.slug}`} className="RecipeCard">
         <Flex
           css={css(CardStyle, {
-            height: 120,
             width: 600,
             alignItems: "center",
             marginBottom: 16,
@@ -56,13 +55,24 @@ export function RecipeCard({ recipe, children }: Props) {
               width: 150,
               height: "100%",
               objectFit: "cover",
+              position: "absolute",
+              top: 0,
+              bottom: 0,
+
               [Breakpoint.MOBILE]: {
                 width: "100%",
                 height: 100,
+                position: "relative",
               },
             }}
             alt={recipe.name}
           />
+          <div
+            css={{
+              minWidth: 150,
+              [Breakpoint.MOBILE]: { display: "none" },
+            }}
+          ></div>
           <FontAwesomeIcon
             icon={faHeart}
             css={{
