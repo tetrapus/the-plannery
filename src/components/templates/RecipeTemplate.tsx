@@ -1,12 +1,12 @@
 import React from "react";
-import { Recipe } from "../../models/Recipe";
-import { css, Interpolation } from "@emotion/core";
+import { css } from "@emotion/core";
 import ReactMarkdown from "react-markdown";
 import { TagList } from "../molecules/TagList";
 import { Stack } from "../atoms/Stack";
 import { IngredientList } from "../organisms/IngredientList";
 import { RecipeStep } from "../organisms/RecipeStep";
-import Ingredient from "../../models/Ingredient";
+import { Recipe } from "../../data/recipes";
+import Ingredient from "../../data/ingredients";
 
 interface Props {
   recipe: Recipe;

@@ -1,4 +1,4 @@
-import Ingredient from "../models/Ingredient";
+import Ingredient from "./ingredients";
 
 export interface PantryItem {
   ref: firebase.firestore.DocumentReference;

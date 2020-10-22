@@ -1,7 +1,7 @@
 import { css } from "@emotion/core";
 import React from "react";
 import ReactMarkdown from "react-markdown";
-import Ingredient from "../../models/Ingredient";
+import Ingredient from "../../data/ingredients";
 import { Flex } from "../atoms/Flex";
 import { IngredientList } from "./IngredientList";
 

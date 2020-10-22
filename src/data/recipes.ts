@@ -1,10 +1,25 @@
 import SeedRandom from "seed-random";
-import Ingredient from "../models/Ingredient";
-import { IngredientType } from "../models/IngredientType";
-import { Recipe } from "../models/Recipe";
-import { RecipeStep } from "../models/RecipeStep";
 import { ExternalCollectionFactory } from "./CollectionFactory";
-import { normaliseIngredient } from "./ingredients";
+import Ingredient, { IngredientType, normaliseIngredient } from "./ingredients";
+
+export interface RecipeStep {
+  method: string;
+  images: string[];
+  ingredients: string[];
+}
+
+export interface Recipe {
+  name: string;
+  subtitle: string;
+  description: string;
+  slug: string;
+  url: string;
+  imageUrl: string;
+  ingredients: Ingredient[];
+  steps: RecipeStep[];
+  utensils: string[];
+  tags: string[];
+}
 
 export const RecipesCollection = ExternalCollectionFactory(
   "https://firebasestorage.googleapis.com/v0/b/the-plannery.appspot.com/o/recipe-data.json?alt=media&token=a1514430-d46e-4e82-9112-765f243ed627",

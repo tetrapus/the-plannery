@@ -1,4 +1,14 @@
-import Ingredient from "../models/Ingredient";
+export interface IngredientType {
+  id: string;
+  name: string;
+  imageUrl: string;
+}
+
+export default interface Ingredient {
+  type: IngredientType;
+  qty?: number;
+  unit?: string;
+}
 
 interface Amount {
   unit: string;

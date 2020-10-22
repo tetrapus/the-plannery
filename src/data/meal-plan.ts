@@ -1,6 +1,14 @@
-import Ingredient from "../models/Ingredient";
-import { MealPlan } from "../models/MealPlan";
+import Ingredient from "./ingredients";
 import { getRecipe } from "./recipes";
+
+export interface MealPlanItem {
+  ref: firebase.firestore.DocumentReference;
+  slug: string;
+  by: string;
+}
+export interface MealPlan {
+  recipes: MealPlanItem[];
+}
 
 export function getIngredientsForMealPlan(mealPlan: MealPlan): Ingredient[] {
   const ingredientTypes = {} as any;

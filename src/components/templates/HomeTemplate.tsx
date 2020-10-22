@@ -1,21 +1,24 @@
 import React, { useContext, useEffect, useState } from "react";
 import { RecipeCard } from "../molecules/RecipeCard";
-import { Recipe } from "../../models/Recipe";
 import { Stack } from "../atoms/Stack";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faTimes, faUserPlus } from "@fortawesome/free-solid-svg-icons";
 import { Flex } from "../atoms/Flex";
-import { getIngredientsForMealPlan } from "../../data/meal-plan";
+import {
+  getIngredientsForMealPlan,
+  MealPlan,
+  MealPlanItem,
+} from "../../data/meal-plan";
 import {
   getRecipe,
   getSuggestedRecipes,
+  Recipe,
   RecipesCollection,
 } from "../../data/recipes";
 import { IngredientList } from "../organisms/IngredientList";
 import { Pantry, PantryItem } from "../../data/pantry";
 import { SuggestedRecipesSection } from "../organisms/SuggestedRecipesSection";
 import { Spinner } from "../atoms/Spinner";
-import { MealPlan, MealPlanItem } from "../../models/MealPlan";
 import { HouseholdContext } from "../../data/household";
 import firebase from "firebase";
 

@@ -1,10 +1,9 @@
 import React, { useContext } from "react";
-import Ingredient from "../../models/Ingredient";
 import { Flex } from "../atoms/Flex";
 import { IngredientCard } from "../molecules/IngredientCard";
 import { css } from "@emotion/core";
 import { Pantry } from "../../data/pantry";
-import { isSameIngredient } from "../../data/ingredients";
+import Ingredient, { isSameIngredient } from "../../data/ingredients";
 import { HouseholdContext } from "../../data/household";
 import { AuthStateContext } from "../../data/auth-state";
 

@@ -2,8 +2,7 @@ import { css } from "@emotion/core";
 import { faSearch, faThumbtack } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import React from "react";
-import { denormaliseIngredient } from "../../data/ingredients";
-import Ingredient from "../../models/Ingredient";
+import Ingredient, { denormaliseIngredient } from "../../data/ingredients";
 import { Flex } from "../atoms/Flex";
 import { Stack } from "../atoms/Stack";
 

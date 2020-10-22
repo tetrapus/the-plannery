@@ -4,7 +4,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { LikesCollection } from "../../data/likes";
-import { Recipe } from "../../models/Recipe";
+import { Recipe } from "../../data/recipes";
 import { CardStyle } from "../atoms/Card";
 import { Flex } from "../atoms/Flex";
 import { Stack } from "../atoms/Stack";

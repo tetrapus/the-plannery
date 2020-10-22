@@ -1,13 +1,13 @@
 import { faPlus } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import React, { useContext } from "react";
-import { Recipe } from "../../models/Recipe";
 import { Flex } from "../atoms/Flex";
 import { RecipeCard } from "../molecules/RecipeCard";
 import { Stack } from "../atoms/Stack";
-import { MealPlan } from "../../models/MealPlan";
 import { HouseholdContext } from "../../data/household";
 import { AuthStateContext } from "../../data/auth-state";
+import { Recipe } from "../../data/recipes";
+import { MealPlan } from "../../data/meal-plan";
 
 interface Props {
   recipes: Recipe[];
