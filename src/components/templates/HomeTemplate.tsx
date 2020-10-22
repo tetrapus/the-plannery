@@ -18,11 +18,11 @@ import { IngredientList } from "../organisms/IngredientList";
 import { Pantry, PantryItem } from "../../data/pantry";
 import { SuggestedRecipesSection } from "../organisms/SuggestedRecipesSection";
 import { Spinner } from "../atoms/Spinner";
-import { HouseholdContext } from "../../data/household";
 import firebase from "firebase";
 import { Like, LikesContext } from "../../data/likes";
 import { RecipeList } from "../organisms/RecipeList";
 import { Breakpoint } from "../styles/Breakpoint";
+import { AuthStateContext } from "../../data/auth-state";
 
 interface State {
   mealPlan: MealPlan;
@@ -41,12 +41,12 @@ export default function HomeTemplate() {
   const [{ mealPlan, pantry, recipes, likes }, setState] = useState<State>(
     initialState
   );
-  const { ref, doc } = useContext(HouseholdContext);
+  const { household } = useContext(AuthStateContext);
   useEffect(() => {
     const hooks: (() => void)[] = [];
-    if (ref) {
+    if (household?.ref) {
       hooks.push(
-        ref.collection("mealplan").onSnapshot((snapshot) =>
+        household?.ref.collection("mealplan").onSnapshot((snapshot) =>
           setState((state) => ({
             ...state,
             mealPlan: {
@@ -58,7 +58,7 @@ export default function HomeTemplate() {
         )
       );
       hooks.push(
-        ref.collection("pantry").onSnapshot((snapshot) =>
+        household?.ref.collection("pantry").onSnapshot((snapshot) =>
           setState((state) => ({
             ...state,
             pantry: {
@@ -70,7 +70,7 @@ export default function HomeTemplate() {
         )
       );
       hooks.push(
-        ref.collection("likes").onSnapshot((snapshot) =>
+        household?.ref.collection("likes").onSnapshot((snapshot) =>
           setState((state) => ({
             ...state,
             likes: snapshot.docs.map(
@@ -84,7 +84,7 @@ export default function HomeTemplate() {
       setState((state) => ({ ...state, recipes: value }))
     );
     return () => hooks.forEach((hook) => hook());
-  }, [ref]);
+  }, [household?.ref]);
 
   const addUser = React.createRef<HTMLInputElement>();
 
@@ -143,7 +143,7 @@ export default function HomeTemplate() {
           }}
         >
           <h2>Invites</h2>
-          {doc?.invitees.map((email) => (
+          {household?.invitees.map((email) => (
             <div key={email} css={{ marginBottom: 4 }}>
               {email}
             </div>
@@ -155,7 +155,7 @@ export default function HomeTemplate() {
               css={{ marginLeft: 8 }}
               onClick={() => {
                 if (addUser.current) {
-                  ref?.update({
+                  household?.ref.update({
                     invitees: firebase.firestore.FieldValue.arrayUnion(
                       addUser.current?.value
                     ),

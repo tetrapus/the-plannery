@@ -9,7 +9,6 @@ import { CardStyle } from "../atoms/Card";
 import { Flex } from "../atoms/Flex";
 import { Stack } from "../atoms/Stack";
 import { Breakpoint } from "../styles/Breakpoint";
-import { HouseholdContext } from "../../data/household";
 import { AuthStateContext } from "../../data/auth-state";
 
 interface Props {
@@ -18,8 +17,7 @@ interface Props {
 }
 
 export function RecipeCard({ recipe, children }: Props) {
-  const { ref } = useContext(HouseholdContext);
-  const { currentUser } = useContext(AuthStateContext);
+  const { currentUser, household } = useContext(AuthStateContext);
   const like = useContext(LikesContext).find(
     (like) => like.slug === recipe.slug
   );
@@ -78,7 +76,7 @@ export function RecipeCard({ recipe, children }: Props) {
               if (like) {
                 like.ref.delete();
               } else {
-                ref
+                household?.ref
                   ?.collection("likes")
                   .add({ slug: recipe.slug, by: currentUser.uid });
               }

@@ -5,13 +5,11 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faUserPlus, faUtensils } from "@fortawesome/free-solid-svg-icons";
 import { AuthStateContext } from "../../data/auth-state";
 import { db } from "../../init/firebase";
-import { HouseholdContext } from "../../data/household";
 import { Spinner } from "../atoms/Spinner";
 import firebase from "firebase";
 
 export function GetStartedTemplate() {
-  const { currentUser } = useContext(AuthStateContext);
-  const { doc } = useContext(HouseholdContext);
+  const { currentUser, household } = useContext(AuthStateContext);
   const [{ invitations }, setState] = useState({
     invitations: [] as firebase.firestore.QueryDocumentSnapshot[],
   });
@@ -25,7 +23,7 @@ export function GetStartedTemplate() {
       .then((response) => setState({ invitations: response.docs }));
   }, [currentUser]);
 
-  if (doc === undefined) {
+  if (household === undefined) {
     return <Spinner />;
   }
 

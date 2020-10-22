@@ -5,44 +5,80 @@ import { BrowserRouter as Router, Switch, Route } from "react-router-dom";
 import HomePage from "./pages/HomePage";
 import NavigationBar from "./components/organisms/NavigationBar";
 import firebase from "firebase";
-import { initFirebase } from "./init/firebase";
-import { AuthStateContext } from "./data/auth-state";
+import { db, initFirebase } from "./init/firebase";
+import { AuthStateContext, Household } from "./data/auth-state";
 import { Stack } from "./components/atoms/Stack";
+import { Spinner } from "./components/atoms/Spinner";
+import { LoggedOutTemplate } from "./components/templates/LoggedOutTemplate";
+import { GetStartedTemplate } from "./components/templates/GetStartedTemplate";
 
 interface State {
-  isSignedIn?: boolean;
+  currentUser?: any;
+  household?: Household | null;
 }
 
 initFirebase();
 
 function App() {
-  const [{ isSignedIn }, setState] = useState<State>({});
+  const [{ currentUser, household }, setState] = useState<State>({});
+
   useEffect(
     () =>
       firebase
         .auth()
-        .onAuthStateChanged((user) => setState({ isSignedIn: !!user })),
+        .onAuthStateChanged((user) =>
+          setState((state) => ({ ...state, currentUser: user }))
+        ),
+
     []
   );
+
+  useEffect(() => {
+    if (!currentUser) {
+      return;
+    }
+    return db
+      .collection("household")
+      .where("members", "array-contains", currentUser?.uid)
+      .onSnapshot((querySnapshot) => {
+        const household = querySnapshot.docs.length
+          ? ({
+              id: querySnapshot.docs[0].id,
+              ...querySnapshot.docs[0].data(),
+              ref: querySnapshot.docs[0].ref,
+            } as Household)
+          : null;
+        setState((state) => ({ ...state, household }));
+      });
+  }, [currentUser]);
 
   return (
     <AuthStateContext.Provider
       value={{
-        loading: isSignedIn === undefined,
-        currentUser: firebase.auth().currentUser,
+        loading: currentUser === undefined,
+        currentUser: currentUser,
+        household,
       }}
     >
       <Router>
         <Stack css={{ minHeight: "100vh" }}>
           <NavigationBar></NavigationBar>
-          <Switch>
-            <Route path="/recipes/:slug">
-              <RecipePage></RecipePage>
-            </Route>
-            <Route path="/">
-              <HomePage></HomePage>
-            </Route>
-          </Switch>
+          {currentUser === undefined ? (
+            <Spinner />
+          ) : !currentUser ? (
+            <LoggedOutTemplate />
+          ) : !household ? (
+            <GetStartedTemplate />
+          ) : (
+            <Switch>
+              <Route path="/recipes/:slug">
+                <RecipePage></RecipePage>
+              </Route>
+              <Route path="/">
+                <HomePage></HomePage>
+              </Route>
+            </Switch>
+          )}
         </Stack>
       </Router>
     </AuthStateContext.Provider>

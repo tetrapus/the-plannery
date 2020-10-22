@@ -4,7 +4,6 @@ import { IngredientCard } from "../molecules/IngredientCard";
 import { css } from "@emotion/core";
 import { Pantry } from "../../data/pantry";
 import Ingredient, { isSameIngredient } from "../../data/ingredients";
-import { HouseholdContext } from "../../data/household";
 import { AuthStateContext } from "../../data/auth-state";
 
 interface Props {
@@ -13,22 +12,21 @@ interface Props {
 }
 
 export function IngredientList({ ingredients, pantry }: Props) {
-  const { ref } = useContext(HouseholdContext);
-  const { currentUser } = useContext(AuthStateContext);
+  const { currentUser, household } = useContext(AuthStateContext);
 
   const togglePantry = (inPantry: boolean, ingredient: Ingredient) => {
-    if (!ref) {
+    if (!household?.ref) {
       return;
     }
     if (inPantry) {
-      ref
+      household.ref
         .collection("pantry")
         .where("ingredient.type.id", "==", ingredient.type.id)
         .where("ingredient.unit", "==", ingredient.unit)
         .get()
         .then((v) => v.docs.forEach((doc) => doc.ref.delete()));
     } else {
-      ref.collection("pantry").add({
+      household.ref.collection("pantry").add({
         ingredient,
         by: currentUser.uid,
       });

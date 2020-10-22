@@ -1,6 +1,5 @@
 import { faPlus } from "@fortawesome/free-solid-svg-icons";
 import React, { useContext } from "react";
-import { HouseholdContext } from "../../data/household";
 import { AuthStateContext } from "../../data/auth-state";
 import { Recipe } from "../../data/recipes";
 import { MealPlan } from "../../data/meal-plan";
@@ -12,8 +11,7 @@ interface Props {
 }
 
 export function SuggestedRecipesSection({ recipes, mealPlan }: Props) {
-  const { ref } = useContext(HouseholdContext);
-  const { currentUser } = useContext(AuthStateContext);
+  const { currentUser, household } = useContext(AuthStateContext);
   const suggestedRecipes = recipes.filter(
     (recipe) => !mealPlan.recipes.find((r) => r.slug === recipe.slug)
   );
@@ -30,8 +28,8 @@ export function SuggestedRecipesSection({ recipes, mealPlan }: Props) {
           {
             icon: faPlus,
             onClick: (recipe) => () =>
-              ref
-                ?.collection("mealplan")
+              household?.ref
+                .collection("mealplan")
                 .add({ slug: recipe.slug, by: currentUser.uid }),
           },
         ]}
