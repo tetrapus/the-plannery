@@ -1,7 +1,12 @@
 import React, { useContext, useEffect, useState } from "react";
 import { Stack } from "../atoms/Stack";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faTimes, faUserPlus } from "@fortawesome/free-solid-svg-icons";
+import {
+  faCogs,
+  faPlus,
+  faTimes,
+  faUserPlus,
+} from "@fortawesome/free-solid-svg-icons";
 import { Flex } from "../atoms/Flex";
 import {
   getIngredientsForMealPlan,
@@ -10,25 +15,32 @@ import {
 } from "../../data/meal-plan";
 import {
   getRecipe,
+  getRecipes,
   getSuggestedRecipes,
   Recipe,
   RecipesCollection,
 } from "../../data/recipes";
 import { IngredientList } from "../organisms/IngredientList";
 import { Pantry, PantryItem } from "../../data/pantry";
-import { SuggestedRecipesSection } from "../organisms/SuggestedRecipesSection";
 import { Spinner } from "../atoms/Spinner";
 import firebase from "firebase";
 import { Like, LikesContext } from "../../data/likes";
 import { RecipeList } from "../organisms/RecipeList";
 import { Breakpoint } from "../styles/Breakpoint";
 import { AuthStateContext } from "../../data/auth-state";
+import { TextInput } from "../atoms/TextInput";
+import Select, { OptionsType, OptionTypeBase } from "react-select";
+import { ToggleButton } from "../atoms/ToggleButton";
+import { useStateObject } from "../../data/StateObject";
 
 interface State {
   mealPlan: MealPlan;
   pantry: Pantry;
   recipes: any[];
   likes: Like[];
+  ingredientFilter: string[];
+  ingredientBoosts: string[];
+  usePantry: boolean;
 }
 
 export default function HomeTemplate() {
@@ -37,11 +49,24 @@ export default function HomeTemplate() {
     pantry: { items: [] },
     recipes: RecipesCollection.initialState,
     likes: [],
+    ingredientFilter: [],
+    ingredientBoosts: [],
+    usePantry: true,
   };
-  const [{ mealPlan, pantry, recipes, likes }, setState] = useState<State>(
-    initialState
-  );
-  const { household } = useContext(AuthStateContext);
+  const [
+    {
+      mealPlan,
+      pantry,
+      recipes,
+      likes,
+      ingredientFilter,
+      usePantry,
+      ingredientBoosts,
+    },
+    setState,
+  ] = useState<State>(initialState);
+  const showFiltersState = useStateObject<boolean>(false);
+  const { household, currentUser } = useContext(AuthStateContext);
   useEffect(() => {
     const hooks: (() => void)[] = [];
     if (household?.ref) {
@@ -125,10 +150,90 @@ export default function HomeTemplate() {
                 />
               </>
             ) : null}
-            <SuggestedRecipesSection
-              recipes={getSuggestedRecipes()}
-              mealPlan={mealPlan}
-            />
+            <div>
+              <h1>
+                Suggested for you
+                <FontAwesomeIcon
+                  icon={faCogs}
+                  css={{ color: "grey", fontSize: 24, marginLeft: 8 }}
+                  onClick={() => showFiltersState.set((state) => !state)}
+                />
+              </h1>
+              {showFiltersState.value ? (
+                <div css={{ position: "relative" }}>
+                  <ToggleButton
+                    css={{ marginBottom: 8 }}
+                    value={usePantry}
+                    onChange={(value) =>
+                      setState((state) => ({ ...state, usePantry: value }))
+                    }
+                  >
+                    Use up pantry items
+                  </ToggleButton>
+                  <Select
+                    isMulti
+                    placeholder="Suggest recipes that use..."
+                    css={{ marginBottom: 16, maxWidth: 600 }}
+                    options={Object.values(
+                      Object.fromEntries(
+                        getRecipes()
+                          .map((recipe) => recipe.ingredients)
+                          .flat()
+                          .map((ingredient) => [ingredient.type.id, ingredient])
+                      )
+                    ).map((ingredient) => ({
+                      value: ingredient.type.id,
+                      label: (
+                        <Flex css={{ alignItems: "center" }}>
+                          <img
+                            src={ingredient.type.imageUrl}
+                            css={{ height: 16, marginRight: 8 }}
+                            alt=""
+                          />
+                          {ingredient.type.name}
+                        </Flex>
+                      ),
+                    }))}
+                    onChange={(options) =>
+                      setState((state) => ({
+                        ...state,
+                        ingredientBoosts: ((options || []) as OptionsType<
+                          OptionTypeBase
+                        >).map((option) => option.value),
+                      }))
+                    }
+                  ></Select>
+                </div>
+              ) : null}
+              <RecipeList
+                recipes={getSuggestedRecipes(
+                  {
+                    likes,
+                    ingredients: [
+                      ...(usePantry
+                        ? pantry.items
+                            .filter(
+                              (item) =>
+                                item.ingredient.unit || item.ingredient.qty
+                            )
+                            .map((item) => item.ingredient.type.id)
+                        : []),
+                      ...ingredientBoosts,
+                    ],
+                  },
+                  { mealPlan, ingredients: ingredientFilter }
+                )}
+                actions={[
+                  {
+                    icon: faPlus,
+                    onClick: (recipe) => () =>
+                      household?.ref
+                        .collection("mealplan")
+                        .add({ slug: recipe.slug, by: currentUser.uid }),
+                  },
+                ]}
+              ></RecipeList>
+            </div>
           </Stack>
         ) : (
           <Stack css={{ width: 800, marginLeft: "auto", alignItems: "center" }}>
@@ -149,7 +254,7 @@ export default function HomeTemplate() {
             </div>
           ))}
           <Flex>
-            <input placeholder="Invite by email" ref={addUser}></input>
+            <TextInput placeholder="Invite by email" ref={addUser}></TextInput>
             <FontAwesomeIcon
               icon={faUserPlus}
               css={{ marginLeft: 8 }}

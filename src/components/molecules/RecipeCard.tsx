@@ -32,6 +32,7 @@ export function RecipeCard({ recipe, children }: Props) {
         <Flex
           css={css(CardStyle, {
             width: 600,
+            minHeight: 125,
             alignItems: "center",
             marginBottom: 16,
             position: "relative",
@@ -103,6 +104,7 @@ export function RecipeCard({ recipe, children }: Props) {
               top: 8,
               ".RecipeCard:not(:hover) &": { display: "none" },
             }}
+            onClick={(e) => e.stopPropagation()}
           />
           <Stack
             css={{

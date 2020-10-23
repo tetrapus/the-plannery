@@ -1,6 +1,8 @@
 import SeedRandom from "seed-random";
 import { ExternalCollectionFactory } from "./CollectionFactory";
 import Ingredient, { IngredientType, normaliseIngredient } from "./ingredients";
+import { Like } from "./likes";
+import { MealPlan } from "./meal-plan";
 
 export interface RecipeStep {
   method: string;
@@ -59,27 +61,67 @@ const getWeek = function (date: Date) {
   return Math.ceil(dayOfYear / 7);
 };
 
-export function getSuggestedRecipes() {
-  const recipes = getRecipes();
+interface RecommendationFactors {
+  likes: Like[];
+  ingredients: string[];
+}
+
+interface RecommendationFilter {
+  mealPlan?: MealPlan;
+  ingredients?: string[];
+}
+
+export function getSuggestedRecipes(
+  { likes, ingredients }: RecommendationFactors,
+  filter: RecommendationFilter
+) {
+  let recipes = getRecipes();
   const random = SeedRandom(
     `${getWeek(new Date())}:${new Date().getFullYear()}`
   );
-  const randint = (x: number, y: number) =>
-    Math.floor(random() * (y - x + 1) + x);
-  const floyd = (list: any[], k: number) => {
-    const result: number[] = [];
-    const y = list.length;
-    for (let i = 0; i < Math.min(k, y); i++) {
-      const draw = randint(0, y - k + i + 1);
-      if (result.includes(draw)) {
-        result.push(y - k + i + 1);
-      } else {
-        result.push(draw);
-      }
-    }
-    return result.map((idx) => list[idx]);
-  };
-  return floyd(recipes, 10);
+  let maxMatch = 0;
+  if (filter.mealPlan) {
+    const planItems = new Set(
+      filter.mealPlan.recipes.map((recipe) => recipe.slug)
+    );
+    recipes = recipes.filter((recipe) => !planItems.has(recipe.slug));
+  }
+  if (filter.ingredients && filter.ingredients.length) {
+    const ingredientFilter = new Set(filter.ingredients);
+    recipes = recipes.filter((recipe) =>
+      recipe.ingredients.find((ingredient) =>
+        ingredientFilter.has(ingredient.type.id)
+      )
+    );
+  }
+  const boostItems = new Set(ingredients);
+  const pantryMatches = recipes.map((recipe) => {
+    const matchCount = recipe.ingredients.filter((ingredient) =>
+      boostItems.has(ingredient.type.id)
+    ).length;
+    maxMatch = Math.max(matchCount, maxMatch);
+    return {
+      recipe,
+      matchCount,
+    };
+  });
+
+  const scoredRecipes = pantryMatches.map(({ recipe, matchCount }) => {
+    const roll = random();
+    return {
+      recipe,
+      score:
+        roll +
+        (likes.find((like) => recipe.slug === like.slug) ? 0.1 : 0) +
+        0.1 * (maxMatch ? matchCount / maxMatch : 0),
+      order: roll,
+    };
+  });
+  return scoredRecipes
+    .sort((a, b) => b.score - a.score)
+    .slice(0, 10)
+    .sort((a, b) => b.order - a.order)
+    .map(({ recipe }) => recipe);
 }
 
 export function getRecipe(slug: string) {
