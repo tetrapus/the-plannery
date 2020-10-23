@@ -31,7 +31,6 @@ import { AuthStateContext } from "../../data/auth-state";
 import { TextInput } from "../atoms/TextInput";
 import Select, { OptionsType, OptionTypeBase } from "react-select";
 import { ToggleButton } from "../atoms/ToggleButton";
-import { useStateObject } from "../../data/StateObject";
 
 interface State {
   mealPlan: MealPlan;
@@ -65,7 +64,7 @@ export default function HomeTemplate() {
     },
     setState,
   ] = useState<State>(initialState);
-  const showFiltersState = useStateObject<boolean>(false);
+  const [showFilters, setShowFilters] = useState<boolean>(false);
   const { household, currentUser } = useContext(AuthStateContext);
   useEffect(() => {
     const hooks: (() => void)[] = [];
@@ -156,10 +155,10 @@ export default function HomeTemplate() {
                 <FontAwesomeIcon
                   icon={faCogs}
                   css={{ color: "grey", fontSize: 24, marginLeft: 8 }}
-                  onClick={() => showFiltersState.set((state) => !state)}
+                  onClick={() => setShowFilters((state) => !state)}
                 />
               </h1>
-              {showFiltersState.value ? (
+              {showFilters ? (
                 <div css={{ position: "relative" }}>
                   <ToggleButton
                     css={{ marginBottom: 8 }}
