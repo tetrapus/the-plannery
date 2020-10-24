@@ -9,9 +9,10 @@ import { AuthStateContext } from "../../data/auth-state";
 interface Props {
   ingredients: Ingredient[];
   pantry?: Pantry;
+  [key: string]: any;
 }
 
-export function IngredientList({ ingredients, pantry }: Props) {
+export function IngredientList({ ingredients, pantry, ...rest }: Props) {
   const { currentUser, household } = useContext(AuthStateContext);
 
   const togglePantry = async (
@@ -54,6 +55,7 @@ export function IngredientList({ ingredients, pantry }: Props) {
       css={css`
         flex-wrap: wrap;
       `}
+      {...rest}
     >
       {ingredients
         .map((ingredient) => ({ ingredient, inPantry: inPantry(ingredient) }))

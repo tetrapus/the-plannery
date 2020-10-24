@@ -10,6 +10,8 @@ import Ingredient from "../../data/ingredients";
 import { AuthStateContext } from "../../data/auth-state";
 import { Pantry, PantryItem } from "../../data/pantry";
 import { LikeButton } from "../molecules/LikeButton";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faThumbtack } from "@fortawesome/free-solid-svg-icons";
 
 interface Props {
   recipe: Recipe;
@@ -22,6 +24,7 @@ interface State {
 export default function RecipeTemplate({ recipe }: Props) {
   const { household } = useContext(AuthStateContext);
   const [{ pantry }, setState] = useState<State>({});
+  const [pinIngredients, setPinIngredients] = useState<boolean>(false);
 
   useEffect(
     () =>
@@ -81,8 +84,31 @@ export default function RecipeTemplate({ recipe }: Props) {
 
         <ReactMarkdown>{recipe.description}</ReactMarkdown>
         <TagList items={recipe.tags}></TagList>
-        <h2>Ingredients</h2>
-        <IngredientList ingredients={recipe.ingredients} pantry={pantry} />
+        {!pinIngredients ? (
+          <h2>
+            Ingredients{" "}
+            <FontAwesomeIcon
+              icon={faThumbtack}
+              css={{ color: "grey", marginLeft: 8 }}
+              onClick={() => setPinIngredients((state) => !state)}
+            />
+          </h2>
+        ) : null}
+        <IngredientList
+          ingredients={recipe.ingredients}
+          pantry={pantry}
+          css={
+            pinIngredients
+              ? {
+                  position: "fixed",
+                  top: 0,
+                  background: "white",
+                  left: 0,
+                  zIndex: 100,
+                }
+              : {}
+          }
+        />
         <h2>Utensils</h2>
         <TagList items={recipe.utensils}></TagList>
         <h2>Method</h2>
