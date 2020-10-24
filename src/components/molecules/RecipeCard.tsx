@@ -101,6 +101,17 @@ export function RecipeCard({ recipe, children }: Props) {
           >
             <div css={{ fontSize: 28, fontWeight: "bold" }}>{recipe.name}</div>
             <div css={{ fontSize: 24 }}>{recipe.subtitle}</div>
+            <div
+              css={{
+                color: "grey",
+                fontStyle: "italic",
+                position: "absolute",
+                bottom: 8,
+                right: 8,
+              }}
+            >
+              {recipe.serves} serves
+            </div>
           </Stack>
           <div
             css={{

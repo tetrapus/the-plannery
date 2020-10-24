@@ -21,6 +21,7 @@ export interface Recipe {
   steps: RecipeStep[];
   utensils: string[];
   tags: string[];
+  serves: number;
 }
 
 export const RecipesCollection = ExternalCollectionFactory<any[] | undefined>(
@@ -33,23 +34,28 @@ export function getRecipes(): Recipe[] | undefined {
   if (recipes === undefined) {
     return undefined;
   }
-  return recipes.filter(isValidRecipe).map((item: any) => ({
-    name: item.name,
-    subtitle: item.headline,
-    description: item.descriptionMarkdown,
-    slug: item.slug,
-    url: `https://www.hellofresh.com.au/recipes/${item.slug}-${item.id}`,
-    imageUrl: item.imagePath
-      ? `https://img.hellofresh.com/hellofresh_s3${item.imagePath}`
-      : "https://source.unsplash.com/featured/?ingredients",
-    ingredients: getIngredients(
-      item.yields.find((yields: any) => yields.yields === 4)?.ingredients,
-      item.ingredients
-    ),
-    steps: item.steps.map(getRecipeStep),
-    utensils: item.utensils.map((utensil: any) => utensil.name),
-    tags: [...item.cuisines, ...item.tags].map((tag) => tag.name),
-  }));
+
+  return recipes.filter(isValidRecipe).map((item: any) => {
+    let yields = item.yields.find((yields: any) => yields.yields === 4);
+    if (!yields) {
+      yields = item.yields[0];
+    }
+    return {
+      name: item.name,
+      subtitle: item.headline,
+      description: item.descriptionMarkdown,
+      slug: item.slug,
+      url: `https://www.hellofresh.com.au/recipes/${item.slug}-${item.id}`,
+      imageUrl: item.imagePath
+        ? `https://img.hellofresh.com/hellofresh_s3${item.imagePath}`
+        : "https://source.unsplash.com/featured/?ingredients",
+      ingredients: getIngredients(yields.ingredients, item.ingredients),
+      serves: yields.yields,
+      steps: item.steps.map(getRecipeStep),
+      utensils: item.utensils.map((utensil: any) => utensil.name),
+      tags: [...item.cuisines, ...item.tags].map((tag) => tag.name),
+    };
+  });
 }
 
 const getWeek = function (date: Date) {
@@ -138,7 +144,9 @@ export function getRecipe(slug: string) {
 }
 
 function isValidRecipe(recipe: any) {
-  return recipe.ingredients.length && recipe.steps.length;
+  return (
+    recipe.ingredients.length && recipe.steps.length && recipe.yields.length
+  );
 }
 
 function getRecipeStep(step: any): RecipeStep {
