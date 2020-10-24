@@ -18,7 +18,16 @@ interface Props {
 
 export function RecipeList({ recipes, actions }: Props) {
   return (
-    <Stack css={{ [Breakpoint.TABLET]: { alignItems: "center" } }}>
+    <Stack
+      css={{
+        [Breakpoint.TABLET]: { alignItems: "center", width: "100%" },
+        [Breakpoint.MOBILE]: {
+          flexDirection: "row",
+          flexWrap: "wrap",
+          alignItems: "stretch",
+        },
+      }}
+    >
       {recipes.map((recipe) => {
         return (
           <RecipeCard
@@ -26,7 +35,7 @@ export function RecipeList({ recipes, actions }: Props) {
             key={recipe.slug}
             css={{
               marginBottom: 16,
-              [Breakpoint.TABLET_ONLY]: {
+              [Breakpoint.TABLET]: {
                 marginBottom: 0,
               },
             }}
@@ -37,7 +46,17 @@ export function RecipeList({ recipes, actions }: Props) {
                 marginLeft: 42,
                 color: "grey",
                 height: "100%",
-                [Breakpoint.MOBILE]: { margin: 8 },
+                [Breakpoint.TABLET_ONLY]: {
+                  marginLeft: 16,
+                  flexDirection: "row",
+                  width: 100,
+                },
+
+                [Breakpoint.MOBILE]: {
+                  margin: "auto",
+                  flexDirection: "row",
+                  width: "66%",
+                },
               }}
             >
               {actions.map((action, idx) => (

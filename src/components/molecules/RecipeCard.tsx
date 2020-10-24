@@ -26,7 +26,17 @@ export function RecipeCard({ recipe, children, ...rest }: Props) {
 
   return (
     <Flex {...rest}>
-      <Link to={`/recipes/${recipe.slug}`} className="RecipeCard">
+      <Link
+        to={`/recipes/${recipe.slug}`}
+        className="RecipeCard"
+        css={{
+          [Breakpoint.MOBILE]: {
+            width: "45vw",
+            margin: "2.5vw",
+            minWidth: 125,
+          },
+        }}
+      >
         <Flex
           css={css(CardStyle, {
             width: 600,
@@ -34,13 +44,16 @@ export function RecipeCard({ recipe, children, ...rest }: Props) {
             alignItems: "center",
             position: "relative",
 
-            [Breakpoint.TABLET]: {
+            [Breakpoint.TABLET_ONLY]: {
               width: "100vw",
+              boxShadow: "none",
+              borderRadius: 0,
+              borderBottom: "1px solid #eee",
             },
 
             [Breakpoint.MOBILE]: {
               flexDirection: "column",
-              height: "auto",
+              height: "100%",
               width: "100%",
             },
           })}
@@ -76,6 +89,7 @@ export function RecipeCard({ recipe, children, ...rest }: Props) {
               left: 4,
               bottom: 4,
               ".RecipeCard:not(:hover) &": like ? {} : { display: "none" },
+              [Breakpoint.MOBILE]: { top: 80 },
             }}
           />
           <FontAwesomeIcon
@@ -91,14 +105,22 @@ export function RecipeCard({ recipe, children, ...rest }: Props) {
           />
           <Stack
             css={{
-              padding: 12,
-              margin: "auto",
+              padding: "12px 4px",
+              margin: "8px auto",
               alignItems: "center",
               textAlign: "center",
+              fontSize: 24,
+              [Breakpoint.MOBILE]: {
+                padding: "8px 2px",
+                margin: "auto",
+                fontSize: 16,
+              },
             }}
           >
-            <div css={{ fontSize: 28, fontWeight: "bold" }}>{recipe.name}</div>
-            <div css={{ fontSize: 24 }}>{recipe.subtitle}</div>
+            <div css={{ fontSize: "1.25em", fontWeight: "bold" }}>
+              {recipe.name}
+            </div>
+            <div css={{ fontSize: "1em" }}>{recipe.subtitle}</div>
             <div
               css={{
                 color: "grey",
@@ -106,6 +128,7 @@ export function RecipeCard({ recipe, children, ...rest }: Props) {
                 position: "absolute",
                 bottom: 8,
                 right: 8,
+                fontSize: 14,
               }}
             >
               {recipe.serves} serves
@@ -115,6 +138,11 @@ export function RecipeCard({ recipe, children, ...rest }: Props) {
             css={{
               display: "none",
               [Breakpoint.TABLET]: { display: "inherit" },
+              [Breakpoint.MOBILE]: {
+                flexDirection: "row",
+                width: "50vw",
+                marginBottom: 24,
+              },
             }}
           >
             {children}
