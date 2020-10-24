@@ -1,9 +1,9 @@
 import { faUserPlus } from "@fortawesome/free-solid-svg-icons";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import firebase from "firebase";
 import React, { useContext } from "react";
 import { AuthStateContext } from "../../data/auth-state";
 import { Flex } from "../atoms/Flex";
+import { IconButton } from "../atoms/IconButton";
 import { TextInput } from "../atoms/TextInput";
 
 export function InviteSection() {
@@ -19,11 +19,10 @@ export function InviteSection() {
           {email}
         </div>
       ))}
-      <Flex>
+      <Flex css={{ alignItems: "center" }}>
         <TextInput placeholder="Invite by email" ref={addUserRef}></TextInput>
-        <FontAwesomeIcon
+        <IconButton
           icon={faUserPlus}
-          css={{ marginLeft: 8 }}
           onClick={() => {
             if (addUserRef.current) {
               household?.ref.update({

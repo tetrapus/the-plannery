@@ -1,6 +1,5 @@
 import React, { useContext, useEffect, useState } from "react";
 import { Stack } from "../atoms/Stack";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faCogs, faPlus } from "@fortawesome/free-solid-svg-icons";
 import { Flex } from "../atoms/Flex";
 import { MealPlan, MealPlanItem } from "../../data/meal-plan";
@@ -21,6 +20,7 @@ import { ToggleButton } from "../atoms/ToggleButton";
 import { MealPlanSection } from "../organisms/MealPlanSection";
 import { ShoppingListSection } from "../organisms/ShoppingListSection";
 import { InviteSection } from "../organisms/InviteSection";
+import { IconButton } from "../atoms/IconButton";
 
 interface State {
   mealPlan: MealPlan;
@@ -105,9 +105,8 @@ export default function HomeTemplate() {
           <div>
             <h1>
               Suggested for you
-              <FontAwesomeIcon
+              <IconButton
                 icon={faCogs}
-                css={{ color: "grey", fontSize: 24, marginLeft: 8 }}
                 onClick={() => setShowFilters((state) => !state)}
               />
             </h1>

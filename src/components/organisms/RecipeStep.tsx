@@ -50,11 +50,11 @@ export function RecipeStep({
       <h1
         css={{
           position: "absolute",
-          left: -48,
+          left: -56,
           margin: 0,
 
           [Breakpoint.TABLET]: {
-            left: 4,
+            left: -12,
           },
         }}
       >

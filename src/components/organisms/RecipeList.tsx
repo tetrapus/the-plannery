@@ -1,10 +1,10 @@
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import React from "react";
 import { RecipeCard } from "../molecules/RecipeCard";
 import { Stack } from "../atoms/Stack";
 import { Recipe } from "../../data/recipes";
 import { IconProp } from "@fortawesome/fontawesome-svg-core";
 import { Breakpoint } from "../styles/Breakpoint";
+import { IconButton } from "../atoms/IconButton";
 
 interface Action {
   icon: IconProp;
@@ -41,7 +41,7 @@ export function RecipeList({ recipes, actions }: Props) {
               }}
             >
               {actions.map((action, idx) => (
-                <FontAwesomeIcon
+                <IconButton
                   key={idx}
                   icon={action.icon}
                   onClick={action.onClick(recipe)}

@@ -10,9 +10,15 @@ import Ingredient from "../../data/ingredients";
 import { AuthStateContext } from "../../data/auth-state";
 import { Pantry, PantryItem } from "../../data/pantry";
 import { LikeButton } from "../molecules/LikeButton";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faPlayCircle, faStopCircle } from "@fortawesome/free-solid-svg-icons";
+import {
+  faChevronDown,
+  faChevronUp,
+  faPlayCircle,
+  faStopCircle,
+} from "@fortawesome/free-solid-svg-icons";
 import firebase from "firebase";
+import { Flex } from "../atoms/Flex";
+import { IconButton } from "../atoms/IconButton";
 
 interface Props {
   recipe: Recipe;
@@ -38,6 +44,9 @@ export default function RecipeTemplate({ recipe }: Props) {
   const [{ pantry }, setState] = useState<State>({});
   const [session, setSession] = useState<Session | undefined>();
   const [users, setUsers] = useState<any>({});
+  const [ingredientsExpanded, setIngredientsExpanded] = useState<boolean>(
+    false
+  );
 
   useEffect(
     () =>
@@ -127,8 +136,8 @@ export default function RecipeTemplate({ recipe }: Props) {
         <ReactMarkdown>{recipe.description}</ReactMarkdown>
         <TagList items={recipe.tags}></TagList>
         {!session ? <h2>Ingredients</h2> : null}
-        <div
-          css={
+        <Flex
+          css={css(
             session
               ? {
                   position: "fixed",
@@ -137,28 +146,42 @@ export default function RecipeTemplate({ recipe }: Props) {
                   left: 0,
                   zIndex: 100,
                   borderBottom: "1px solid grey",
+                  overflow: "scroll",
+                  width: "100vw",
                 }
-              : {}
-          }
+              : {},
+            { alignItems: "center" }
+          )}
         >
-          <IngredientList ingredients={recipe.ingredients} pantry={pantry} />
-        </div>
+          {session ? (
+            <IconButton
+              icon={ingredientsExpanded ? faChevronUp : faChevronDown}
+              onClick={() => setIngredientsExpanded((value) => !value)}
+            />
+          ) : null}
+          <IngredientList
+            ingredients={recipe.ingredients}
+            pantry={pantry}
+            css={session && !ingredientsExpanded ? { flexWrap: "nowrap" } : {}}
+          />
+        </Flex>
         <h2>Utensils</h2>
         <TagList items={recipe.utensils}></TagList>
         <h2>
-          Method{" "}
-          <FontAwesomeIcon
-            icon={session ? faStopCircle : faPlayCircle}
-            css={{ marginLeft: 8 }}
-            onClick={() =>
-              session
-                ? session.ref.delete()
-                : household.ref
-                    .collection("sessions")
-                    .doc(recipe.slug)
-                    .set({ ...insertMeta, steps: {} })
-            }
-          />
+          <Flex>
+            Method
+            <IconButton
+              icon={session ? faStopCircle : faPlayCircle}
+              onClick={() =>
+                session
+                  ? session.ref.delete()
+                  : household.ref
+                      .collection("sessions")
+                      .doc(recipe.slug)
+                      .set({ ...insertMeta, steps: {} })
+              }
+            />
+          </Flex>
         </h2>
         <div>
           {recipe.steps.map((step, idx) => (
