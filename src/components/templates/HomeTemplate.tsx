@@ -89,13 +89,15 @@ export default function HomeTemplate() {
   }, [household]);
 
   return (
-    <Flex>
+    <Flex css={{ margin: "auto" }}>
       {recipes ? (
         <Stack
           css={{
             maxWidth: 800,
-            marginLeft: "auto",
             placeItems: "flex-start",
+            [Breakpoint.DESKTOP]: {
+              marginLeft: "auto",
+            },
           }}
         >
           <MealPlanSection mealPlan={mealPlan} />
@@ -196,6 +198,7 @@ export default function HomeTemplate() {
       <Stack
         css={{
           width: "calc(50vw - 400px)",
+          marginLeft: 16,
           [Breakpoint.TABLET]: { display: "none" },
         }}
       >

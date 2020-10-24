@@ -14,9 +14,10 @@ import { LikeButton } from "./LikeButton";
 interface Props {
   recipe: Recipe;
   children: React.ReactNode;
+  [key: string]: any;
 }
 
-export function RecipeCard({ recipe, children }: Props) {
+export function RecipeCard({ recipe, children, ...rest }: Props) {
   const like = useContext(LikesContext);
 
   if (!recipe) {
@@ -24,26 +25,23 @@ export function RecipeCard({ recipe, children }: Props) {
   }
 
   return (
-    <Flex>
+    <Flex {...rest}>
       <Link to={`/recipes/${recipe.slug}`} className="RecipeCard">
         <Flex
           css={css(CardStyle, {
             width: 600,
             minHeight: 125,
             alignItems: "center",
-            marginBottom: 16,
             position: "relative",
 
             [Breakpoint.TABLET]: {
               width: "100vw",
-              marginBottom: 0,
             },
 
             [Breakpoint.MOBILE]: {
               flexDirection: "column",
               height: "auto",
               width: "100%",
-              marginBottom: 16,
             },
           })}
         >

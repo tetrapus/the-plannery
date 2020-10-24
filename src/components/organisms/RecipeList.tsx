@@ -21,12 +21,22 @@ export function RecipeList({ recipes, actions }: Props) {
     <Stack css={{ [Breakpoint.TABLET]: { alignItems: "center" } }}>
       {recipes.map((recipe) => {
         return (
-          <RecipeCard recipe={recipe} key={recipe.slug}>
+          <RecipeCard
+            recipe={recipe}
+            key={recipe.slug}
+            css={{
+              marginBottom: 16,
+              [Breakpoint.TABLET_ONLY]: {
+                marginBottom: 0,
+              },
+            }}
+          >
             <Stack
               css={{
                 fontSize: 36,
-                margin: 42,
+                marginLeft: 42,
                 color: "grey",
+                height: "100%",
                 [Breakpoint.MOBILE]: { margin: 8 },
               }}
             >
@@ -35,6 +45,7 @@ export function RecipeList({ recipes, actions }: Props) {
                   key={idx}
                   icon={action.icon}
                   onClick={action.onClick(recipe)}
+                  css={{ margin: "auto" }}
                 />
               ))}
             </Stack>

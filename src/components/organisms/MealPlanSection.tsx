@@ -1,5 +1,6 @@
-import { faTimes } from "@fortawesome/free-solid-svg-icons";
-import React from "react";
+import { faCheck, faTimes } from "@fortawesome/free-solid-svg-icons";
+import React, { useContext } from "react";
+import { AuthStateContext } from "../../data/auth-state";
 import { MealPlan } from "../../data/meal-plan";
 import { getRecipe, Recipe } from "../../data/recipes";
 import { RecipeList } from "./RecipeList";
@@ -9,6 +10,7 @@ interface Props {
 }
 
 export function MealPlanSection({ mealPlan }: Props) {
+  const { household, insertMeta } = useContext(AuthStateContext);
   if (!mealPlan.recipes.length) {
     return null;
   }
@@ -26,6 +28,18 @@ export function MealPlanSection({ mealPlan }: Props) {
               mealPlan.recipes
                 .find((mealPlanItem) => mealPlanItem.slug === recipe.slug)
                 ?.ref.delete(),
+          },
+          {
+            icon: faCheck,
+            onClick: (recipe) => () => {
+              household?.ref
+                .collection("history")
+                .add({ ...insertMeta, slug: recipe.slug });
+              // TODO: Leftover UI
+              mealPlan.recipes
+                .find((mealPlanItem) => mealPlanItem.slug === recipe.slug)
+                ?.ref.delete();
+            },
           },
         ]}
       ></RecipeList>
