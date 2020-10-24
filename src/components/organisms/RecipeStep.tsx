@@ -15,13 +15,24 @@ interface Props {
   step: Step;
   stepNumber: number;
   ingredients: Ingredient[];
+  state?: { state: "done" | "claimed"; by: string };
+  users: any;
+  [key: string]: any;
 }
 
-export function RecipeStep({ step, stepNumber, ingredients }: Props) {
+export function RecipeStep({
+  step,
+  stepNumber,
+  ingredients,
+  state,
+  users,
+  ...rest
+}: Props) {
   return (
     <Flex
       css={{
         marginBottom: 16,
+        marginLeft: 16,
         minHeight: 100,
         alignItems: "center",
         position: "relative",
@@ -32,7 +43,9 @@ export function RecipeStep({ step, stepNumber, ingredients }: Props) {
         [Breakpoint.MOBILE]: {
           flexDirection: "column",
         },
+        opacity: state?.state === "done" ? 0.5 : 1,
       }}
+      {...rest}
     >
       <h1
         css={{
@@ -64,6 +77,16 @@ export function RecipeStep({ step, stepNumber, ingredients }: Props) {
           padding: 16px 8px;
         `}
       >
+        {state && state.state === "claimed" ? (
+          <Flex css={{ alignItems: "center", fontWeight: "bold" }}>
+            <img
+              src={users[state.by].photoURL}
+              css={{ width: 32, marginRight: 8 }}
+              alt=""
+            />
+            {users[state.by].displayName}
+          </Flex>
+        ) : null}
         <ReactMarkdown>{step.method}</ReactMarkdown>
         <IngredientList
           ingredients={ingredients}

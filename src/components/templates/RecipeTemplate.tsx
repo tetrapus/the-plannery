@@ -12,6 +12,7 @@ import { Pantry, PantryItem } from "../../data/pantry";
 import { LikeButton } from "../molecules/LikeButton";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faPlayCircle, faStopCircle } from "@fortawesome/free-solid-svg-icons";
+import firebase from "firebase";
 
 interface Props {
   recipe: Recipe;
@@ -24,14 +25,19 @@ interface State {
 interface Session {
   by: string;
   ref: firebase.firestore.DocumentReference;
+  steps: {
+    [step: string]: {
+      state: "done" | "claimed";
+      by: string;
+    };
+  };
 }
 
 export default function RecipeTemplate({ recipe }: Props) {
   const { household, insertMeta } = useContext(AuthStateContext);
   const [{ pantry }, setState] = useState<State>({});
   const [session, setSession] = useState<Session | undefined>();
-
-  console.log(session);
+  const [users, setUsers] = useState<any>({});
 
   useEffect(
     () =>
@@ -45,6 +51,17 @@ export default function RecipeTemplate({ recipe }: Props) {
           },
         }))
       ),
+    [household]
+  );
+  useEffect(
+    () =>
+      household?.ref
+        .collection("users")
+        .onSnapshot((snapshot) =>
+          setUsers(
+            Object.fromEntries(snapshot.docs.map((doc) => [doc.id, doc.data()]))
+          )
+        ),
     [household]
   );
   useEffect(
@@ -110,9 +127,7 @@ export default function RecipeTemplate({ recipe }: Props) {
         <ReactMarkdown>{recipe.description}</ReactMarkdown>
         <TagList items={recipe.tags}></TagList>
         {!session ? <h2>Ingredients</h2> : null}
-        <IngredientList
-          ingredients={recipe.ingredients}
-          pantry={pantry}
+        <div
           css={
             session
               ? {
@@ -121,10 +136,13 @@ export default function RecipeTemplate({ recipe }: Props) {
                   background: "white",
                   left: 0,
                   zIndex: 100,
+                  borderBottom: "1px solid grey",
                 }
               : {}
           }
-        />
+        >
+          <IngredientList ingredients={recipe.ingredients} pantry={pantry} />
+        </div>
         <h2>Utensils</h2>
         <TagList items={recipe.utensils}></TagList>
         <h2>
@@ -138,7 +156,7 @@ export default function RecipeTemplate({ recipe }: Props) {
                 : household.ref
                     .collection("sessions")
                     .doc(recipe.slug)
-                    .set({ ...insertMeta })
+                    .set({ ...insertMeta, steps: {} })
             }
           />
         </h2>
@@ -148,6 +166,7 @@ export default function RecipeTemplate({ recipe }: Props) {
               key={idx}
               step={step}
               stepNumber={idx + 1}
+              users={users}
               ingredients={step.ingredients
                 .map((ingredient) =>
                   recipe.ingredients.find(
@@ -159,6 +178,25 @@ export default function RecipeTemplate({ recipe }: Props) {
                   (ingredient): ingredient is Ingredient =>
                     ingredient !== undefined
                 )}
+              state={session?.steps ? session?.steps[`${idx}`] : undefined}
+              onClick={() => {
+                if (!session) {
+                  return;
+                }
+                if (!session.steps[`${idx}`]) {
+                  session.ref.update({
+                    [`steps.${idx}`]: { ...insertMeta, state: "claimed" },
+                  });
+                } else if (session.steps[`${idx}`].state === "done") {
+                  session.ref.update({
+                    [`steps.${idx}`]: firebase.firestore.FieldValue.delete(),
+                  });
+                } else if (session.steps[`${idx}`].state === "claimed") {
+                  session.ref.update({
+                    [`steps.${idx}`]: { ...insertMeta, state: "done" },
+                  });
+                }
+              }}
             ></RecipeStep>
           ))}
         </div>
