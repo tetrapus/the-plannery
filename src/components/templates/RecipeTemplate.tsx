@@ -11,7 +11,7 @@ import { AuthStateContext } from "../../data/auth-state";
 import { Pantry, PantryItem } from "../../data/pantry";
 import { LikeButton } from "../molecules/LikeButton";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faThumbtack } from "@fortawesome/free-solid-svg-icons";
+import { faPlayCircle, faStopCircle } from "@fortawesome/free-solid-svg-icons";
 
 interface Props {
   recipe: Recipe;
@@ -21,10 +21,17 @@ interface State {
   pantry?: Pantry;
 }
 
+interface Session {
+  by: string;
+  ref: firebase.firestore.DocumentReference;
+}
+
 export default function RecipeTemplate({ recipe }: Props) {
-  const { household } = useContext(AuthStateContext);
+  const { household, insertMeta } = useContext(AuthStateContext);
   const [{ pantry }, setState] = useState<State>({});
-  const [pinIngredients, setPinIngredients] = useState<boolean>(false);
+  const [session, setSession] = useState<Session | undefined>();
+
+  console.log(session);
 
   useEffect(
     () =>
@@ -40,6 +47,24 @@ export default function RecipeTemplate({ recipe }: Props) {
       ),
     [household]
   );
+  useEffect(
+    () =>
+      household?.ref
+        .collection("sessions")
+        .doc(recipe.slug)
+        .onSnapshot((snapshot) =>
+          setSession(
+            snapshot.exists
+              ? { ...(snapshot.data() as Session), ref: snapshot.ref }
+              : undefined
+          )
+        ),
+    [household, recipe.slug]
+  );
+
+  if (!household) {
+    return null;
+  }
 
   return (
     <div>
@@ -84,21 +109,12 @@ export default function RecipeTemplate({ recipe }: Props) {
 
         <ReactMarkdown>{recipe.description}</ReactMarkdown>
         <TagList items={recipe.tags}></TagList>
-        {!pinIngredients ? (
-          <h2>
-            Ingredients{" "}
-            <FontAwesomeIcon
-              icon={faThumbtack}
-              css={{ color: "grey", marginLeft: 8 }}
-              onClick={() => setPinIngredients((state) => !state)}
-            />
-          </h2>
-        ) : null}
+        {!session ? <h2>Ingredients</h2> : null}
         <IngredientList
           ingredients={recipe.ingredients}
           pantry={pantry}
           css={
-            pinIngredients
+            session
               ? {
                   position: "fixed",
                   top: 0,
@@ -111,7 +127,21 @@ export default function RecipeTemplate({ recipe }: Props) {
         />
         <h2>Utensils</h2>
         <TagList items={recipe.utensils}></TagList>
-        <h2>Method</h2>
+        <h2>
+          Method{" "}
+          <FontAwesomeIcon
+            icon={session ? faStopCircle : faPlayCircle}
+            css={{ marginLeft: 8 }}
+            onClick={() =>
+              session
+                ? session.ref.delete()
+                : household.ref
+                    .collection("sessions")
+                    .doc(recipe.slug)
+                    .set({ ...insertMeta })
+            }
+          />
+        </h2>
         <div>
           {recipe.steps.map((step, idx) => (
             <RecipeStep

@@ -11,6 +11,7 @@ interface Props {
 
 export function MealPlanSection({ mealPlan }: Props) {
   const { household, insertMeta } = useContext(AuthStateContext);
+
   if (!mealPlan.recipes.length) {
     return null;
   }

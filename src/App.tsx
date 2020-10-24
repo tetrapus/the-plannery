@@ -54,6 +54,18 @@ function App() {
       });
   }, [currentUser]);
 
+  useEffect(() => {
+    if (!household) {
+      return;
+    }
+    household.ref.collection("users").doc(currentUser.uid).set({
+      displayName: currentUser.displayName,
+      photoURL: currentUser.photoURL,
+      uid: currentUser.uid,
+      email: currentUser.email,
+    });
+  }, [household, currentUser]);
+
   useEffect(
     () =>
       household?.ref

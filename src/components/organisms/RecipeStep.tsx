@@ -50,6 +50,7 @@ export function RecipeStep({ step, stepNumber, ingredients }: Props) {
       <div css={{ marginRight: "8px" }}>
         {step.images.map((img) => (
           <img
+            key={img}
             src={img}
             css={css`
               width: 250px;
