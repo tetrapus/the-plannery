@@ -23,31 +23,33 @@ export interface Recipe {
   tags: string[];
 }
 
-export const RecipesCollection = ExternalCollectionFactory(
+export const RecipesCollection = ExternalCollectionFactory<any[] | undefined>(
   "https://firebasestorage.googleapis.com/v0/b/the-plannery.appspot.com/o/recipe-data.json?alt=media&token=a1514430-d46e-4e82-9112-765f243ed627",
-  []
+  undefined
 );
 
-export function getRecipes(): Recipe[] {
-  return RecipesCollection.get()
-    .filter(isValidRecipe)
-    .map((item: any) => ({
-      name: item.name,
-      subtitle: item.headline,
-      description: item.descriptionMarkdown,
-      slug: item.slug,
-      url: `https://www.hellofresh.com.au/recipes/${item.slug}-${item.id}`,
-      imageUrl: item.imagePath
-        ? `https://img.hellofresh.com/hellofresh_s3${item.imagePath}`
-        : "https://source.unsplash.com/featured/?ingredients",
-      ingredients: getIngredients(
-        item.yields.find((yields: any) => yields.yields === 4)?.ingredients,
-        item.ingredients
-      ),
-      steps: item.steps.map(getRecipeStep),
-      utensils: item.utensils.map((utensil: any) => utensil.name),
-      tags: [...item.cuisines, ...item.tags].map((tag) => tag.name),
-    }));
+export function getRecipes(): Recipe[] | undefined {
+  const recipes = RecipesCollection.get();
+  if (recipes === undefined) {
+    return undefined;
+  }
+  return recipes.filter(isValidRecipe).map((item: any) => ({
+    name: item.name,
+    subtitle: item.headline,
+    description: item.descriptionMarkdown,
+    slug: item.slug,
+    url: `https://www.hellofresh.com.au/recipes/${item.slug}-${item.id}`,
+    imageUrl: item.imagePath
+      ? `https://img.hellofresh.com/hellofresh_s3${item.imagePath}`
+      : "https://source.unsplash.com/featured/?ingredients",
+    ingredients: getIngredients(
+      item.yields.find((yields: any) => yields.yields === 4)?.ingredients,
+      item.ingredients
+    ),
+    steps: item.steps.map(getRecipeStep),
+    utensils: item.utensils.map((utensil: any) => utensil.name),
+    tags: [...item.cuisines, ...item.tags].map((tag) => tag.name),
+  }));
 }
 
 const getWeek = function (date: Date) {
@@ -76,6 +78,9 @@ export function getSuggestedRecipes(
   filter: RecommendationFilter
 ) {
   let recipes = getRecipes();
+  if (recipes === undefined) {
+    return undefined;
+  }
   const random = SeedRandom(
     `${getWeek(new Date())}:${new Date().getFullYear()}`
   );
@@ -126,6 +131,9 @@ export function getSuggestedRecipes(
 
 export function getRecipe(slug: string) {
   const recipes = getRecipes();
+  if (recipes === undefined) {
+    return null;
+  }
   return recipes.find((recipe) => recipe.slug === slug);
 }
 

@@ -5,6 +5,7 @@ export interface MealPlanItem {
   ref: firebase.firestore.DocumentReference;
   slug: string;
   by: string;
+  added: firebase.firestore.Timestamp;
 }
 export interface MealPlan {
   recipes: MealPlanItem[];

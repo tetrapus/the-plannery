@@ -1,5 +1,5 @@
 import { css } from "@emotion/core";
-import { faHeart, faTrash } from "@fortawesome/free-solid-svg-icons";
+import { faTrash } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import React, { useContext } from "react";
 import { Link } from "react-router-dom";
@@ -9,7 +9,7 @@ import { CardStyle } from "../atoms/Card";
 import { Flex } from "../atoms/Flex";
 import { Stack } from "../atoms/Stack";
 import { Breakpoint } from "../styles/Breakpoint";
-import { AuthStateContext } from "../../data/auth-state";
+import { LikeButton } from "./LikeButton";
 
 interface Props {
   recipe: Recipe;
@@ -17,10 +17,7 @@ interface Props {
 }
 
 export function RecipeCard({ recipe, children }: Props) {
-  const { currentUser, household } = useContext(AuthStateContext);
-  const like = useContext(LikesContext).find(
-    (like) => like.slug === recipe.slug
-  );
+  const like = useContext(LikesContext);
 
   if (!recipe) {
     return null;
@@ -74,25 +71,13 @@ export function RecipeCard({ recipe, children }: Props) {
               [Breakpoint.MOBILE]: { display: "none" },
             }}
           ></div>
-          <FontAwesomeIcon
-            icon={faHeart}
+          <LikeButton
+            recipe={recipe}
             css={{
-              color: like ? "hotpink" : "white",
               position: "absolute",
               left: 4,
               bottom: 4,
               ".RecipeCard:not(:hover) &": like ? {} : { display: "none" },
-            }}
-            onClick={(e) => {
-              if (like) {
-                like.ref.delete();
-              } else {
-                household?.ref
-                  ?.collection("likes")
-                  .add({ slug: recipe.slug, by: currentUser.uid });
-              }
-              e.stopPropagation();
-              e.preventDefault();
             }}
           />
           <FontAwesomeIcon

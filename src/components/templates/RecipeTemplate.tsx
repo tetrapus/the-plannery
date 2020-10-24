@@ -9,6 +9,7 @@ import { Recipe } from "../../data/recipes";
 import Ingredient from "../../data/ingredients";
 import { AuthStateContext } from "../../data/auth-state";
 import { Pantry, PantryItem } from "../../data/pantry";
+import { LikeButton } from "../molecules/LikeButton";
 
 interface Props {
   recipe: Recipe;
@@ -69,8 +70,12 @@ export default function RecipeTemplate({ recipe }: Props) {
               text-decoration: none;
             `}
           >
-            <h1 css={{ margin: 12 }}>{recipe.name}</h1>
+            <h1 css={{ margin: "12px 24px" }}>{recipe.name}</h1>
           </a>
+          <LikeButton
+            recipe={recipe}
+            css={{ position: "absolute", top: 16, right: 16, fontSize: 24 }}
+          />
           <h2 css={{ margin: 0 }}>{recipe.subtitle}</h2>
         </Stack>
 

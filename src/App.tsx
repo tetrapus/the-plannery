@@ -11,6 +11,7 @@ import { Stack } from "./components/atoms/Stack";
 import { Spinner } from "./components/atoms/Spinner";
 import { LoggedOutTemplate } from "./components/templates/LoggedOutTemplate";
 import { GetStartedTemplate } from "./components/templates/GetStartedTemplate";
+import { Like, LikesContext } from "./data/likes";
 
 interface State {
   currentUser?: any;
@@ -21,6 +22,7 @@ initFirebase();
 
 function App() {
   const [{ currentUser, household }, setState] = useState<State>({});
+  const [likes, setLikes] = useState<Like[]>([]);
 
   useEffect(
     () =>
@@ -52,35 +54,55 @@ function App() {
       });
   }, [currentUser]);
 
+  useEffect(
+    () =>
+      household?.ref
+        .collection("likes")
+        .onSnapshot((snapshot) =>
+          setLikes(
+            snapshot.docs.map(
+              (doc) => ({ ref: doc.ref, ...doc.data() } as Like)
+            )
+          )
+        ),
+    [household]
+  );
+
   return (
     <AuthStateContext.Provider
       value={{
         loading: currentUser === undefined,
         currentUser: currentUser,
         household,
+        insertMeta: {
+          by: currentUser?.uid,
+          created: firebase.firestore.FieldValue.serverTimestamp(),
+        },
       }}
     >
-      <Router>
-        <Stack css={{ minHeight: "100vh" }}>
-          <NavigationBar></NavigationBar>
-          {currentUser === undefined ? (
-            <Spinner />
-          ) : !currentUser ? (
-            <LoggedOutTemplate />
-          ) : !household ? (
-            <GetStartedTemplate />
-          ) : (
-            <Switch>
-              <Route path="/recipes/:slug">
-                <RecipePage></RecipePage>
-              </Route>
-              <Route path="/">
-                <HomePage></HomePage>
-              </Route>
-            </Switch>
-          )}
-        </Stack>
-      </Router>
+      <LikesContext.Provider value={likes}>
+        <Router>
+          <Stack css={{ minHeight: "100vh" }}>
+            <NavigationBar></NavigationBar>
+            {currentUser === undefined ? (
+              <Spinner />
+            ) : !currentUser ? (
+              <LoggedOutTemplate />
+            ) : !household ? (
+              <GetStartedTemplate />
+            ) : (
+              <Switch>
+                <Route path="/recipes/:slug">
+                  <RecipePage></RecipePage>
+                </Route>
+                <Route path="/">
+                  <HomePage></HomePage>
+                </Route>
+              </Switch>
+            )}
+          </Stack>
+        </Router>
+      </LikesContext.Provider>
     </AuthStateContext.Provider>
   );
 }

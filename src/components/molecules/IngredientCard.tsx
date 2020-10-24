@@ -1,7 +1,7 @@
 import { css } from "@emotion/core";
 import { faSearch, faThumbtack } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import React from "react";
+import React, { useState } from "react";
 import Ingredient, { denormaliseIngredient } from "../../data/ingredients";
 import { Flex } from "../atoms/Flex";
 import { Stack } from "../atoms/Stack";
@@ -9,27 +9,35 @@ import { Stack } from "../atoms/Stack";
 interface Props {
   ingredient: Ingredient;
   pantryRef?: firebase.firestore.DocumentReference;
-  onClick: () => void;
+  onClick: () => Promise<void>;
 }
 
 export function IngredientCard({ ingredient, pantryRef, onClick }: Props) {
+  const [busy, setBusy] = useState<boolean>(false);
   const displayAmount = denormaliseIngredient(ingredient);
 
   return (
     <Flex
-      css={css`
-        width: 180px;
-        align-items: center;
-        margin: 4px;
-        padding: 4px;
-        border-radius: 3px;
-        position: relative;
-      `}
+      css={{
+        width: 180,
+        alignItems: "center",
+        margin: 4,
+        padding: 4,
+        borderRadius: 3,
+        position: "relative",
+      }}
       style={{
         background: pantryRef ? "inherit" : "white",
         boxShadow: pantryRef ? "inherit" : "grey 1px 1px 4px",
+        opacity: busy ? 0.5 : 1,
       }}
-      onClick={onClick}
+      onClick={async (e) => {
+        setBusy(true);
+        try {
+          await onClick();
+        } catch {}
+        setBusy(false);
+      }}
       className="IngredientCard"
     >
       <img
@@ -63,12 +71,16 @@ export function IngredientCard({ ingredient, pantryRef, onClick }: Props) {
             ".IngredientCard:not(:hover) &": { display: "none" },
           }}
           color="grey"
-          onClick={(e) => {
-            pantryRef.update({
-              "ingredient.qty": null,
-              "ingredient.unit": null,
-            });
+          onClick={async (e) => {
             e.stopPropagation();
+            setBusy(true);
+            try {
+              await pantryRef.update({
+                "ingredient.qty": null,
+                "ingredient.unit": null,
+              });
+            } catch {}
+            setBusy(false);
           }}
         />
       ) : (

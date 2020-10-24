@@ -14,7 +14,7 @@ interface Props {
 export function IngredientList({ ingredients, pantry }: Props) {
   const { currentUser, household } = useContext(AuthStateContext);
 
-  const togglePantry = (
+  const togglePantry = async (
     pantryRef: firebase.firestore.DocumentReference | undefined,
     ingredient: Ingredient
   ) => {
@@ -22,9 +22,9 @@ export function IngredientList({ ingredients, pantry }: Props) {
       return;
     }
     if (pantryRef) {
-      pantryRef.delete();
+      await pantryRef.delete();
     } else {
-      household.ref.collection("pantry").add({
+      await household.ref.collection("pantry").add({
         ingredient,
         by: currentUser.uid,
       });
