@@ -1,15 +1,14 @@
 TODO:
-Recipe Suggestion
-Meal planning
+- Recipe Suggestion
+   - Pantry progress indicator
+- Meal planning
 Quantity normalisation
 Meal plan day-by-day
 Navigation
 Sharable plan links
 Shopping list generator
 Likes / Dislikes
-Responsive
 Hosting
-OrbitDB or Auth
 Pantry Management
 Smart pantry
 Substitutions

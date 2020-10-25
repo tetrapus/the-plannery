@@ -106,7 +106,7 @@ export function RecipeCard({ recipe, children, ...rest }: Props) {
           <Stack
             css={{
               padding: "12px 4px",
-              margin: "8px auto",
+              margin: "12px auto",
               alignItems: "center",
               textAlign: "center",
               fontSize: 24,

@@ -39,12 +39,20 @@ const ingredientNormalisers: { [name: string]: { [unit: string]: Amount } } = {
   "baby spinach leaves": {
     bag: { unit: "g", qty: 60 },
   },
+  "spinach & rocket mix": {
+    bag: { unit: "g", qty: 60 },
+  },
   bacon: {
     packet: { unit: "g", qty: 200 },
   },
   "pork mince": { packet: { unit: "g", qty: 500 } },
   "chicken breast": { packet: { unit: "g", qty: 500 } },
   "sugar snap peas": { bag: { unit: "g", qty: 150 } },
+  potatoes: { unit: { unit: "g", qty: 150 } },
+  "panko breadcrumbs": {
+    packet: { unit: "g", qty: 100 },
+    ml: { unit: "g", qty: 0.4 },
+  },
 };
 
 export function normaliseIngredient(ingredient: Ingredient) {

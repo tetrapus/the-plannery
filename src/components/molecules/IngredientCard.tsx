@@ -56,7 +56,8 @@ export function IngredientCard({ ingredient, pantryRef, onClick }: Props) {
         `}
       >
         <div css={{ color: "#555", fontStyle: "italic" }}>
-          {displayAmount?.qty} {displayAmount?.unit}
+          {displayAmount?.qty}{" "}
+          {displayAmount?.unit !== "unit" ? displayAmount?.unit : null}
         </div>
         <div>{ingredient.type.name}</div>
       </Stack>

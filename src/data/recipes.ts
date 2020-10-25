@@ -124,7 +124,7 @@ export function getSuggestedRecipes(
       score:
         roll +
         (likes.find((like) => recipe.slug === like.slug) ? 0.1 : 0) +
-        0.1 * (maxMatch ? matchCount / maxMatch : 0),
+        0.25 * (maxMatch ? matchCount / maxMatch : 0),
       order: roll,
     };
   });

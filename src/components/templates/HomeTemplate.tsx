@@ -38,7 +38,7 @@ export default function HomeTemplate() {
     recipes: RecipesCollection.initialState,
     ingredientFilter: [],
     ingredientBoosts: [],
-    usePantry: true,
+    usePantry: false,
   };
   const [
     {
@@ -198,7 +198,7 @@ export default function HomeTemplate() {
         css={{
           width: "calc(50vw - 400px)",
           marginLeft: 16,
-          [Breakpoint.TABLET]: { display: "none" },
+          [Breakpoint.LAPTOP]: { display: "none" },
         }}
       >
         <InviteSection />
