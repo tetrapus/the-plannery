@@ -18,19 +18,19 @@ export const inPantry = (ingredient: Ingredient, pantry?: Pantry) => {
     return null;
   }
 
-  const pantryItem = pantry?.items.find((item) =>
+  return pantry?.items.find((item) =>
     isSameIngredient(item.ingredient, ingredient)
   );
-  if (!pantryItem) {
-    return;
-  }
-  if (!pantryItem?.ingredient.qty) {
-    return pantryItem;
-  }
-  if (!ingredient?.qty) {
-    return pantryItem;
-  }
-  return !!pantryItem && pantryItem.ingredient.qty >= ingredient.qty
-    ? pantryItem
-    : undefined;
 };
+
+export function getRequiredQty(ingredient: Ingredient, pantryItem: PantryItem) {
+  if (!pantryItem.ingredient.qty) {
+    return undefined;
+  }
+  if (!ingredient.qty) {
+    return Infinity;
+  }
+  return pantryItem.ingredient.qty >= ingredient.qty
+    ? 0
+    : pantryItem.ingredient.qty;
+}

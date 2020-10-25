@@ -145,11 +145,15 @@ export function RecipeCard({ recipe, children, ...rest }: Props) {
                   {pantryIngredients === recipe.ingredients.length ? (
                     <>Ready to cook</>
                   ) : (
-                    recipe.ingredients.filter((ingredient) =>
-                      inPantry(ingredient, pantry)
-                    ).length
+                    <>
+                      {
+                        recipe.ingredients.filter((ingredient) =>
+                          inPantry(ingredient, pantry)
+                        ).length
+                      }
+                      /{recipe.ingredients.length} items
+                    </>
                   )}
-                  /{recipe.ingredients.length} items
                 </>
               ) : null}
             </div>

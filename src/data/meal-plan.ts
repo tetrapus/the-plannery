@@ -15,26 +15,32 @@ export function getIngredientsForMealPlan(mealPlan: MealPlan): Ingredient[] {
   const ingredientTypes = {} as any;
   const ingredients = {} as any;
   mealPlan.recipes.forEach(({ slug }) => {
-    getRecipe(slug)?.ingredients.forEach((ingredient) => {
+    const recipe = getRecipe(slug);
+    if (!recipe) return;
+    recipe.ingredients.forEach((ingredient) => {
       let qtys = ingredientTypes[ingredient.type.id];
       if (!qtys) {
         ingredientTypes[ingredient.type.id] = {};
         qtys = ingredientTypes[ingredient.type.id];
       }
       if (qtys[ingredient.unit as string]) {
-        qtys[ingredient.unit as string] += ingredient.qty;
+        qtys[ingredient.unit as string].qty += ingredient.qty;
+        qtys[ingredient.unit as string].usedIn.push(recipe);
       } else {
-        qtys[ingredient.unit as string] = ingredient.qty;
+        qtys[ingredient.unit as string] = {
+          qty: ingredient.qty,
+          usedIn: [recipe],
+        };
         ingredients[ingredient.type.id] = ingredient.type;
       }
     });
   });
   const result = [] as any;
   Object.entries(ingredientTypes).forEach(([id, qtys]) => {
-    Object.entries(qtys as any).forEach(([unit, qty]) => {
+    Object.entries(qtys as any).forEach(([unit, data]) => {
       result.push({
         unit,
-        qty,
+        ...(data as any),
         type: ingredients[id],
       });
     });

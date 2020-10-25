@@ -31,7 +31,11 @@ export function IngredientList({ ingredients, ...rest }: Props) {
       await pantryItem.ref.delete();
     } else {
       await household.ref.collection("pantry").add({
-        ingredient,
+        ingredient: {
+          qty: ingredient.qty,
+          type: ingredient.type,
+          unit: ingredient.unit,
+        },
         by: currentUser.uid,
       });
     }

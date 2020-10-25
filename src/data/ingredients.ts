@@ -1,3 +1,5 @@
+import { Recipe } from "./recipes";
+
 export interface IngredientType {
   id: string;
   name: string;
@@ -8,6 +10,7 @@ export default interface Ingredient {
   type: IngredientType;
   qty?: number;
   unit?: string;
+  usedIn?: Recipe[];
 }
 
 interface Amount {
