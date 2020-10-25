@@ -62,13 +62,11 @@ export default function HomeTemplate() {
     }
   }, [household]);
 
-  useEffect(
-    () =>
-      RecipesCollection.subscribe((value) =>
-        setState((state) => ({ ...state, recipes: value }))
-      ),
-    []
-  );
+  useEffect(() => {
+    RecipesCollection.subscribe((value) =>
+      setState((state) => ({ ...state, recipes: value }))
+    );
+  }, []);
 
   return (
     <Flex css={{ margin: "auto" }}>
