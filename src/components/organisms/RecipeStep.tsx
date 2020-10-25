@@ -88,10 +88,7 @@ export function RecipeStep({
           </Flex>
         ) : null}
         <ReactMarkdown>{step.method}</ReactMarkdown>
-        <IngredientList
-          ingredients={ingredients}
-          pantry={{ items: [] }}
-        ></IngredientList>
+        <IngredientList ingredients={ingredients} />
       </div>
     </Flex>
   );

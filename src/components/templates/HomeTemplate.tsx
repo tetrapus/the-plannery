@@ -9,7 +9,7 @@ import {
   RecipesCollection,
 } from "../../data/recipes";
 import { IngredientList } from "../organisms/IngredientList";
-import { Pantry, PantryItem } from "../../data/pantry";
+import { PantryContext } from "../../data/pantry";
 import { Spinner } from "../atoms/Spinner";
 import { LikesContext } from "../../data/likes";
 import { RecipeList } from "../organisms/RecipeList";
@@ -24,7 +24,6 @@ import { IconButton } from "../atoms/IconButton";
 
 interface State {
   mealPlan: MealPlan;
-  pantry: Pantry;
   recipes: any[] | undefined;
   ingredientFilter: string[];
   ingredientBoosts: string[];
@@ -34,59 +33,42 @@ interface State {
 export default function HomeTemplate() {
   const initialState = {
     mealPlan: { recipes: [] },
-    pantry: { items: [] },
     recipes: RecipesCollection.initialState,
     ingredientFilter: [],
     ingredientBoosts: [],
     usePantry: false,
   };
   const [
-    {
-      mealPlan,
-      pantry,
-      recipes,
-      ingredientFilter,
-      usePantry,
-      ingredientBoosts,
-    },
+    { mealPlan, recipes, ingredientFilter, usePantry, ingredientBoosts },
     setState,
   ] = useState<State>(initialState);
   const [showFilters, setShowFilters] = useState<boolean>(false);
   const { household, insertMeta } = useContext(AuthStateContext);
   const likes = useContext(LikesContext);
+  const pantry = useContext(PantryContext);
+
   useEffect(() => {
-    const hooks: (() => void)[] = [];
     if (household?.ref) {
-      hooks.push(
-        household?.ref.collection("mealplan").onSnapshot((snapshot) =>
-          setState((state) => ({
-            ...state,
-            mealPlan: {
-              recipes: snapshot.docs.map(
-                (doc) => ({ ref: doc.ref, ...doc.data() } as MealPlanItem)
-              ),
-            },
-          }))
-        )
-      );
-      hooks.push(
-        household?.ref.collection("pantry").onSnapshot((snapshot) =>
-          setState((state) => ({
-            ...state,
-            pantry: {
-              items: snapshot.docs.map(
-                (doc) => ({ ref: doc.ref, ...doc.data() } as PantryItem)
-              ),
-            },
-          }))
-        )
+      return household?.ref.collection("mealplan").onSnapshot((snapshot) =>
+        setState((state) => ({
+          ...state,
+          mealPlan: {
+            recipes: snapshot.docs.map(
+              (doc) => ({ ref: doc.ref, ...doc.data() } as MealPlanItem)
+            ),
+          },
+        }))
       );
     }
-    RecipesCollection.subscribe((value) =>
-      setState((state) => ({ ...state, recipes: value }))
-    );
-    return () => hooks.forEach((hook) => hook());
   }, [household]);
+
+  useEffect(
+    () =>
+      RecipesCollection.subscribe((value) =>
+        setState((state) => ({ ...state, recipes: value }))
+      ),
+    []
+  );
 
   return (
     <Flex css={{ margin: "auto" }}>
@@ -101,7 +83,7 @@ export default function HomeTemplate() {
           }}
         >
           <MealPlanSection mealPlan={mealPlan} />
-          <ShoppingListSection mealPlan={mealPlan} pantry={pantry} />
+          <ShoppingListSection mealPlan={mealPlan} />
           <div>
             <h1>
               Suggested for you
@@ -162,7 +144,7 @@ export default function HomeTemplate() {
                   {
                     likes,
                     ingredients: [
-                      ...(usePantry
+                      ...(usePantry && pantry
                         ? pantry.items
                             .filter(
                               (item) =>
@@ -204,8 +186,7 @@ export default function HomeTemplate() {
         <InviteSection />
         <h2>Pantry</h2>
         <IngredientList
-          ingredients={pantry.items.map((item) => item.ingredient)}
-          pantry={pantry}
+          ingredients={pantry?.items.map((item) => item.ingredient)}
         />
       </Stack>
     </Flex>

@@ -5,14 +5,15 @@ import React, { useState } from "react";
 import Ingredient, { denormaliseIngredient } from "../../data/ingredients";
 import { Flex } from "../atoms/Flex";
 import { Stack } from "../atoms/Stack";
+import { PantryItem } from "../../data/pantry";
 
 interface Props {
   ingredient: Ingredient;
-  pantryRef?: firebase.firestore.DocumentReference;
+  pantryItem?: PantryItem | null;
   onClick: () => Promise<void>;
 }
 
-export function IngredientCard({ ingredient, pantryRef, onClick }: Props) {
+export function IngredientCard({ ingredient, pantryItem, onClick }: Props) {
   const [busy, setBusy] = useState<boolean>(false);
   const displayAmount = denormaliseIngredient(ingredient);
 
@@ -27,9 +28,9 @@ export function IngredientCard({ ingredient, pantryRef, onClick }: Props) {
         position: "relative",
       }}
       style={{
-        background: pantryRef ? "inherit" : "white",
-        boxShadow: pantryRef ? "inherit" : "grey 1px 1px 4px",
-        opacity: busy ? 0.5 : 1,
+        background: pantryItem ? "inherit" : "white",
+        boxShadow: pantryItem ? "inherit" : "grey 1px 1px 4px",
+        opacity: busy || pantryItem === null ? 0.5 : 1,
       }}
       onClick={async (e) => {
         setBusy(true);
@@ -61,7 +62,7 @@ export function IngredientCard({ ingredient, pantryRef, onClick }: Props) {
         </div>
         <div>{ingredient.type.name}</div>
       </Stack>
-      {pantryRef && (ingredient.qty || ingredient.unit) ? (
+      {pantryItem && (ingredient.qty || ingredient.unit) ? (
         <FontAwesomeIcon
           icon={faThumbtack}
           css={{
@@ -76,7 +77,7 @@ export function IngredientCard({ ingredient, pantryRef, onClick }: Props) {
             e.stopPropagation();
             setBusy(true);
             try {
-              await pantryRef.update({
+              await pantryItem.ref.update({
                 "ingredient.qty": null,
                 "ingredient.unit": null,
               });

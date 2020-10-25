@@ -20,6 +20,7 @@ export function RecipeList({ recipes, actions }: Props) {
   return (
     <Stack
       css={{
+        justifyContent: "center",
         [Breakpoint.TABLET]: { alignItems: "center", width: "100%" },
         [Breakpoint.MOBILE]: {
           flexDirection: "row",

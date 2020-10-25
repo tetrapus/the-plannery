@@ -12,6 +12,7 @@ import { Spinner } from "./components/atoms/Spinner";
 import { LoggedOutTemplate } from "./components/templates/LoggedOutTemplate";
 import { GetStartedTemplate } from "./components/templates/GetStartedTemplate";
 import { Like, LikesContext } from "./data/likes";
+import { Pantry, PantryContext, PantryItem } from "./data/pantry";
 
 interface State {
   currentUser?: any;
@@ -21,17 +22,13 @@ interface State {
 initFirebase();
 
 function App() {
-  const [{ currentUser, household }, setState] = useState<State>({});
+  const [currentUser, setCurrentUser] = useState<any>();
+  const [household, setHousehold] = useState<Household | null | undefined>();
   const [likes, setLikes] = useState<Like[]>([]);
+  const [pantry, setPantry] = useState<Pantry | undefined>();
 
   useEffect(
-    () =>
-      firebase
-        .auth()
-        .onAuthStateChanged((user) =>
-          setState((state) => ({ ...state, currentUser: user }))
-        ),
-
+    () => firebase.auth().onAuthStateChanged((user) => setCurrentUser(user)),
     []
   );
 
@@ -50,7 +47,7 @@ function App() {
               ref: querySnapshot.docs[0].ref,
             } as Household)
           : null;
-        setState((state) => ({ ...state, household }));
+        setHousehold(household);
       });
   }, [currentUser]);
 
@@ -80,6 +77,18 @@ function App() {
     [household]
   );
 
+  useEffect(
+    () =>
+      household?.ref.collection("pantry").onSnapshot((snapshot) =>
+        setPantry({
+          items: snapshot.docs.map(
+            (doc) => ({ ref: doc.ref, ...doc.data() } as PantryItem)
+          ),
+        })
+      ),
+    [household]
+  );
+
   return (
     <AuthStateContext.Provider
       value={{
@@ -93,27 +102,29 @@ function App() {
       }}
     >
       <LikesContext.Provider value={likes}>
-        <Router>
-          <Stack css={{ minHeight: "100vh" }}>
-            <NavigationBar></NavigationBar>
-            {currentUser === undefined ? (
-              <Spinner />
-            ) : !currentUser ? (
-              <LoggedOutTemplate />
-            ) : !household ? (
-              <GetStartedTemplate />
-            ) : (
-              <Switch>
-                <Route path="/recipes/:slug">
-                  <RecipePage></RecipePage>
-                </Route>
-                <Route path="/">
-                  <HomePage></HomePage>
-                </Route>
-              </Switch>
-            )}
-          </Stack>
-        </Router>
+        <PantryContext.Provider value={pantry}>
+          <Router>
+            <Stack css={{ minHeight: "100vh" }}>
+              <NavigationBar></NavigationBar>
+              {currentUser === undefined ? (
+                <Spinner />
+              ) : !currentUser ? (
+                <LoggedOutTemplate />
+              ) : !household ? (
+                <GetStartedTemplate />
+              ) : (
+                <Switch>
+                  <Route path="/recipes/:slug">
+                    <RecipePage></RecipePage>
+                  </Route>
+                  <Route path="/">
+                    <HomePage></HomePage>
+                  </Route>
+                </Switch>
+              )}
+            </Stack>
+          </Router>
+        </PantryContext.Provider>
       </LikesContext.Provider>
     </AuthStateContext.Provider>
   );

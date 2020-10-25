@@ -4,6 +4,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import React, { useContext } from "react";
 import { Link } from "react-router-dom";
 import { LikesContext } from "../../data/likes";
+import { inPantry, PantryContext } from "../../data/pantry";
 import { Recipe } from "../../data/recipes";
 import { CardStyle } from "../atoms/Card";
 import { Flex } from "../atoms/Flex";
@@ -19,10 +20,15 @@ interface Props {
 
 export function RecipeCard({ recipe, children, ...rest }: Props) {
   const like = useContext(LikesContext);
+  const pantry = useContext(PantryContext);
 
   if (!recipe) {
     return null;
   }
+
+  const pantryIngredients = recipe.ingredients.filter((ingredient) =>
+    inPantry(ingredient, pantry)
+  ).length;
 
   return (
     <Flex {...rest}>
@@ -132,6 +138,20 @@ export function RecipeCard({ recipe, children, ...rest }: Props) {
               }}
             >
               {recipe.serves} serves
+              {pantry ? (
+                <>
+                  {" "}
+                  &middot;{" "}
+                  {pantryIngredients === recipe.ingredients.length ? (
+                    <>Ready to cook</>
+                  ) : (
+                    recipe.ingredients.filter((ingredient) =>
+                      inPantry(ingredient, pantry)
+                    ).length
+                  )}
+                  /{recipe.ingredients.length} items
+                </>
+              ) : null}
             </div>
           </Stack>
           <div
