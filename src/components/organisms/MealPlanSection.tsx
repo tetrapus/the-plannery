@@ -2,8 +2,11 @@ import { faCheck, faTimes } from "@fortawesome/free-solid-svg-icons";
 import React, { useContext } from "react";
 import { AuthStateContext } from "../../data/auth-state";
 import { MealPlan } from "../../data/meal-plan";
+import { PantryContext } from "../../data/pantry";
 import { getRecipe, Recipe } from "../../data/recipes";
 import { RecipeList } from "./RecipeList";
+import { isSameIngredient } from "../../data/ingredients";
+import { db } from "../../init/firebase";
 
 interface Props {
   mealPlan: MealPlan;
@@ -11,10 +14,38 @@ interface Props {
 
 export function MealPlanSection({ mealPlan }: Props) {
   const { household, insertMeta } = useContext(AuthStateContext);
+  const pantry = useContext(PantryContext);
 
   if (!mealPlan.recipes.length) {
     return null;
   }
+
+  const onClose = (recipe: Recipe) => {
+    if (!pantry) {
+      return;
+    }
+    var batch = db.batch();
+    recipe.ingredients.forEach((ingredient) => {
+      const pantryItem = pantry.items.find((item) =>
+        isSameIngredient(item.ingredient, ingredient)
+      );
+      if (pantryItem && pantryItem.ingredient.qty && ingredient.qty) {
+        if (pantryItem.ingredient.qty > ingredient.qty) {
+          batch.set(pantryItem.ref, {
+            ingredient: {
+              ...pantryItem.ingredient,
+              qty: pantryItem.ingredient.qty - ingredient.qty,
+            },
+            ...insertMeta,
+          });
+        } else {
+          batch.delete(pantryItem.ref);
+        }
+      }
+    });
+    batch.commit();
+  };
+
   return (
     <>
       <h1>Your meal plan</h1>
@@ -36,7 +67,7 @@ export function MealPlanSection({ mealPlan }: Props) {
               household?.ref
                 .collection("history")
                 .add({ ...insertMeta, slug: recipe.slug });
-              // TODO: Leftover UI
+              onClose(recipe);
               mealPlan.recipes
                 .find((mealPlanItem) => mealPlanItem.slug === recipe.slug)
                 ?.ref.delete();
