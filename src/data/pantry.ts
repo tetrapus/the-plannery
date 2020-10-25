@@ -23,14 +23,13 @@ export const inPantry = (ingredient: Ingredient, pantry?: Pantry) => {
   );
 };
 
-export function getRequiredQty(ingredient: Ingredient, pantryItem: PantryItem) {
-  if (!pantryItem.ingredient.qty) {
-    return undefined;
-  }
-  if (!ingredient.qty) {
-    return Infinity;
-  }
-  return pantryItem.ingredient.qty >= ingredient.qty
-    ? 0
-    : pantryItem.ingredient.qty;
+export function enoughInPantry(
+  ingredient: Ingredient,
+  pantryItem?: PantryItem | null
+) {
+  return !!(
+    pantryItem &&
+    (!pantryItem.ingredient.qty ||
+      (ingredient.qty && pantryItem.ingredient.qty >= ingredient.qty))
+  );
 }

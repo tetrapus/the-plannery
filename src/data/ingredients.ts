@@ -87,7 +87,8 @@ interface DisplayAmount {
 }
 
 export function denormaliseIngredient(
-  ingredient: Ingredient
+  ingredient: Ingredient,
+  toUnit?: string
 ): DisplayAmount | undefined {
   if (!ingredient.qty || !ingredient.unit) {
     return;
@@ -107,8 +108,10 @@ export function denormaliseIngredient(
   for (let i = 0; i < tiers.length; i++) {
     const [unit, normaliser] = tiers[i];
     let displayQty;
-    if (isDivisible(ingredient.qty, normaliser.qty)) {
-      displayQty = (ingredient.qty / normaliser.qty).toLocaleString();
+    if (isDivisible(ingredient.qty, normaliser.qty) || toUnit === unit) {
+      displayQty = (ingredient.qty / normaliser.qty).toLocaleString(undefined, {
+        maximumFractionDigits: 1,
+      });
     } else if (isDivisible(ingredient.qty * 4, normaliser.qty)) {
       displayQty =
         getWholePart(ingredient.qty, normaliser.qty) +

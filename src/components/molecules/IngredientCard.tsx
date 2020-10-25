@@ -1,25 +1,74 @@
 import { css } from "@emotion/core";
 import { faSearch, faThumbtack } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import React, { useState } from "react";
+import React, { useContext, useState } from "react";
 import Ingredient, { denormaliseIngredient } from "../../data/ingredients";
 import { Flex } from "../atoms/Flex";
 import { Stack } from "../atoms/Stack";
-import { getRequiredQty, PantryItem } from "../../data/pantry";
+import { PantryItem } from "../../data/pantry";
+import { AuthStateContext } from "../../data/auth-state";
 
 interface Props {
   ingredient: Ingredient;
   pantryItem?: PantryItem | null;
-  onClick: () => Promise<void>;
 }
 
-export function IngredientCard({ ingredient, pantryItem, onClick }: Props) {
+export function IngredientCard({ ingredient, pantryItem }: Props) {
   const [busy, setBusy] = useState<boolean>(false);
+  const { household, insertMeta } = useContext(AuthStateContext);
+
   const displayAmount = denormaliseIngredient(ingredient);
 
-  const required = pantryItem
-    ? getRequiredQty(ingredient, pantryItem)
-    : ingredient.qty;
+  const complete =
+    pantryItem &&
+    (!pantryItem.ingredient.qty ||
+      (ingredient.qty && pantryItem.ingredient.qty >= ingredient.qty));
+  const displayPantryAmount =
+    !complete && pantryItem
+      ? denormaliseIngredient(pantryItem.ingredient, displayAmount?.unit)
+      : undefined;
+
+  const togglePantry = async () => {
+    if (!household?.ref || pantryItem === null) {
+      return;
+    }
+    if (pantryItem) {
+      if (complete) {
+        if (pantryItem.ingredient.qty) {
+          if (ingredient.qty && ingredient.qty < pantryItem.ingredient.qty) {
+            await pantryItem.ref.set({
+              ingredient: {
+                qty: pantryItem.ingredient.qty - ingredient.qty,
+                type: ingredient.type,
+                unit: ingredient.unit,
+              },
+              ...insertMeta,
+            });
+          } else {
+            await pantryItem.ref.delete();
+          }
+        }
+      } else {
+        await pantryItem.ref.set({
+          ingredient: {
+            qty: ingredient.qty,
+            type: ingredient.type,
+            unit: ingredient.unit,
+          },
+          ...insertMeta,
+        });
+      }
+    } else {
+      await household.ref.collection("pantry").add({
+        ingredient: {
+          qty: ingredient.qty,
+          type: ingredient.type,
+          unit: ingredient.unit,
+        },
+        ...insertMeta,
+      });
+    }
+  };
 
   return (
     <Stack>
@@ -34,14 +83,14 @@ export function IngredientCard({ ingredient, pantryItem, onClick }: Props) {
           height: "100%",
         }}
         style={{
-          background: !required ? "inherit" : "white",
-          boxShadow: !required ? "inherit" : "grey 1px 1px 4px",
+          background: complete ? "inherit" : "white",
+          boxShadow: complete ? "inherit" : "grey 1px 1px 4px",
           opacity: busy || pantryItem === null ? 0.5 : 1,
         }}
         onClick={async (e) => {
           setBusy(true);
           try {
-            await onClick();
+            await togglePantry();
           } catch {}
           setBusy(false);
         }}
@@ -63,6 +112,7 @@ export function IngredientCard({ ingredient, pantryItem, onClick }: Props) {
           `}
         >
           <div css={{ color: "#555", fontStyle: "italic" }}>
+            {displayPantryAmount ? <>{displayPantryAmount.qty}/</> : null}
             {displayAmount?.qty}{" "}
             {displayAmount?.unit !== "unit" ? displayAmount?.unit : null}
           </div>
