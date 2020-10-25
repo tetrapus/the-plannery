@@ -8,10 +8,11 @@ import { Spinner } from "../atoms/Spinner";
 
 interface Props {
   ingredients?: Ingredient[];
+  sortKey?: (ingredient: Ingredient) => number;
   [key: string]: any;
 }
 
-export function IngredientList({ ingredients, ...rest }: Props) {
+export function IngredientList({ ingredients, sortKey, ...rest }: Props) {
   const pantry = useContext(PantryContext);
 
   if (ingredients === undefined) {
@@ -33,7 +34,9 @@ export function IngredientList({ ingredients, ...rest }: Props) {
         .sort((a, b) =>
           enoughInPantry(a.ingredient, a.inPantry) ===
           enoughInPantry(b.ingredient, b.inPantry)
-            ? a.ingredient.type.name.localeCompare(b.ingredient.type.name)
+            ? sortKey
+              ? sortKey(a.ingredient) - sortKey(b.ingredient)
+              : a.ingredient.type.name.localeCompare(b.ingredient.type.name)
             : enoughInPantry(a.ingredient, a.inPantry)
             ? 1
             : -1

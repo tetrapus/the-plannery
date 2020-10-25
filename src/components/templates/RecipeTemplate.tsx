@@ -161,6 +161,13 @@ export default function RecipeTemplate({ recipe }: Props) {
           ) : null}
           <IngredientList
             ingredients={recipe.ingredients}
+            sortKey={(ingredient: Ingredient) =>
+              recipe.steps
+                .map((step) => step.method)
+                .join("\n")
+                .toLowerCase()
+                .indexOf(ingredient.type.name.toLowerCase())
+            }
             pantry={pantry}
             css={session && !ingredientsExpanded ? { flexWrap: "nowrap" } : {}}
           />
