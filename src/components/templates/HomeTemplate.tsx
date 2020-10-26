@@ -6,6 +6,7 @@ import { MealPlan, MealPlanItem } from "../../data/meal-plan";
 import {
   getRecipes,
   getSuggestedRecipes,
+  Recipe,
   RecipesCollection,
 } from "../../data/recipes";
 import { IngredientList } from "../organisms/IngredientList";
@@ -24,7 +25,7 @@ import { IconButton } from "../atoms/IconButton";
 
 interface State {
   mealPlan: MealPlan;
-  recipes: any[] | undefined;
+  recipes: Recipe[] | undefined;
   ingredientFilter: string[];
   ingredientBoosts: string[];
   usePantry: boolean;
@@ -65,7 +66,7 @@ export default function HomeTemplate() {
 
   useEffect(() => {
     RecipesCollection.subscribe((value) =>
-      setState((state) => ({ ...state, recipes: value }))
+      setState((state) => ({ ...state, recipes: getRecipes() }))
     );
   }, []);
 
