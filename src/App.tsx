@@ -13,6 +13,7 @@ import { LoggedOutTemplate } from "./components/templates/LoggedOutTemplate";
 import { GetStartedTemplate } from "./components/templates/GetStartedTemplate";
 import { Like, LikesContext } from "./data/likes";
 import { Pantry, PantryContext, PantryItem } from "./data/pantry";
+import { HistoryPage } from "./pages/HistoryPage";
 
 interface State {
   currentUser?: any;
@@ -116,6 +117,9 @@ function App() {
                 <Switch>
                   <Route path="/recipes/:slug">
                     <RecipePage></RecipePage>
+                  </Route>
+                  <Route path="/history">
+                    <HistoryPage />
                   </Route>
                   <Route path="/">
                     <HomePage></HomePage>

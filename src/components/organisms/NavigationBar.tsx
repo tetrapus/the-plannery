@@ -5,7 +5,8 @@ import { Flex } from "../atoms/Flex";
 import { Stack } from "../atoms/Stack";
 import { AuthStateContext } from "../../data/auth-state";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faTimes } from "@fortawesome/free-solid-svg-icons";
+import { faHistory, faTimes } from "@fortawesome/free-solid-svg-icons";
+import { IconButton } from "../atoms/IconButton";
 
 export default function NavigationBar() {
   const { currentUser } = useContext(AuthStateContext);
@@ -24,13 +25,18 @@ export default function NavigationBar() {
         alignItems: "center",
       }}
     >
-      <Link to="/" css={{ flexGrow: 1 }}>
-        <img
-          src="/logo.png"
-          css={{ objectFit: `cover`, height: 64 }}
-          alt="The Plannery Logo"
-        />
-      </Link>
+      <Flex css={{ flexGrow: 1, alignItems: "center" }}>
+        <Link to="/">
+          <img
+            src="/logo.png"
+            css={{ objectFit: `cover`, height: 64 }}
+            alt="The Plannery Logo"
+          />
+        </Link>
+        <Link to="/history">
+          <IconButton icon={faHistory} />
+        </Link>
+      </Flex>
       {currentUser ? (
         <Flex css={{ alignItems: "center" }}>
           <img

@@ -24,6 +24,7 @@ const globalNormalisers: { [unit: string]: Amount } = {
   tbs: { unit: "ml", qty: 15 },
   cup: { unit: "ml", qty: 250 },
   litre: { unit: "ml", qty: 1000 },
+  kg: { unit: "g", qty: 1000 },
 };
 
 const ingredientNormalisers: { [name: string]: { [unit: string]: Amount } } = {

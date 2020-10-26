@@ -46,6 +46,7 @@ export default function HomeTemplate() {
   const { household, insertMeta } = useContext(AuthStateContext);
   const likes = useContext(LikesContext);
   const pantry = useContext(PantryContext);
+  const [tagFilter, setTagFilter] = useState<string[]>([]);
 
   useEffect(() => {
     if (household?.ref) {
@@ -134,6 +135,24 @@ export default function HomeTemplate() {
                     }))
                   }
                 ></Select>
+                <Select
+                  isMulti
+                  placeholder="Choose recipes from tags..."
+                  css={{ marginBottom: 16, maxWidth: 600 }}
+                  options={Array.from(
+                    new Set(
+                      (getRecipes() || []).map((recipe) => recipe.tags).flat()
+                    )
+                  ).map((tag) => ({
+                    value: tag,
+                    label: tag,
+                  }))}
+                  onChange={(options) =>
+                    setTagFilter(
+                      (options as any[])?.map((option) => option.value)
+                    )
+                  }
+                ></Select>
               </div>
             ) : null}
             <RecipeList
@@ -153,7 +172,7 @@ export default function HomeTemplate() {
                       ...ingredientBoosts,
                     ],
                   },
-                  { mealPlan, ingredients: ingredientFilter }
+                  { mealPlan, ingredients: ingredientFilter, tags: tagFilter }
                 ) || []
               }
               actions={[

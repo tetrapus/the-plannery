@@ -77,6 +77,7 @@ interface RecommendationFactors {
 interface RecommendationFilter {
   mealPlan?: MealPlan;
   ingredients?: string[];
+  tags?: string[];
 }
 
 export function getSuggestedRecipes(
@@ -103,6 +104,12 @@ export function getSuggestedRecipes(
       recipe.ingredients.find((ingredient) =>
         ingredientFilter.has(ingredient.type.id)
       )
+    );
+  }
+  if (filter.tags && filter.tags.length) {
+    const tagFilter = new Set(filter.tags);
+    recipes = recipes.filter(
+      (recipe) => recipe.tags.filter((tag) => tagFilter.has(tag)).length
     );
   }
   const boostItems = new Set(ingredients);
