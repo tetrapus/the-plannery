@@ -1,10 +1,10 @@
 import { useCallback, useEffect, useState } from "react";
 
 export function useSubscription<T>(
-  subscriber: (setState: (value?: T) => void) => void
+  subscriberFn: (setState: (value?: T) => void) => void
 ) {
   const [state, setState] = useState<T>();
-  useCallback(subscriber, []);
+  const subscriber = useCallback(subscriberFn, []);
   useEffect(() => subscriber(setState), [subscriber]);
   return state;
 }
