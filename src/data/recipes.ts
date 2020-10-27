@@ -29,8 +29,7 @@ export const RecipesCollection = ExternalCollectionFactory<any[] | undefined>(
   undefined
 );
 
-export function getRecipes(): Recipe[] | undefined {
-  const recipes = RecipesCollection.get();
+export function getRecipes(recipes: any[] | undefined): Recipe[] | undefined {
   if (recipes === undefined) {
     return undefined;
   }
@@ -81,10 +80,10 @@ interface RecommendationFilter {
 }
 
 export function getSuggestedRecipes(
+  recipes: Recipe[] | undefined,
   { likes, ingredients }: RecommendationFactors,
   filter: RecommendationFilter
 ) {
-  let recipes = getRecipes();
   if (recipes === undefined) {
     return undefined;
   }
@@ -142,8 +141,7 @@ export function getSuggestedRecipes(
     .map(({ recipe }) => recipe);
 }
 
-export function getRecipe(slug: string) {
-  const recipes = getRecipes();
+export function getRecipe(recipes: Recipe[] | undefined, slug: string) {
   if (recipes === undefined) {
     return null;
   }

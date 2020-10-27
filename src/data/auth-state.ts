@@ -1,5 +1,6 @@
 import firebase from "firebase";
-import React from "react";
+import React, { useContext } from "react";
+import { useFirestore } from "../init/firebase";
 
 export interface Household {
   id: string;
@@ -19,3 +20,19 @@ export const AuthStateContext = React.createContext<AuthState>({
   loading: true,
   insertMeta: { created: firebase.firestore.FieldValue.serverTimestamp() },
 });
+
+export function useHouseholdCollection<T>(
+  collectionFn: (
+    household: firebase.firestore.DocumentReference
+  ) => firebase.firestore.Query<firebase.firestore.DocumentData>,
+  transformerFn: (
+    snapshot: firebase.firestore.QuerySnapshot<firebase.firestore.DocumentData>
+  ) => T
+) {
+  const { household } = useContext(AuthStateContext);
+  return useFirestore(
+    household,
+    (household) => collectionFn(household.ref),
+    transformerFn
+  );
+}

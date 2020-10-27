@@ -5,7 +5,11 @@ import { Flex } from "../atoms/Flex";
 import { Stack } from "../atoms/Stack";
 import { AuthStateContext } from "../../data/auth-state";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faHistory, faTimes } from "@fortawesome/free-solid-svg-icons";
+import {
+  faHistory,
+  faShoppingBasket,
+  faTimes,
+} from "@fortawesome/free-solid-svg-icons";
 import { IconButton } from "../atoms/IconButton";
 
 export default function NavigationBar() {
@@ -35,6 +39,9 @@ export default function NavigationBar() {
         </Link>
         <Link to="/history">
           <IconButton icon={faHistory} />
+        </Link>
+        <Link to="/shopping-list">
+          <IconButton icon={faShoppingBasket} />
         </Link>
       </Flex>
       {currentUser ? (

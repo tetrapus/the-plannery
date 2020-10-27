@@ -1,4 +1,5 @@
 import firebase from "firebase";
+import { useCallback, useEffect, useState } from "react";
 
 let initialised = false;
 
@@ -28,3 +29,28 @@ initFirebase();
 export const db = firebase.firestore();
 
 window.firebase = firebase;
+
+export function useFirestore<S, T>(
+  rootDoc: S | undefined | null,
+  collectionFn: (
+    rootDoc: S
+  ) => firebase.firestore.Query<firebase.firestore.DocumentData> | undefined,
+  transformerFn: (
+    snapshot: firebase.firestore.QuerySnapshot<firebase.firestore.DocumentData>
+  ) => T
+) {
+  const [state, setState] = useState<T>();
+  const collection = useCallback(collectionFn, []);
+  const transformer = useCallback(transformerFn, []);
+  useEffect(() => {
+    if (!rootDoc) {
+      return;
+    }
+    const query = collection(rootDoc);
+    if (!query) {
+      return;
+    }
+    return query.onSnapshot((snapshot) => setState(transformer(snapshot)));
+  }, [rootDoc, collection, transformer]);
+  return state;
+}

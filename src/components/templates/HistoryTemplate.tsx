@@ -6,14 +6,15 @@ import { RecipeList } from "../organisms/RecipeList";
 
 interface Props {
   history: RecipeHistory;
+  recipes: Recipe[];
 }
 
-export function HistoryTemplate({ history }: Props) {
+export function HistoryTemplate({ history, recipes }: Props) {
   return (
     <Stack css={{ alignItems: "center", margin: 16 }}>
       <RecipeList
         recipes={history.history
-          .map((item) => getRecipe(item.slug))
+          .map((item) => getRecipe(recipes, item.slug))
           .filter((x): x is Recipe => !!x)}
         actions={[]}
       ></RecipeList>

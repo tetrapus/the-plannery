@@ -22,10 +22,10 @@ import { MealPlanSection } from "../organisms/MealPlanSection";
 import { ShoppingListSection } from "../organisms/ShoppingListSection";
 import { InviteSection } from "../organisms/InviteSection";
 import { IconButton } from "../atoms/IconButton";
+import { useSubscription } from "../../util/use-subscription";
 
 interface State {
   mealPlan: MealPlan;
-  recipes: Recipe[] | undefined;
   ingredientFilter: string[];
   ingredientBoosts: string[];
   usePantry: boolean;
@@ -34,13 +34,12 @@ interface State {
 export default function HomeTemplate() {
   const initialState = {
     mealPlan: { recipes: [] },
-    recipes: RecipesCollection.initialState,
     ingredientFilter: [],
     ingredientBoosts: [],
     usePantry: false,
   };
   const [
-    { mealPlan, recipes, ingredientFilter, usePantry, ingredientBoosts },
+    { mealPlan, ingredientFilter, usePantry, ingredientBoosts },
     setState,
   ] = useState<State>(initialState);
   const [showFilters, setShowFilters] = useState<boolean>(false);
@@ -64,11 +63,9 @@ export default function HomeTemplate() {
     }
   }, [household]);
 
-  useEffect(() => {
-    RecipesCollection.subscribe((value) =>
-      setState((state) => ({ ...state, recipes: getRecipes() }))
-    );
-  }, []);
+  const recipes = useSubscription<Recipe[]>((setState) =>
+    RecipesCollection.subscribe((value) => setState(getRecipes(value)))
+  );
 
   return (
     <Flex css={{ margin: "auto" }}>
@@ -82,8 +79,8 @@ export default function HomeTemplate() {
             },
           }}
         >
-          <MealPlanSection mealPlan={mealPlan} />
-          <ShoppingListSection mealPlan={mealPlan} />
+          <MealPlanSection mealPlan={mealPlan} recipes={recipes} />
+          <ShoppingListSection mealPlan={mealPlan} recipes={recipes} />
           <div>
             <h1>
               Suggested for you
@@ -109,7 +106,7 @@ export default function HomeTemplate() {
                   css={{ marginBottom: 16, maxWidth: 600 }}
                   options={Object.values(
                     Object.fromEntries(
-                      (getRecipes() || [])
+                      (recipes || [])
                         .map((recipe) => recipe.ingredients)
                         .flat()
                         .map((ingredient) => [ingredient.type.id, ingredient])
@@ -141,9 +138,7 @@ export default function HomeTemplate() {
                   placeholder="Choose recipes from tags..."
                   css={{ marginBottom: 16, maxWidth: 600 }}
                   options={Array.from(
-                    new Set(
-                      (getRecipes() || []).map((recipe) => recipe.tags).flat()
-                    )
+                    new Set((recipes || []).map((recipe) => recipe.tags).flat())
                   ).map((tag) => ({
                     value: tag,
                     label: tag,
@@ -159,6 +154,7 @@ export default function HomeTemplate() {
             <RecipeList
               recipes={
                 getSuggestedRecipes(
+                  recipes,
                   {
                     likes,
                     ingredients: [

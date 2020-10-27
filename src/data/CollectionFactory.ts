@@ -27,7 +27,7 @@ export function ExternalCollectionFactory<T>(url: string, initialState: T) {
         loaded = true;
         init();
       }
-      return subscription.unsubscribe;
+      return () => subscription.unsubscribe();
     },
     get: () => {
       return state;

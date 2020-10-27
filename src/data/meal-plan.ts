@@ -1,5 +1,5 @@
 import Ingredient from "./ingredients";
-import { getRecipe } from "./recipes";
+import { getRecipe, Recipe } from "./recipes";
 
 export interface MealPlanItem {
   ref: firebase.firestore.DocumentReference;
@@ -11,11 +11,14 @@ export interface MealPlan {
   recipes: MealPlanItem[];
 }
 
-export function getIngredientsForMealPlan(mealPlan: MealPlan): Ingredient[] {
+export function getIngredientsForMealPlan(
+  recipes: Recipe[],
+  mealPlan: MealPlan
+): Ingredient[] {
   const ingredientTypes = {} as any;
   const ingredients = {} as any;
   mealPlan.recipes.forEach(({ slug }) => {
-    const recipe = getRecipe(slug);
+    const recipe = getRecipe(recipes, slug);
     if (!recipe) return;
     recipe.ingredients.forEach((ingredient) => {
       let qtys = ingredientTypes[ingredient.type.id];

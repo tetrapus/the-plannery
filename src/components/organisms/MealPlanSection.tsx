@@ -7,17 +7,23 @@ import { getRecipe, Recipe } from "../../data/recipes";
 import { RecipeList } from "./RecipeList";
 import { isSameIngredient } from "../../data/ingredients";
 import { db } from "../../init/firebase";
+import { Spinner } from "../atoms/Spinner";
 
 interface Props {
   mealPlan: MealPlan;
+  recipes?: Recipe[];
 }
 
-export function MealPlanSection({ mealPlan }: Props) {
+export function MealPlanSection({ mealPlan, recipes }: Props) {
   const { household, insertMeta } = useContext(AuthStateContext);
   const pantry = useContext(PantryContext);
 
   if (!mealPlan.recipes.length) {
     return null;
+  }
+
+  if (!recipes) {
+    return <Spinner />;
   }
 
   const onClose = (recipe: Recipe) => {
@@ -51,7 +57,7 @@ export function MealPlanSection({ mealPlan }: Props) {
       <h1>Your meal plan</h1>
       <RecipeList
         recipes={mealPlan.recipes
-          .map((mealPlanItem) => getRecipe(mealPlanItem.slug))
+          .map((mealPlanItem) => getRecipe(recipes, mealPlanItem.slug))
           .filter((x): x is Recipe => x !== undefined)}
         actions={[
           {

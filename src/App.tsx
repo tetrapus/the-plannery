@@ -1,59 +1,49 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo } from "react";
 import "./App.css";
 import { RecipePage } from "./pages/RecipePage";
 import { BrowserRouter as Router, Switch, Route } from "react-router-dom";
 import HomePage from "./pages/HomePage";
 import NavigationBar from "./components/organisms/NavigationBar";
 import firebase from "firebase";
-import { db, initFirebase } from "./init/firebase";
+import { db, initFirebase, useFirestore } from "./init/firebase";
 import { AuthStateContext, Household } from "./data/auth-state";
 import { Stack } from "./components/atoms/Stack";
 import { Spinner } from "./components/atoms/Spinner";
 import { LoggedOutTemplate } from "./components/templates/LoggedOutTemplate";
 import { GetStartedTemplate } from "./components/templates/GetStartedTemplate";
 import { Like, LikesContext } from "./data/likes";
-import { Pantry, PantryContext, PantryItem } from "./data/pantry";
+import { PantryContext, PantryItem } from "./data/pantry";
 import { HistoryPage } from "./pages/HistoryPage";
-
-interface State {
-  currentUser?: any;
-  household?: Household | null;
-}
+import { ShoppingListPage } from "./pages/ShoppingListPage";
+import { useSubscription } from "./util/use-subscription";
 
 initFirebase();
 
 function App() {
-  const [currentUser, setCurrentUser] = useState<any>();
-  const [household, setHousehold] = useState<Household | null | undefined>();
-  const [likes, setLikes] = useState<Like[]>([]);
-  const [pantry, setPantry] = useState<Pantry | undefined>();
+  const currentUser = useSubscription<firebase.User | null>((setState) =>
+    firebase.auth().onAuthStateChanged((user) => setState(user))
+  );
 
-  useEffect(
-    () => firebase.auth().onAuthStateChanged((user) => setCurrentUser(user)),
-    []
+  const household = useFirestore<any, Household | null | undefined>(
+    currentUser,
+    (currentUser) =>
+      currentUser
+        ? db
+            .collection("household")
+            .where("members", "array-contains", currentUser.uid)
+        : undefined,
+    (querySnapshot) =>
+      querySnapshot.docs.length
+        ? ({
+            id: querySnapshot.docs[0].id,
+            ...querySnapshot.docs[0].data(),
+            ref: querySnapshot.docs[0].ref,
+          } as Household)
+        : null
   );
 
   useEffect(() => {
-    if (!currentUser) {
-      return;
-    }
-    return db
-      .collection("household")
-      .where("members", "array-contains", currentUser?.uid)
-      .onSnapshot((querySnapshot) => {
-        const household = querySnapshot.docs.length
-          ? ({
-              id: querySnapshot.docs[0].id,
-              ...querySnapshot.docs[0].data(),
-              ref: querySnapshot.docs[0].ref,
-            } as Household)
-          : null;
-        setHousehold(household);
-      });
-  }, [currentUser]);
-
-  useEffect(() => {
-    if (!household) {
+    if (!household || !currentUser) {
       return;
     }
     household.ref.collection("users").doc(currentUser.uid).set({
@@ -64,45 +54,39 @@ function App() {
     });
   }, [household, currentUser]);
 
-  useEffect(
-    () =>
-      household?.ref
-        .collection("likes")
-        .onSnapshot((snapshot) =>
-          setLikes(
-            snapshot.docs.map(
-              (doc) => ({ ref: doc.ref, ...doc.data() } as Like)
-            )
-          )
-        ),
-    [household]
+  const authState = useMemo(
+    () => ({
+      loading: currentUser === undefined,
+      currentUser: currentUser,
+      household,
+      insertMeta: {
+        by: currentUser?.uid,
+        created: firebase.firestore.FieldValue.serverTimestamp(),
+      },
+    }),
+    [currentUser, household]
   );
 
-  useEffect(
-    () =>
-      household?.ref.collection("pantry").onSnapshot((snapshot) =>
-        setPantry({
-          items: snapshot.docs.map(
-            (doc) => ({ ref: doc.ref, ...doc.data() } as PantryItem)
-          ),
-        })
+  const likes = useFirestore(
+    household,
+    (doc) => doc.ref.collection("likes"),
+    (snapshot) =>
+      snapshot.docs.map((doc) => ({ ref: doc.ref, ...doc.data() } as Like))
+  );
+
+  const pantry = useFirestore(
+    household,
+    (doc) => doc.ref.collection("pantry"),
+    (snapshot) => ({
+      items: snapshot.docs.map(
+        (doc) => ({ ref: doc.ref, ...doc.data() } as PantryItem)
       ),
-    [household]
+    })
   );
 
   return (
-    <AuthStateContext.Provider
-      value={{
-        loading: currentUser === undefined,
-        currentUser: currentUser,
-        household,
-        insertMeta: {
-          by: currentUser?.uid,
-          created: firebase.firestore.FieldValue.serverTimestamp(),
-        },
-      }}
-    >
-      <LikesContext.Provider value={likes}>
+    <AuthStateContext.Provider value={authState}>
+      <LikesContext.Provider value={likes || []}>
         <PantryContext.Provider value={pantry}>
           <Router>
             <Stack css={{ minHeight: "100vh" }}>
@@ -120,6 +104,9 @@ function App() {
                   </Route>
                   <Route path="/history">
                     <HistoryPage />
+                  </Route>
+                  <Route path="/shopping-list">
+                    <ShoppingListPage />
                   </Route>
                   <Route path="/">
                     <HomePage></HomePage>
