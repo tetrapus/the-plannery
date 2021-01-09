@@ -91,15 +91,23 @@ export function getSuggestedRecipes(
     `${getWeek(new Date())}:${new Date().getFullYear()}`
   );
   let maxMatch = 0;
+
+  let weightedRecipes = recipes.map((recipe) => ({
+    recipe,
+    roll: random(),
+  }));
+
   if (filter.mealPlan) {
     const planItems = new Set(
       filter.mealPlan.recipes.map((recipe) => recipe.slug)
     );
-    recipes = recipes.filter((recipe) => !planItems.has(recipe.slug));
+    weightedRecipes = weightedRecipes.filter(
+      ({ recipe }) => !planItems.has(recipe.slug)
+    );
   }
   if (filter.ingredients && filter.ingredients.length) {
     const ingredientFilter = new Set(filter.ingredients);
-    recipes = recipes.filter((recipe) =>
+    weightedRecipes = weightedRecipes.filter(({ recipe }) =>
       recipe.ingredients.find((ingredient) =>
         ingredientFilter.has(ingredient.type.id)
       )
@@ -107,12 +115,12 @@ export function getSuggestedRecipes(
   }
   if (filter.tags && filter.tags.length) {
     const tagFilter = new Set(filter.tags);
-    recipes = recipes.filter(
-      (recipe) => recipe.tags.filter((tag) => tagFilter.has(tag)).length
+    weightedRecipes = weightedRecipes.filter(
+      ({ recipe }) => recipe.tags.filter((tag) => tagFilter.has(tag)).length
     );
   }
   const boostItems = new Set(ingredients);
-  const pantryMatches = recipes.map((recipe) => {
+  const pantryMatches = weightedRecipes.map(({ recipe, roll }) => {
     const matchCount = recipe.ingredients.filter((ingredient) =>
       boostItems.has(ingredient.type.id)
     ).length;
@@ -120,11 +128,11 @@ export function getSuggestedRecipes(
     return {
       recipe,
       matchCount,
+      roll,
     };
   });
 
-  const scoredRecipes = pantryMatches.map(({ recipe, matchCount }) => {
-    const roll = random();
+  const scoredRecipes = pantryMatches.map(({ recipe, matchCount, roll }) => {
     return {
       recipe,
       score:

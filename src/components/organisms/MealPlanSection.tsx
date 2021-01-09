@@ -62,14 +62,16 @@ export function MealPlanSection({ mealPlan, recipes }: Props) {
         actions={[
           {
             icon: faTimes,
-            onClick: (recipe) => () =>
+            onClick: (recipe) => (e) => {
               mealPlan.recipes
                 .find((mealPlanItem) => mealPlanItem.slug === recipe.slug)
-                ?.ref.delete(),
+                ?.ref.delete();
+              e.preventDefault();
+            },
           },
           {
             icon: faCheck,
-            onClick: (recipe) => () => {
+            onClick: (recipe) => (e) => {
               household?.ref
                 .collection("history")
                 .add({ ...insertMeta, slug: recipe.slug });
@@ -77,6 +79,7 @@ export function MealPlanSection({ mealPlan, recipes }: Props) {
               mealPlan.recipes
                 .find((mealPlanItem) => mealPlanItem.slug === recipe.slug)
                 ?.ref.delete();
+              e.preventDefault();
             },
           },
         ]}

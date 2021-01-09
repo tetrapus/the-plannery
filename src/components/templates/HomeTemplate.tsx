@@ -127,9 +127,10 @@ export default function HomeTemplate() {
                   onChange={(options) =>
                     setState((state) => ({
                       ...state,
-                      ingredientBoosts: ((options || []) as OptionsType<
-                        OptionTypeBase
-                      >).map((option) => option.value),
+                      ingredientBoosts: ((options ||
+                        []) as OptionsType<OptionTypeBase>).map(
+                        (option) => option.value
+                      ),
                     }))
                   }
                 ></Select>
@@ -175,10 +176,12 @@ export default function HomeTemplate() {
               actions={[
                 {
                   icon: faPlus,
-                  onClick: (recipe) => () =>
+                  onClick: (recipe) => (e) => {
                     household?.ref
                       .collection("mealplan")
-                      .add({ slug: recipe.slug, ...insertMeta }),
+                      .add({ slug: recipe.slug, ...insertMeta });
+                    e.preventDefault();
+                  },
                 },
               ]}
             ></RecipeList>

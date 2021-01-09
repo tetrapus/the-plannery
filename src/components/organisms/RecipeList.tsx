@@ -8,7 +8,7 @@ import { IconButton } from "../atoms/IconButton";
 
 interface Action {
   icon: IconProp;
-  onClick: (recipe: Recipe) => () => void;
+  onClick: (recipe: Recipe) => (e: React.MouseEvent) => void;
 }
 
 interface Props {
