@@ -2,7 +2,6 @@ import SeedRandom from "seed-random";
 import { ExternalCollectionFactory } from "./CollectionFactory";
 import Ingredient, { IngredientType, normaliseIngredient } from "./ingredients";
 import { Like } from "./likes";
-import { MealPlan } from "./meal-plan";
 
 export interface RecipeStep {
   method: string;
@@ -74,9 +73,9 @@ interface RecommendationFactors {
 }
 
 interface RecommendationFilter {
-  mealPlan?: MealPlan;
   ingredients?: string[];
   tags?: string[];
+  exclusions?: string[];
 }
 
 export function getSuggestedRecipes(
@@ -97,10 +96,8 @@ export function getSuggestedRecipes(
     roll: random(),
   }));
 
-  if (filter.mealPlan) {
-    const planItems = new Set(
-      filter.mealPlan.recipes.map((recipe) => recipe.slug)
-    );
+  if (filter.exclusions) {
+    const planItems = new Set(filter.exclusions);
     weightedRecipes = weightedRecipes.filter(
       ({ recipe }) => !planItems.has(recipe.slug)
     );

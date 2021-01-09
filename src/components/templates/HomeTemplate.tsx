@@ -23,6 +23,8 @@ import { ShoppingListSection } from "../organisms/ShoppingListSection";
 import { InviteSection } from "../organisms/InviteSection";
 import { IconButton } from "../atoms/IconButton";
 import { useSubscription } from "../../util/use-subscription";
+import { useStateObject } from "../../util/use-state-object";
+import { TrashContext } from "../../data/trash";
 
 interface State {
   mealPlan: MealPlan;
@@ -42,9 +44,11 @@ export default function HomeTemplate() {
     { mealPlan, ingredientFilter, usePantry, ingredientBoosts },
     setState,
   ] = useState<State>(initialState);
-  const [showFilters, setShowFilters] = useState<boolean>(false);
+  const includeTrash$ = useStateObject<boolean>(false);
+  const showFilters$ = useStateObject<boolean>(false);
   const { household, insertMeta } = useContext(AuthStateContext);
   const likes = useContext(LikesContext);
+  const trash = useContext(TrashContext);
   const pantry = useContext(PantryContext);
   const [tagFilter, setTagFilter] = useState<string[]>([]);
 
@@ -86,10 +90,10 @@ export default function HomeTemplate() {
               Suggested for you
               <IconButton
                 icon={faCogs}
-                onClick={() => setShowFilters((state) => !state)}
+                onClick={() => showFilters$.set((state) => !state)}
               />
             </h1>
-            {showFilters ? (
+            {showFilters$.value ? (
               <div css={{ position: "relative" }}>
                 <ToggleButton
                   css={{ marginBottom: 8 }}
@@ -99,6 +103,13 @@ export default function HomeTemplate() {
                   }
                 >
                   Use up pantry items
+                </ToggleButton>
+                <ToggleButton
+                  css={{ marginBottom: 8, marginLeft: 8 }}
+                  value={includeTrash$.value}
+                  onChange={(value) => includeTrash$.set(value)}
+                >
+                  Include recipes in trash
                 </ToggleButton>
                 <Select
                   isMulti
@@ -170,7 +181,16 @@ export default function HomeTemplate() {
                       ...ingredientBoosts,
                     ],
                   },
-                  { mealPlan, ingredients: ingredientFilter, tags: tagFilter }
+                  {
+                    ingredients: ingredientFilter,
+                    tags: tagFilter,
+                    exclusions: [
+                      ...mealPlan.recipes.map((recipe) => recipe.slug),
+                      ...(includeTrash$.value
+                        ? []
+                        : trash.map((trashItem) => trashItem.slug)),
+                    ],
+                  }
                 ) || []
               }
               actions={[

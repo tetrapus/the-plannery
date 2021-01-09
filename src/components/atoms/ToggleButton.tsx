@@ -19,6 +19,7 @@ export function ToggleButton({ children, value, onChange, ...rest }: Props) {
         color: value ? "white" : "black",
         fontWeight: value ? "bold" : "normal",
         display: "inline-block",
+        cursor: "pointer",
       }}
       onClick={() => onChange(!value)}
       {...rest}

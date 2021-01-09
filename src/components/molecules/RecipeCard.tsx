@@ -1,6 +1,4 @@
 import { css } from "@emotion/core";
-import { faTrash } from "@fortawesome/free-solid-svg-icons";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import React, { useContext } from "react";
 import { Link } from "react-router-dom";
 import { LikesContext } from "../../data/likes";
@@ -11,6 +9,7 @@ import { Flex } from "../atoms/Flex";
 import { Stack } from "../atoms/Stack";
 import { Breakpoint } from "../styles/Breakpoint";
 import { LikeButton } from "./LikeButton";
+import { TrashButton } from "./TrashButton";
 
 interface Props {
   recipe: Recipe;
@@ -98,16 +97,14 @@ export function RecipeCard({ recipe, children, ...rest }: Props) {
               [Breakpoint.MOBILE]: { top: 80 },
             }}
           />
-          <FontAwesomeIcon
-            icon={faTrash}
+          <TrashButton
+            recipe={recipe}
             css={{
-              color: "#ccc",
               position: "absolute",
               right: 8,
               top: 8,
               ".RecipeCard:not(:hover) &": { display: "none" },
             }}
-            onClick={(e) => e.stopPropagation()}
           />
           <Stack
             css={{

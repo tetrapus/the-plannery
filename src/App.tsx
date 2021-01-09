@@ -16,6 +16,7 @@ import { PantryContext, PantryItem } from "./data/pantry";
 import { HistoryPage } from "./pages/HistoryPage";
 import { ShoppingListPage } from "./pages/ShoppingListPage";
 import { useSubscription } from "./util/use-subscription";
+import { Trash, TrashContext } from "./data/trash";
 
 initFirebase();
 
@@ -74,6 +75,13 @@ function App() {
       snapshot.docs.map((doc) => ({ ref: doc.ref, ...doc.data() } as Like))
   );
 
+  const trash = useFirestore(
+    household,
+    (doc) => doc.ref.collection("trash"),
+    (snapshot) =>
+      snapshot.docs.map((doc) => ({ ref: doc.ref, ...doc.data() } as Trash))
+  );
+
   const pantry = useFirestore(
     household,
     (doc) => doc.ref.collection("pantry"),
@@ -87,35 +95,37 @@ function App() {
   return (
     <AuthStateContext.Provider value={authState}>
       <LikesContext.Provider value={likes || []}>
-        <PantryContext.Provider value={pantry}>
-          <Router>
-            <Stack css={{ minHeight: "100vh" }}>
-              <NavigationBar></NavigationBar>
-              {currentUser === undefined ? (
-                <Spinner />
-              ) : !currentUser ? (
-                <LoggedOutTemplate />
-              ) : !household ? (
-                <GetStartedTemplate />
-              ) : (
-                <Switch>
-                  <Route path="/recipes/:slug">
-                    <RecipePage></RecipePage>
-                  </Route>
-                  <Route path="/history">
-                    <HistoryPage />
-                  </Route>
-                  <Route path="/shopping-list">
-                    <ShoppingListPage />
-                  </Route>
-                  <Route path="/">
-                    <HomePage></HomePage>
-                  </Route>
-                </Switch>
-              )}
-            </Stack>
-          </Router>
-        </PantryContext.Provider>
+        <TrashContext.Provider value={trash || []}>
+          <PantryContext.Provider value={pantry}>
+            <Router>
+              <Stack css={{ minHeight: "100vh" }}>
+                <NavigationBar></NavigationBar>
+                {currentUser === undefined ? (
+                  <Spinner />
+                ) : !currentUser ? (
+                  <LoggedOutTemplate />
+                ) : !household ? (
+                  <GetStartedTemplate />
+                ) : (
+                  <Switch>
+                    <Route path="/recipes/:slug">
+                      <RecipePage></RecipePage>
+                    </Route>
+                    <Route path="/history">
+                      <HistoryPage />
+                    </Route>
+                    <Route path="/shopping-list">
+                      <ShoppingListPage />
+                    </Route>
+                    <Route path="/">
+                      <HomePage></HomePage>
+                    </Route>
+                  </Switch>
+                )}
+              </Stack>
+            </Router>
+          </PantryContext.Provider>
+        </TrashContext.Provider>
       </LikesContext.Provider>
     </AuthStateContext.Provider>
   );
