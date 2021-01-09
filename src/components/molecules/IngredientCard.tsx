@@ -7,6 +7,7 @@ import { Flex } from "../atoms/Flex";
 import { Stack } from "../atoms/Stack";
 import { PantryItem } from "../../data/pantry";
 import { AuthStateContext } from "../../data/auth-state";
+import { PlaceholderImage } from "../atoms/PlaceholderImage";
 
 interface Props {
   ingredient: Ingredient;
@@ -81,10 +82,10 @@ export function IngredientCard({ ingredient, pantryItem }: Props) {
           borderRadius: 3,
           position: "relative",
           height: "100%",
+          borderBottom: "1px solid #dedede",
         }}
         style={{
           background: complete ? "inherit" : "white",
-          boxShadow: complete ? "inherit" : "grey 1px 1px 4px",
           opacity: busy || pantryItem === null ? 0.5 : 1,
         }}
         onClick={async (e) => {
@@ -96,14 +97,15 @@ export function IngredientCard({ ingredient, pantryItem }: Props) {
         }}
         className="IngredientCard"
       >
-        <img
-          src={ingredient.type.imageUrl}
-          css={css`
-            height: 48px;
-            width: 48px;
-          `}
-          alt={ingredient.type.name}
-        ></img>
+        {ingredient.type.imageUrl ? (
+          <img
+            src={ingredient.type.imageUrl}
+            css={{ height: 48, width: 48 }}
+            alt={ingredient.type.name}
+          ></img>
+        ) : (
+          <PlaceholderImage />
+        )}
 
         <Stack
           css={css`

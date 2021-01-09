@@ -20,7 +20,7 @@ import Select, { OptionsType, OptionTypeBase } from "react-select";
 import { ToggleButton } from "../atoms/ToggleButton";
 import { MealPlanSection } from "../organisms/MealPlanSection";
 import { ShoppingListSection } from "../organisms/ShoppingListSection";
-import { InviteSection } from "../organisms/InviteSection";
+import { YourHomeSection } from "../organisms/YourHomeSection";
 import { IconButton } from "../atoms/IconButton";
 import { useSubscription } from "../../util/use-subscription";
 import { useStateObject } from "../../util/use-state-object";
@@ -220,7 +220,7 @@ export default function HomeTemplate() {
           [Breakpoint.LAPTOP]: { display: "none" },
         }}
       >
-        <InviteSection />
+        <YourHomeSection />
         <h2>Pantry</h2>
         <IngredientList
           ingredients={pantry?.items.map((item) => item.ingredient)}
