@@ -4,10 +4,10 @@ import { AuthStateContext } from "../../data/auth-state";
 import { MealPlan } from "../../data/meal-plan";
 import { PantryContext } from "../../data/pantry";
 import { getRecipe, Recipe } from "../../data/recipes";
-import { RecipeList } from "./RecipeList";
+import { RecipeList } from "../../components/organisms/RecipeList";
 import { isSameIngredient } from "../../data/ingredients";
 import { db } from "../../init/firebase";
-import { Spinner } from "../atoms/Spinner";
+import { Spinner } from "../../components/atoms/Spinner";
 
 interface Props {
   mealPlan: MealPlan;

@@ -5,11 +5,11 @@ import {
   AuthStateContext,
   useHouseholdCollection,
 } from "../../data/auth-state";
-import { Flex } from "../atoms/Flex";
-import { IconButton } from "../atoms/IconButton";
-import { Stack } from "../atoms/Stack";
-import { TextInput } from "../atoms/TextInput";
-import { User, UserCard } from "../molecules/UserCard";
+import { Flex } from "../../components/atoms/Flex";
+import { IconButton } from "../../components/atoms/IconButton";
+import { Stack } from "../../components/atoms/Stack";
+import { TextInput } from "../../components/atoms/TextInput";
+import { User, UserCard } from "../../components/molecules/UserCard";
 
 export function YourHomeSection() {
   const { household } = useContext(AuthStateContext);

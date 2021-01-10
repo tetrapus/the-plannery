@@ -2,7 +2,7 @@ import { faStopCircle } from "@fortawesome/free-solid-svg-icons";
 import React from "react";
 import { useHouseholdCollection } from "../../data/auth-state";
 import { getRecipe, Recipe } from "../../data/recipes";
-import { RecipeList } from "./RecipeList";
+import { RecipeList } from "../../components/organisms/RecipeList";
 
 interface Session {
   ref: firebase.firestore.DocumentReference;

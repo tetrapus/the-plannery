@@ -33,6 +33,7 @@ export function IngredientCard({ ingredient, pantryItem }: Props) {
     if (!household?.ref || pantryItem === null) {
       return;
     }
+    console.log(pantryItem);
     if (pantryItem) {
       if (complete) {
         if (pantryItem.ingredient.qty) {
