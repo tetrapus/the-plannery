@@ -25,6 +25,7 @@ import { IconButton } from "../atoms/IconButton";
 import { useSubscription } from "../../util/use-subscription";
 import { useStateObject } from "../../util/use-state-object";
 import { TrashContext } from "../../data/trash";
+import { NowCookingSection } from "../organisms/NowCookingSection";
 
 interface State {
   mealPlan: MealPlan;
@@ -83,6 +84,7 @@ export default function HomeTemplate() {
             },
           }}
         >
+          <NowCookingSection recipes={recipes} />
           <MealPlanSection mealPlan={mealPlan} recipes={recipes} />
           <ShoppingListSection mealPlan={mealPlan} recipes={recipes} />
           <div>

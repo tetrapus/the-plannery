@@ -7,8 +7,10 @@ import { IngredientList } from "../organisms/IngredientList";
 import { RecipeStep } from "../organisms/RecipeStep";
 import { Recipe } from "../../data/recipes";
 import Ingredient from "../../data/ingredients";
-import { AuthStateContext } from "../../data/auth-state";
-import { Pantry, PantryItem } from "../../data/pantry";
+import {
+  AuthStateContext,
+  useHouseholdCollection,
+} from "../../data/auth-state";
 import { LikeButton } from "../molecules/LikeButton";
 import {
   faChevronDown,
@@ -19,13 +21,10 @@ import {
 import firebase from "firebase";
 import { Flex } from "../atoms/Flex";
 import { IconButton } from "../atoms/IconButton";
+import { useStateObject } from "../../util/use-state-object";
 
 interface Props {
   recipe: Recipe;
-}
-
-interface State {
-  pantry?: Pantry;
 }
 
 interface Session {
@@ -41,37 +40,12 @@ interface Session {
 
 export default function RecipeTemplate({ recipe }: Props) {
   const { household, insertMeta } = useContext(AuthStateContext);
-  const [{ pantry }, setState] = useState<State>({});
   const [session, setSession] = useState<Session | undefined>();
-  const [users, setUsers] = useState<any>({});
-  const [ingredientsExpanded, setIngredientsExpanded] = useState<boolean>(
-    false
-  );
-
-  useEffect(
-    () =>
-      household?.ref.collection("pantry").onSnapshot((snapshot) =>
-        setState((state) => ({
-          ...state,
-          pantry: {
-            items: snapshot.docs.map(
-              (doc) => ({ ref: doc.ref, ...doc.data() } as PantryItem)
-            ),
-          },
-        }))
-      ),
-    [household]
-  );
-  useEffect(
-    () =>
-      household?.ref
-        .collection("users")
-        .onSnapshot((snapshot) =>
-          setUsers(
-            Object.fromEntries(snapshot.docs.map((doc) => [doc.id, doc.data()]))
-          )
-        ),
-    [household]
+  const ingredientsExpanded$ = useStateObject<boolean>(false);
+  const users = useHouseholdCollection(
+    (household) => household.collection("users"),
+    (snapshot) =>
+      Object.fromEntries(snapshot.docs.map((doc) => [doc.id, doc.data()]))
   );
   useEffect(
     () =>
@@ -155,8 +129,8 @@ export default function RecipeTemplate({ recipe }: Props) {
         >
           {session ? (
             <IconButton
-              icon={ingredientsExpanded ? faChevronUp : faChevronDown}
-              onClick={() => setIngredientsExpanded((value) => !value)}
+              icon={ingredientsExpanded$.value ? faChevronUp : faChevronDown}
+              onClick={() => ingredientsExpanded$.set((value) => !value)}
             />
           ) : null}
           <IngredientList
@@ -168,8 +142,11 @@ export default function RecipeTemplate({ recipe }: Props) {
                 .toLowerCase()
                 .indexOf(ingredient.type.name.toLowerCase())
             }
-            pantry={pantry}
-            css={session && !ingredientsExpanded ? { flexWrap: "nowrap" } : {}}
+            css={
+              session && !ingredientsExpanded$.value
+                ? { flexWrap: "nowrap" }
+                : {}
+            }
           />
         </Flex>
         <h2>Utensils</h2>

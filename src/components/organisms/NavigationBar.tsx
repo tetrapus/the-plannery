@@ -2,7 +2,6 @@ import firebase from "firebase";
 import React, { useContext } from "react";
 import { Link } from "react-router-dom";
 import { Flex } from "../atoms/Flex";
-import { Stack } from "../atoms/Stack";
 import { AuthStateContext } from "../../data/auth-state";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
@@ -11,6 +10,7 @@ import {
   faTimes,
 } from "@fortawesome/free-solid-svg-icons";
 import { IconButton } from "../atoms/IconButton";
+import { UserCard } from "../molecules/UserCard";
 
 export default function NavigationBar() {
   const { currentUser } = useContext(AuthStateContext);
@@ -23,7 +23,7 @@ export default function NavigationBar() {
     <Flex
       css={{
         backgroundColor: `white`,
-        borderBottom: `1px solid grey`,
+        borderBottom: `1px solid #dedede`,
         height: 64,
         paddingLeft: 16,
         alignItems: "center",
@@ -46,17 +46,7 @@ export default function NavigationBar() {
       </Flex>
       {currentUser ? (
         <Flex css={{ alignItems: "center" }}>
-          <img
-            src={currentUser?.photoURL || "#"}
-            css={{ width: 48, height: 48, borderRadius: 3 }}
-            alt="Profile"
-          />
-          <Stack css={{ margin: 8 }}>
-            <div>{currentUser?.displayName}</div>
-            <div css={{ fontSize: 12, color: "#666" }}>
-              {currentUser?.email}
-            </div>
-          </Stack>
+          <UserCard user={currentUser} size={42} />
           <FontAwesomeIcon
             icon={faTimes}
             css={{ margin: 8 }}
