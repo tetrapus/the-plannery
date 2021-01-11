@@ -1,47 +1,30 @@
 import React, { useContext, useEffect, useState } from "react";
 import { css } from "@emotion/core";
 import ReactMarkdown from "react-markdown";
-import { TagList } from "../molecules/TagList";
-import { Stack } from "../atoms/Stack";
-import { IngredientList } from "../organisms/IngredientList";
-import { RecipeStep } from "../organisms/RecipeStep";
+import { TagList } from "../../components/molecules/TagList";
+import { Stack } from "../../components/atoms/Stack";
+import { RecipeStep } from "../../components/organisms/RecipeStep";
 import { Recipe } from "../../data/recipes";
 import Ingredient from "../../data/ingredients";
 import {
   AuthStateContext,
   useHouseholdCollection,
 } from "../../data/auth-state";
-import { LikeButton } from "../molecules/LikeButton";
-import {
-  faChevronDown,
-  faChevronUp,
-  faPlayCircle,
-  faStopCircle,
-} from "@fortawesome/free-solid-svg-icons";
+import { LikeButton } from "../../components/molecules/LikeButton";
+import { faPlayCircle, faStopCircle } from "@fortawesome/free-solid-svg-icons";
 import firebase from "firebase";
-import { Flex } from "../atoms/Flex";
-import { IconButton } from "../atoms/IconButton";
-import { useStateObject } from "../../util/use-state-object";
+import { Flex } from "../../components/atoms/Flex";
+import { IconButton } from "../../components/atoms/IconButton";
+import { Session } from "../../data/session";
+import IngredientsSection from "./IngredientsSection";
 
 interface Props {
   recipe: Recipe;
 }
 
-interface Session {
-  by: string;
-  ref: firebase.firestore.DocumentReference;
-  steps: {
-    [step: string]: {
-      state: "done" | "claimed";
-      by: string;
-    };
-  };
-}
-
 export default function RecipeTemplate({ recipe }: Props) {
   const { household, insertMeta } = useContext(AuthStateContext);
   const [session, setSession] = useState<Session | undefined>();
-  const ingredientsExpanded$ = useStateObject<boolean>(false);
   const users = useHouseholdCollection(
     (household) => household.collection("users"),
     (snapshot) =>
@@ -98,7 +81,9 @@ export default function RecipeTemplate({ recipe }: Props) {
               text-decoration: none;
             `}
           >
-            <h1 css={{ margin: "12px 24px" }}>{recipe.name}</h1>
+            <h1 css={{ margin: "12px 24px", fontWeight: "bold" }}>
+              {recipe.name}
+            </h1>
           </a>
           <LikeButton
             recipe={recipe}
@@ -109,46 +94,7 @@ export default function RecipeTemplate({ recipe }: Props) {
 
         <ReactMarkdown>{recipe.description}</ReactMarkdown>
         <TagList items={recipe.tags}></TagList>
-        {!session ? <h2>Ingredients</h2> : null}
-        <Flex
-          css={css(
-            session
-              ? {
-                  position: "fixed",
-                  top: 0,
-                  background: "white",
-                  left: 0,
-                  zIndex: 100,
-                  borderBottom: "1px solid grey",
-                  overflow: "scroll",
-                  width: "100vw",
-                }
-              : {},
-            { alignItems: "center" }
-          )}
-        >
-          {session ? (
-            <IconButton
-              icon={ingredientsExpanded$.value ? faChevronUp : faChevronDown}
-              onClick={() => ingredientsExpanded$.set((value) => !value)}
-            />
-          ) : null}
-          <IngredientList
-            ingredients={recipe.ingredients}
-            sortKey={(ingredient: Ingredient) =>
-              recipe.steps
-                .map((step) => step.method)
-                .join("\n")
-                .toLowerCase()
-                .indexOf(ingredient.type.name.toLowerCase())
-            }
-            css={
-              session && !ingredientsExpanded$.value
-                ? { flexWrap: "nowrap" }
-                : {}
-            }
-          />
-        </Flex>
+        <IngredientsSection recipe={recipe} session={session} />
         <h2>Utensils</h2>
         <TagList items={recipe.utensils}></TagList>
         <h2>

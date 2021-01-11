@@ -1,15 +1,15 @@
 import React from "react";
 import { useParams } from "react-router-dom";
-import RecipeTemplate from "../components/templates/RecipeTemplate";
-import { NotFoundTemplate } from "../components/templates/NotFoundTemplate";
+import RecipeTemplate from "./RecipeTemplate";
+import { NotFoundTemplate } from "../../components/templates/NotFoundTemplate";
 import {
   getRecipe,
   getRecipes,
   Recipe,
   RecipesCollection,
-} from "../data/recipes";
-import { Spinner } from "../components/atoms/Spinner";
-import { useSubscription } from "../util/use-subscription";
+} from "../../data/recipes";
+import { Spinner } from "../../components/atoms/Spinner";
+import { useSubscription } from "../../util/use-subscription";
 
 interface Props {}
 

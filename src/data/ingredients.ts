@@ -3,7 +3,7 @@ import { Recipe } from "./recipes";
 export interface IngredientType {
   id: string;
   name: string;
-  imageUrl?: string;
+  imageUrl: string | null;
 }
 
 export default interface Ingredient {

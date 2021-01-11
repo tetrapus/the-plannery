@@ -199,6 +199,6 @@ function getIngredientType(ingredient: any): IngredientType | undefined {
     name: ingredient.name,
     imageUrl: ingredient.imagePath
       ? `https://img.hellofresh.com/hellofresh_s3${ingredient.imagePath}`
-      : undefined,
+      : null,
   };
 }

@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo } from "react";
 import "./App.css";
-import { RecipePage } from "./pages/RecipePage";
+import { RecipePage } from "./pages/RecipePage/RecipePage";
 import { BrowserRouter as Router, Switch, Route } from "react-router-dom";
 import HomePage from "./pages/HomePage/HomePage";
 import NavigationBar from "./components/organisms/NavigationBar";

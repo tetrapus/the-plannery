@@ -88,11 +88,13 @@ export default function SuggestedRecipesSection({ recipes }: Props) {
               value: ingredient.type.id,
               label: (
                 <Flex css={{ alignItems: "center" }}>
-                  <img
-                    src={ingredient.type.imageUrl}
-                    css={{ height: 16, marginRight: 8 }}
-                    alt=""
-                  />
+                  {ingredient.type.imageUrl ? (
+                    <img
+                      src={ingredient.type.imageUrl}
+                      css={{ height: 16, marginRight: 8 }}
+                      alt=""
+                    />
+                  ) : null}
                   {ingredient.type.name}
                 </Flex>
               ),

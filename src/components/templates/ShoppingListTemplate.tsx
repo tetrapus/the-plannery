@@ -1,7 +1,7 @@
 import React from "react";
 import Ingredient from "../../data/ingredients";
 import { Stack } from "../atoms/Stack";
-import { IngredientCard } from "../molecules/IngredientCard";
+import { PantryIngredientCard } from "../molecules/PantryIngredientCard";
 interface Props {
   ingredients: Ingredient[];
 }
@@ -12,7 +12,7 @@ export function ShoppingListTemplate({ ingredients }: Props) {
       <h1>Shopping List</h1>
       <Stack>
         {ingredients.map((ingredient) => (
-          <IngredientCard ingredient={ingredient} />
+          <PantryIngredientCard ingredient={ingredient} />
         ))}
       </Stack>
     </Stack>
