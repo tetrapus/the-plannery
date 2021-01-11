@@ -29,7 +29,7 @@ export default function IngredientCard({
     >
       <Flex
         css={{
-          width: 180,
+          width: 175,
           alignItems: "center",
           margin: 4,
           padding: 4,
@@ -37,6 +37,7 @@ export default function IngredientCard({
           position: "relative",
           height: "100%",
           borderBottom: done ? "none" : "1px solid #dedede",
+          borderRight: done ? "none" : "1px solid #dedede",
         }}
         style={{
           background: done ? "inherit" : "white",
@@ -58,10 +59,10 @@ export default function IngredientCard({
         <Stack
           css={{
             alignItems: "flex-start",
-            paddingLeft: 12,
+            paddingLeft: 8,
           }}
         >
-          <div css={{ color: "#555", fontStyle: "italic" }}>{status}</div>
+          <div css={{ color: "#555", fontSize: 14 }}>{status}</div>
           <div>{ingredient.type.name}</div>
         </Stack>
         {action}

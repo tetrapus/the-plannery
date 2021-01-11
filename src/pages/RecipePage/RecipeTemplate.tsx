@@ -17,10 +17,15 @@ import { Flex } from "../../components/atoms/Flex";
 import { IconButton } from "../../components/atoms/IconButton";
 import { Session } from "../../data/session";
 import IngredientsSection from "./IngredientsSection";
+import styled from "@emotion/styled";
 
 interface Props {
   recipe: Recipe;
 }
+
+const Section = styled.div`
+  padding: 12px;
+`;
 
 export default function RecipeTemplate({ recipe }: Props) {
   const { household, insertMeta } = useContext(AuthStateContext);
@@ -68,91 +73,96 @@ export default function RecipeTemplate({ recipe }: Props) {
           position: relative;
           top: -15vh;
           min-height: 100vh;
-          padding: 12px;
           box-shadow: gray 1px 1px 4px;
           border-radius: 2px;
         `}
       >
-        <Stack css={{ alignItems: `center` }}>
-          <a
-            href={recipe.url}
-            css={css`
-              color: #2259b5;
-              text-decoration: none;
-            `}
-          >
-            <h1 css={{ margin: "12px 24px", fontWeight: "bold" }}>
-              {recipe.name}
-            </h1>
-          </a>
-          <LikeButton
-            recipe={recipe}
-            css={{ position: "absolute", top: 16, right: 16, fontSize: 24 }}
-          />
-          <h2 css={{ margin: 0 }}>{recipe.subtitle}</h2>
-        </Stack>
-
-        <ReactMarkdown>{recipe.description}</ReactMarkdown>
-        <TagList items={recipe.tags}></TagList>
-        <IngredientsSection recipe={recipe} session={session} />
-        <h2>Utensils</h2>
-        <TagList items={recipe.utensils}></TagList>
-        <h2>
-          <Flex>
-            Method
-            <IconButton
-              icon={session ? faStopCircle : faPlayCircle}
-              onClick={() =>
-                session
-                  ? session.ref.delete()
-                  : household.ref
-                      .collection("sessions")
-                      .doc(recipe.slug)
-                      .set({ ...insertMeta, steps: {} })
-              }
+        <Section>
+          <Stack css={{ alignItems: `center` }}>
+            <a
+              href={recipe.url}
+              css={css`
+                color: #2259b5;
+                text-decoration: none;
+              `}
+            >
+              <h1 css={{ margin: "12px 24px", fontWeight: "bold" }}>
+                {recipe.name}
+              </h1>
+            </a>
+            <LikeButton
+              recipe={recipe}
+              css={{ position: "absolute", top: 16, right: 16, fontSize: 24 }}
             />
-          </Flex>
-        </h2>
-        <div>
-          {recipe.steps.map((step, idx) => (
-            <RecipeStep
-              key={idx}
-              step={step}
-              stepNumber={idx + 1}
-              users={users}
-              ingredients={step.ingredients
-                .map((ingredient) =>
-                  recipe.ingredients.find(
-                    (recipeIngredient) =>
-                      recipeIngredient.type.id === ingredient
+            <h2 css={{ margin: 0 }}>{recipe.subtitle}</h2>
+          </Stack>
+
+          <ReactMarkdown>{recipe.description}</ReactMarkdown>
+          <TagList items={recipe.tags}></TagList>
+        </Section>
+        <IngredientsSection recipe={recipe} session={session} />
+        <Section>
+          <h2>Utensils</h2>
+          <TagList items={recipe.utensils}></TagList>
+        </Section>
+        <Section>
+          <h2>
+            <Flex>
+              Method
+              <IconButton
+                icon={session ? faStopCircle : faPlayCircle}
+                onClick={() =>
+                  session
+                    ? session.ref.delete()
+                    : household.ref
+                        .collection("sessions")
+                        .doc(recipe.slug)
+                        .set({ ...insertMeta, steps: {} })
+                }
+              />
+            </Flex>
+          </h2>
+          <div>
+            {recipe.steps.map((step, idx) => (
+              <RecipeStep
+                key={idx}
+                step={step}
+                stepNumber={idx + 1}
+                users={users}
+                ingredients={step.ingredients
+                  .map((ingredient) =>
+                    recipe.ingredients.find(
+                      (recipeIngredient) =>
+                        recipeIngredient.type.id === ingredient
+                    )
                   )
-                )
-                .filter(
-                  (ingredient): ingredient is Ingredient =>
-                    ingredient !== undefined
-                )}
-              state={session?.steps ? session?.steps[`${idx}`] : undefined}
-              onClick={() => {
-                if (!session) {
-                  return;
-                }
-                if (!session.steps[`${idx}`]) {
-                  session.ref.update({
-                    [`steps.${idx}`]: { ...insertMeta, state: "claimed" },
-                  });
-                } else if (session.steps[`${idx}`].state === "done") {
-                  session.ref.update({
-                    [`steps.${idx}`]: firebase.firestore.FieldValue.delete(),
-                  });
-                } else if (session.steps[`${idx}`].state === "claimed") {
-                  session.ref.update({
-                    [`steps.${idx}`]: { ...insertMeta, state: "done" },
-                  });
-                }
-              }}
-            ></RecipeStep>
-          ))}
-        </div>
+                  .filter(
+                    (ingredient): ingredient is Ingredient =>
+                      ingredient !== undefined
+                  )}
+                state={session?.steps ? session?.steps[`${idx}`] : undefined}
+                onClick={() => {
+                  if (!session) {
+                    return;
+                  }
+                  if (!session.steps[`${idx}`]) {
+                    session.ref.update({
+                      [`steps.${idx}`]: { ...insertMeta, state: "claimed" },
+                    });
+                  } else if (session.steps[`${idx}`].state === "done") {
+                    session.ref.update({
+                      [`steps.${idx}`]: firebase.firestore.FieldValue.delete(),
+                    });
+                  } else if (session.steps[`${idx}`].state === "claimed") {
+                    session.ref.update({
+                      [`steps.${idx}`]: { ...insertMeta, state: "done" },
+                    });
+                  }
+                }}
+              ></RecipeStep>
+            ))}
+          </div>
+        </Section>
       </div>
     </div>
   );

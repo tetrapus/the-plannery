@@ -1,5 +1,6 @@
 import React from "react";
 import { Flex } from "../../components/atoms/Flex";
+import { Stack } from "../../components/atoms/Stack";
 import { IngredientList } from "../../components/organisms/IngredientList";
 import Ingredient from "../../data/ingredients";
 import { Recipe } from "../../data/recipes";
@@ -29,7 +30,7 @@ export default function IngredientsSection({ recipe, session }: Props) {
     );
   }
   return (
-    <>
+    <Stack css={{ backgroundColor: "#eeeeee", padding: "0 12px" }}>
       <h2>Ingredients</h2>
       <Flex css={{ alignItems: "center" }}>
         <IngredientList
@@ -43,6 +44,6 @@ export default function IngredientsSection({ recipe, session }: Props) {
           }
         />
       </Flex>
-    </>
+    </Stack>
   );
 }

@@ -17,6 +17,7 @@ import { HistoryPage } from "./pages/HistoryPage/HistoryPage";
 import { ShoppingListPage } from "./pages/ShoppingListPage/ShoppingListPage";
 import { useSubscription } from "./util/use-subscription";
 import { Trash, TrashContext } from "./data/trash";
+import ScrollToTop from "./util/ScrollToTop";
 
 initFirebase();
 
@@ -99,6 +100,7 @@ function App() {
           <PantryContext.Provider value={pantry}>
             <Router>
               <Stack css={{ minHeight: "100vh" }}>
+                <ScrollToTop />
                 <NavigationBar></NavigationBar>
                 {currentUser === undefined ? (
                   <Spinner />
