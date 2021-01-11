@@ -47,6 +47,8 @@ export default function IngredientChecklist({
           borderBottom: "1px solid #dedede",
           overflow: "scroll",
           width: "100vw",
+          alignItems: "center",
+          flexWrap: ingredientsExpanded$.value ? "wrap" : "inherit",
         }}
       >
         <IconButton
