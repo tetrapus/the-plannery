@@ -1,7 +1,7 @@
 import React from "react";
 import Ingredient from "../../data/ingredients";
-import { Stack } from "../atoms/Stack";
-import { PantryIngredientCard } from "../molecules/PantryIngredientCard";
+import { Stack } from "../../components/atoms/Stack";
+import { PantryIngredientCard } from "../../components/organisms/PantryIngredientCard";
 interface Props {
   ingredients: Ingredient[];
 }

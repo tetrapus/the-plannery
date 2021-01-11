@@ -1,6 +1,6 @@
 import React, { useContext } from "react";
 import { Flex } from "../atoms/Flex";
-import { PantryIngredientCard } from "../molecules/PantryIngredientCard";
+import { PantryIngredientCard } from "./PantryIngredientCard";
 import { css } from "@emotion/core";
 import { enoughInPantry, inPantry, PantryContext } from "../../data/pantry";
 import Ingredient from "../../data/ingredients";

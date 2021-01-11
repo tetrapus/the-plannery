@@ -22,7 +22,11 @@ export default function IngredientCard({
   onClick,
 }: Props) {
   return (
-    <Stack>
+    <Stack
+      css={{
+        borderBottom: "1px solid #dedede",
+      }}
+    >
       <Flex
         css={{
           width: 180,
@@ -32,7 +36,7 @@ export default function IngredientCard({
           borderRadius: 3,
           position: "relative",
           height: "100%",
-          borderBottom: "1px solid #dedede",
+          borderBottom: done ? "none" : "1px solid #dedede",
         }}
         style={{
           background: done ? "inherit" : "white",

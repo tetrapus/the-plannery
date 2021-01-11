@@ -13,8 +13,8 @@ import { LoggedOutTemplate } from "./components/templates/LoggedOutTemplate";
 import { GetStartedTemplate } from "./components/templates/GetStartedTemplate";
 import { Like, LikesContext } from "./data/likes";
 import { PantryContext, PantryItem } from "./data/pantry";
-import { HistoryPage } from "./pages/HistoryPage";
-import { ShoppingListPage } from "./pages/ShoppingListPage";
+import { HistoryPage } from "./pages/HistoryPage/HistoryPage";
+import { ShoppingListPage } from "./pages/ShoppingListPage/ShoppingListPage";
 import { useSubscription } from "./util/use-subscription";
 import { Trash, TrashContext } from "./data/trash";
 

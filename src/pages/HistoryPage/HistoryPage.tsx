@@ -1,10 +1,10 @@
 import React from "react";
-import { Spinner } from "../components/atoms/Spinner";
-import { HistoryTemplate } from "../components/templates/HistoryTemplate";
-import { useHouseholdCollection } from "../data/auth-state";
-import { RecipeHistory, HistoryItem } from "../data/recipe-history";
-import { getRecipes, Recipe, RecipesCollection } from "../data/recipes";
-import { useSubscription } from "../util/use-subscription";
+import { Spinner } from "../../components/atoms/Spinner";
+import { HistoryTemplate } from "./HistoryTemplate";
+import { useHouseholdCollection } from "../../data/auth-state";
+import { RecipeHistory, HistoryItem } from "../../data/recipe-history";
+import { getRecipes, Recipe, RecipesCollection } from "../../data/recipes";
+import { useSubscription } from "../../util/use-subscription";
 
 export function HistoryPage() {
   const history = useHouseholdCollection<RecipeHistory>(

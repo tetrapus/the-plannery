@@ -4,7 +4,7 @@ import React, { useContext, useState } from "react";
 import Ingredient, { denormaliseIngredient } from "../../data/ingredients";
 import { PantryItem } from "../../data/pantry";
 import { AuthStateContext } from "../../data/auth-state";
-import IngredientCard from "./IngredientCard";
+import IngredientCard from "../molecules/IngredientCard";
 
 interface Props {
   ingredient: Ingredient;

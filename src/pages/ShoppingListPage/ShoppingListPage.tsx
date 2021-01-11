@@ -1,15 +1,15 @@
-import { useHouseholdCollection } from "../data/auth-state";
+import { useHouseholdCollection } from "../../data/auth-state";
 
 import {
   getIngredientsForMealPlan,
   MealPlan,
   MealPlanItem,
-} from "../data/meal-plan";
-import { ShoppingListTemplate } from "../components/templates/ShoppingListTemplate";
+} from "../../data/meal-plan";
+import { ShoppingListTemplate } from "./ShoppingListTemplate";
 import React from "react";
-import { Spinner } from "../components/atoms/Spinner";
-import { RecipesCollection, getRecipes, Recipe } from "../data/recipes";
-import { useSubscription } from "../util/use-subscription";
+import { Spinner } from "../../components/atoms/Spinner";
+import { RecipesCollection, getRecipes, Recipe } from "../../data/recipes";
+import { useSubscription } from "../../util/use-subscription";
 
 export function ShoppingListPage() {
   const mealPlan = useHouseholdCollection<MealPlan>(

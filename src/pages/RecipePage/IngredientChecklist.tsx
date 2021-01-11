@@ -47,13 +47,13 @@ export default function IngredientChecklist({
           borderBottom: "1px solid #dedede",
           overflow: "scroll",
           width: "100vw",
-          alignItems: "center",
           flexWrap: ingredientsExpanded$.value ? "wrap" : "inherit",
         }}
       >
         <IconButton
           icon={ingredientsExpanded$.value ? faChevronUp : faChevronDown}
           onClick={() => ingredientsExpanded$.set((value) => !value)}
+          css={{ margin: "auto 16px" }}
         />
         {recipe.ingredients
           .sort((a, b) =>

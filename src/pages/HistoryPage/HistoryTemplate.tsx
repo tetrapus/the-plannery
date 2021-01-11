@@ -1,8 +1,8 @@
 import React from "react";
 import { RecipeHistory } from "../../data/recipe-history";
 import { getRecipe, Recipe } from "../../data/recipes";
-import { Stack } from "../atoms/Stack";
-import { RecipeList } from "../organisms/RecipeList";
+import { Stack } from "../../components/atoms/Stack";
+import { RecipeList } from "../../components/organisms/RecipeList";
 
 interface Props {
   history: RecipeHistory;
