@@ -35,7 +35,7 @@ function TimerText({
   if (!durationText) {
     return <>{text}</>;
   }
-  const duration = parseInt(durationText[0]);
+  const duration = parseInt(durationText[0]) * 60;
   return (
     <b
       onClick={() =>
