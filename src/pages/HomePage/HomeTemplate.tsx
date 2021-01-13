@@ -70,7 +70,9 @@ export default function HomeTemplate() {
           <SuggestedRecipesSection recipes={recipes} />
         </Stack>
       ) : (
-        <Stack css={{ width: 800, marginLeft: "auto", alignItems: "center" }}>
+        <Stack
+          css={{ maxWidth: 800, marginLeft: "auto", alignItems: "center" }}
+        >
           <Spinner />
           Downloading recipe database...
         </Stack>

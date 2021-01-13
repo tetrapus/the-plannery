@@ -151,6 +151,81 @@ export function getSuggestedRecipes(
     .map(({ recipe }) => recipe);
 }
 
+export interface Preference {
+  id: string;
+  type: "ingredient";
+  preference: "exclude" | "reduce " | "prefer" | "require";
+}
+
+export function getSuggestedRecipes2(
+  recipes: Recipe[] | undefined,
+  preferences: Preference[]
+) {
+  if (recipes === undefined) {
+    return undefined;
+  }
+  const random = SeedRandom(
+    `${getWeek(new Date())}:${new Date().getFullYear()}`
+  );
+  let maxMatch = 0;
+
+  let weightedRecipes = recipes.map((recipe) => ({
+    recipe,
+    roll: random(),
+  }));
+
+  // Requirements
+
+  if (filter.exclusions) {
+    const planItems = new Set(filter.exclusions);
+    weightedRecipes = weightedRecipes.filter(
+      ({ recipe }) => !planItems.has(recipe.slug)
+    );
+  }
+  if (filter.ingredients && filter.ingredients.length) {
+    const ingredientFilter = new Set(filter.ingredients);
+    weightedRecipes = weightedRecipes.filter(({ recipe }) =>
+      recipe.ingredients.find((ingredient) =>
+        ingredientFilter.has(ingredient.type.id)
+      )
+    );
+  }
+  if (filter.tags && filter.tags.length) {
+    const tagFilter = new Set(filter.tags);
+    weightedRecipes = weightedRecipes.filter(
+      ({ recipe }) => recipe.tags.filter((tag) => tagFilter.has(tag)).length
+    );
+  }
+  const boostItems = new Set(ingredients);
+  const pantryMatches = weightedRecipes.map(({ recipe, roll }) => {
+    const matchCount = recipe.ingredients.filter((ingredient) =>
+      boostItems.has(ingredient.type.id)
+    ).length;
+    maxMatch = Math.max(matchCount, maxMatch);
+    return {
+      recipe,
+      matchCount,
+      roll,
+    };
+  });
+
+  const scoredRecipes = pantryMatches.map(({ recipe, matchCount, roll }) => {
+    return {
+      recipe,
+      score:
+        roll +
+        (likes.find((like) => recipe.slug === like.slug) ? 0.1 : 0) +
+        0.4 * (maxMatch ? matchCount / maxMatch : 0),
+      order: roll,
+    };
+  });
+  return scoredRecipes
+    .sort((a, b) => b.score - a.score)
+    .slice(0, 10)
+    .sort((a, b) => b.order - a.order)
+    .map(({ recipe }) => recipe);
+}
+
 export function getRecipe(recipes: Recipe[] | undefined, slug: string) {
   if (recipes === undefined) {
     return null;
