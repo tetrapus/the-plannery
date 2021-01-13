@@ -3,7 +3,7 @@ import { css } from "@emotion/core";
 import ReactMarkdown from "react-markdown";
 import { TagList } from "../../components/molecules/TagList";
 import { Stack } from "../../components/atoms/Stack";
-import { RecipeStep } from "../../components/organisms/RecipeStep";
+import { RecipeStep } from "./RecipeStep";
 import { Recipe } from "../../data/recipes";
 import Ingredient from "../../data/ingredients";
 import {

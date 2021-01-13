@@ -3,10 +3,15 @@ import { ExternalCollectionFactory } from "./CollectionFactory";
 import Ingredient, { IngredientType, normaliseIngredient } from "./ingredients";
 import { Like } from "./likes";
 
+export interface RecipeTimer {
+  name: string;
+  duration: number;
+}
 export interface RecipeStep {
   method: string;
   images: string[];
   ingredients: string[];
+  timers: RecipeTimer[];
 }
 
 export interface Recipe {
@@ -159,6 +164,16 @@ function isValidRecipe(recipe: any) {
   );
 }
 
+function getStepTimer(timer: any): RecipeTimer | undefined {
+  if (!timer.duration.match(/PT\d+M/)) {
+    return;
+  }
+  return {
+    name: timer.name,
+    duration: parseInt(timer.duration.match(/\d+/)[0]) * 60,
+  };
+}
+
 function getRecipeStep(step: any): RecipeStep {
   return {
     method: step.instructionsMarkdown,
@@ -167,6 +182,7 @@ function getRecipeStep(step: any): RecipeStep {
         `https://img.hellofresh.com/hellofresh_s3${stepImage.path}`
     ),
     ingredients: step.ingredients,
+    timers: step.timers.map((timer: any) => getStepTimer(timer)),
   };
 }
 

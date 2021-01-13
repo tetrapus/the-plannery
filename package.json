@@ -17,6 +17,7 @@
     "@types/react-dom": "^16.9.0",
     "@types/react-router-dom": "^5.1.6",
     "@types/react-select": "^3.0.22",
+    "@types/react-timeago": "^4.1.2",
     "@types/seed-random": "^2.2.0",
     "customize-cra": "^1.0.0",
     "firebase": "^7.23.0",
@@ -28,6 +29,7 @@
     "react-router-dom": "^5.2.0",
     "react-scripts": "3.4.3",
     "react-select": "^3.1.0",
+    "react-timeago": "^5.2.0",
     "rxjs": "^6.6.3",
     "seed-random": "^2.2.0",
     "typescript": "~3.7.2"
