@@ -1,15 +1,14 @@
 import { css } from "@emotion/core";
-import React, { useEffect, useState } from "react";
+import React, { Fragment, useState } from "react";
 import ReactMarkdown from "react-markdown";
-import Ingredient from "../../data/ingredients";
-import { Flex } from "../../components/atoms/Flex";
-import { IngredientList } from "../../components/organisms/IngredientList";
-import { Breakpoint } from "../../components/styles/Breakpoint";
-import { Stack } from "../../components/atoms/Stack";
-import { faPlayCircle, faStopCircle } from "@fortawesome/free-solid-svg-icons";
-import { IconButton } from "../../components/atoms/IconButton";
-import { RecipeStep as Step, RecipeTimer } from "../../data/recipes";
-import ReactTimeAgo from "react-timeago";
+import Ingredient from "data/ingredients";
+import { Flex } from "components/atoms/Flex";
+import { IngredientList } from "components/organisms/IngredientList";
+import { Breakpoint } from "components/styles/Breakpoint";
+import { Stack } from "components/atoms/Stack";
+import { RecipeStep as Step, RecipeTimer } from "../../../data/recipes";
+import { Timer } from "./Timer";
+import { TimerText } from "./TimerText";
 
 interface Props {
   step: Step;
@@ -20,37 +19,7 @@ interface Props {
   [key: string]: any;
 }
 
-function TimerText({
-  text,
-  context,
-  onTimerCreate,
-}: {
-  text: string;
-  context: string;
-  onTimerCreate: (t: TimerState) => void;
-}) {
-  const s = context.replace(/(^[,\s]+|[,\s]+$)/g, "");
-  const name = `${s[0].toUpperCase()}${s.slice(1)}`;
-  const durationText = text.match(/\d+/);
-  if (!durationText) {
-    return <>{text}</>;
-  }
-  const duration = parseInt(durationText[0]) * 60;
-  return (
-    <b
-      onClick={() =>
-        onTimerCreate({
-          timer: { name, duration },
-          startTime: Date.now(),
-        })
-      }
-    >
-      {text}
-    </b>
-  );
-}
-
-interface TimerState {
+export interface TimerState {
   timer: RecipeTimer;
   startTime?: number;
   pauseTime?: number;
@@ -58,78 +27,10 @@ interface TimerState {
   alarmElem?: HTMLAudioElement;
 }
 
-function Countdown({ date }: { date: number }) {
-  const [time, setTime] = useState(Date.now());
-
-  useEffect(() => {
-    const interval = setInterval(() => setTime(Date.now()), 1000);
-    return () => {
-      clearInterval(interval);
-    };
-  }, []);
-
-  if (time > date) {
-    return (
-      <span css={{ color: "red" }}>
-        <ReactTimeAgo date={date}></ReactTimeAgo>
-      </span>
-    );
-  }
-  const remaining = Math.round((date - time) / 1000);
-  return (
-    <b>
-      {`${Math.floor(remaining / 60)}`.padStart(2, "0")}:
-      {`${remaining % 60}`.padStart(2, "0")}
-    </b>
-  );
-}
-
-interface TimerProps {
-  timer: RecipeTimer;
-  startTime?: number;
-  pauseTime?: number;
-  onStart: () => void;
-  onStop: () => void;
-  onPause: () => void;
-}
-
-function soundAlarm() {
-  const alarm = new Audio(
-    "https://freesound.org/data/previews/250/250629_4486188-lq.mp3"
-  );
+function soundAlarm(alarm: HTMLAudioElement) {
+  alarm.src = "https://freesound.org/data/previews/250/250629_4486188-lq.mp3";
   alarm.loop = true;
   alarm.play();
-  return alarm;
-}
-
-function Timer({ timer, startTime, onStart, onStop }: TimerProps) {
-  return (
-    <Flex css={{ paddingBottom: 4, alignItems: "center" }}>
-      {startTime ? (
-        <IconButton
-          icon={faStopCircle}
-          iconSize={24}
-          color="crimson"
-          onClick={() => onStop()}
-        />
-      ) : (
-        <IconButton
-          icon={faPlayCircle}
-          iconSize={24}
-          onClick={() => onStart()}
-        />
-      )}
-      {timer.name}
-      {console.log(timer)}
-      {startTime ? (
-        <div css={{ marginLeft: "auto" }}>
-          <Countdown date={startTime + timer.duration * 1000}></Countdown>
-        </div>
-      ) : (
-        <></>
-      )}
-    </Flex>
-  );
 }
 
 export function RecipeStep({
@@ -150,30 +51,26 @@ export function RecipeStep({
 
       return (
         <>
-          {fragments.map((value) =>
+          {fragments.map((value, idx) =>
             value.split(/(\d+(?:-\d+)? minutes?)/).map((fragment) => {
               if (fragment.match(/^(\d+(?:-\d+)? minutes?)$/)) {
                 return (
                   <TimerText
+                    key={idx}
                     text={fragment}
                     context={value}
                     onTimerCreate={(timer) => {
-                      const idx = timers.length;
+                      const alarmElem = new Audio();
+                      alarmElem.play();
                       const alarmId = setTimeout(() => {
-                        setTimers((timers) =>
-                          timers.map((timer, idx2) =>
-                            idx2 === idx
-                              ? { ...timer, alarmElem: soundAlarm() }
-                              : timer
-                          )
-                        );
+                        soundAlarm(alarmElem);
                       }, timer.timer.duration * 1000);
-                      setTimers([...timers, { ...timer, alarmId }]);
+                      setTimers([...timers, { ...timer, alarmId, alarmElem }]);
                     }}
                   />
                 );
               }
-              return <>{fragment}</>;
+              return <Fragment key={idx}>{fragment}</Fragment>;
             })
           )}
         </>
@@ -253,14 +150,10 @@ export function RecipeStep({
                     if (idx2 !== idx) {
                       return timerState;
                     }
+                    const alarmElem = new Audio();
+                    alarmElem.play();
                     const alarmId = setTimeout(() => {
-                      setTimers((timers) =>
-                        timers.map((timer, idx2) =>
-                          idx2 === idx
-                            ? { ...timer, alarmElem: soundAlarm() }
-                            : timer
-                        )
-                      );
+                      soundAlarm(alarmElem);
                     }, timer.duration * 1000);
                     return {
                       ...timerState,
