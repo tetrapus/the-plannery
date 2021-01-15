@@ -1,15 +1,11 @@
 import { faCogs, faPlus } from "@fortawesome/free-solid-svg-icons";
-import React, { useContext } from "react";
-import { OptionsType, OptionTypeBase } from "react-select";
-import Select from "react-select";
-import { Flex } from "../../../components/atoms/Flex";
+import React, { useContext, useEffect } from "react";
 import { IconButton } from "../../../components/atoms/IconButton";
 import { Stack } from "../../../components/atoms/Stack";
-import { ToggleButton } from "../../../components/atoms/ToggleButton";
 import { RecipeList } from "../../../components/organisms/RecipeList";
 import { LikesContext } from "../../../data/likes";
 import { PantryContext } from "../../../data/pantry";
-import { getSuggestedRecipes, Recipe } from "../../../data/recipes";
+import { getSuggestedRecipes, Preference, Recipe } from "../../../data/recipes";
 import { TrashContext } from "../../../data/trash";
 import { useStateObject } from "../../../util/use-state-object";
 import {
@@ -18,6 +14,8 @@ import {
 } from "../../../data/auth-state";
 import { MealPlanItem } from "../../../data/meal-plan";
 import RecipeSearchSettingsSection from "./RecipeSearchSettingsSection";
+import { RecipeHistory, HistoryItem } from "data/recipe-history";
+import { db } from "init/firebase";
 
 interface Props {
   recipes: Recipe[];
@@ -25,15 +23,36 @@ interface Props {
 
 export default function SuggestedRecipesSection({ recipes }: Props) {
   const showFilters$ = useStateObject<boolean>(false);
-  const preferPantry$ = useStateObject<boolean>(false);
-  const includeTrash$ = useStateObject<boolean>(false);
-  const boostIngredients$ = useStateObject<string[]>([]);
-  const filterIngredients$ = useStateObject<string[]>([]);
-  const tagFilter$ = useStateObject<string[]>([]);
+  /*const [_, setPreferences] = useState<Preference[]>([
+    { id: "Liked recipes", type: "liked", preference: "prefer" },
+    { id: "Ready to cook", type: "ready-to-cook", preference: "prefer" },
+    { id: "Recently cooked", type: "recent", preference: "reduce" },
+    { id: "Disliked recipes", type: "trash", preference: "exclude" },
+  ]); */
+
+  const preferences = useHouseholdCollection(
+    (doc) => doc.collection("searchPreferences"),
+    (snapshot) =>
+      snapshot.docs.map((doc) => ({
+        ...(doc.data() as Preference),
+        id: doc.id,
+        ref: doc.ref,
+      }))
+  );
 
   const likes = useContext(LikesContext);
   const trash = useContext(TrashContext);
   const pantry = useContext(PantryContext);
+
+  const history = useHouseholdCollection<RecipeHistory>(
+    (doc) => doc.collection("history"),
+    (snapshot) => ({
+      history: snapshot.docs.map((doc) => ({
+        ...(doc.data() as HistoryItem),
+        ref: doc.ref,
+      })),
+    })
+  );
 
   const mealPlan = useHouseholdCollection(
     (doc) => doc.collection("mealplan"),
@@ -44,6 +63,35 @@ export default function SuggestedRecipesSection({ recipes }: Props) {
     })
   );
   const { household, insertMeta } = useContext(AuthStateContext);
+
+  useEffect(() => {
+    if (household && !household.searchPreferencesSet) {
+      const batch = db.batch();
+      const defaults = [
+        { id: "Liked recipes", type: "liked", preference: "prefer" },
+        { id: "Ready to cook", type: "ready-to-cook", preference: "prefer" },
+        { id: "Recently cooked", type: "recent", preference: "reduce" },
+        { id: "Disliked recipes", type: "trash", preference: "exclude" },
+      ];
+      defaults.forEach((preference) => {
+        batch.set(
+          household.ref.collection("searchPreferences").doc(preference.id),
+          { ...preference, ...insertMeta }
+        );
+      });
+      batch.update(household.ref, { searchPreferencesSet: true });
+      batch.commit();
+    }
+  }, [household, insertMeta]);
+
+  const suggestedRecipes = getSuggestedRecipes(recipes, preferences, {
+    likes,
+    trash,
+    pantry: pantry?.items || [],
+    history: history?.history || [],
+  })?.filter(
+    ({ recipe }) => !mealPlan?.recipes.find((r) => r.slug === recipe.slug)
+  );
 
   if (!mealPlan) {
     return null;
@@ -58,108 +106,16 @@ export default function SuggestedRecipesSection({ recipes }: Props) {
           onClick={() => showFilters$.set((state) => !state)}
         />
       </h1>
-      {showFilters$.value ? (
+      {showFilters$.value && preferences !== undefined ? (
         <>
-          <RecipeSearchSettingsSection recipes={recipes} />
-          {false && (
-            <div css={{ position: "relative" }}>
-              <ToggleButton
-                css={{ marginBottom: 8 }}
-                value={preferPantry$.value}
-                onChange={(value) => preferPantry$.set(value)}
-              >
-                Use up pantry items
-              </ToggleButton>
-              <ToggleButton
-                css={{ marginBottom: 8, marginLeft: 8 }}
-                value={includeTrash$.value}
-                onChange={(value) => includeTrash$.set(value)}
-              >
-                Include recipes in trash
-              </ToggleButton>
-              <Select
-                isMulti
-                placeholder="Suggest recipes that use..."
-                css={{ marginBottom: 16, maxWidth: 600 }}
-                options={Object.values(
-                  Object.fromEntries(
-                    (recipes || [])
-                      .map((recipe) => recipe.ingredients)
-                      .flat()
-                      .map((ingredient) => [ingredient.type.id, ingredient])
-                  )
-                ).map((ingredient) => ({
-                  value: ingredient.type.id,
-                  label: (
-                    <Flex css={{ alignItems: "center" }}>
-                      {ingredient.type.imageUrl ? (
-                        <img
-                          src={ingredient.type.imageUrl}
-                          css={{ height: 16, marginRight: 8 }}
-                          alt=""
-                        />
-                      ) : null}
-                      {ingredient.type.name}
-                    </Flex>
-                  ),
-                }))}
-                onChange={(options) =>
-                  boostIngredients$.set(
-                    ((options || []) as OptionsType<OptionTypeBase>).map(
-                      (option) => option.value
-                    )
-                  )
-                }
-              ></Select>
-              <Select
-                isMulti
-                placeholder="Choose recipes from tags..."
-                css={{ marginBottom: 16, maxWidth: 600 }}
-                options={Array.from(
-                  new Set((recipes || []).map((recipe) => recipe.tags).flat())
-                ).map((tag) => ({
-                  value: tag,
-                  label: tag,
-                }))}
-                onChange={(options) =>
-                  tagFilter$.set(
-                    (options as any[])?.map((option) => option.value)
-                  )
-                }
-              ></Select>
-            </div>
-          )}
+          <RecipeSearchSettingsSection
+            recipes={recipes}
+            preferences={preferences}
+          />
         </>
       ) : null}
       <RecipeList
-        recipes={
-          getSuggestedRecipes(
-            recipes,
-            {
-              likes,
-              ingredients: [
-                ...(preferPantry$.value && pantry
-                  ? pantry.items
-                      .filter(
-                        (item) => item.ingredient.unit || item.ingredient.qty
-                      )
-                      .map((item) => item.ingredient.type.id)
-                  : []),
-                ...boostIngredients$.value,
-              ],
-            },
-            {
-              ingredients: filterIngredients$.value,
-              tags: tagFilter$.value,
-              exclusions: [
-                ...mealPlan.recipes.map((recipe) => recipe.slug),
-                ...(includeTrash$.value
-                  ? []
-                  : trash.map((trashItem) => trashItem.slug)),
-              ],
-            }
-          ) || []
-        }
+        recipes={(suggestedRecipes || []).map((r) => r.recipe)}
         actions={[
           {
             icon: faPlus,
@@ -171,7 +127,7 @@ export default function SuggestedRecipesSection({ recipes }: Props) {
             },
           },
         ]}
-      ></RecipeList>
+      />
     </Stack>
   );
 }

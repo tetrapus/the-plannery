@@ -1,6 +1,6 @@
 import { useState } from "react";
 
-interface State<T> {
+export interface State<T> {
   value: T;
   set: (value: T | ((state: T) => T)) => void;
 }

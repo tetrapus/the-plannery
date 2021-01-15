@@ -29,11 +29,11 @@ export function RecipeList({ recipes, actions }: Props) {
         },
       }}
     >
-      {recipes.map((recipe) => {
+      {recipes.map((recipe, idx) => {
         return (
           <RecipeCard
             recipe={recipe}
-            key={recipe.slug}
+            key={idx}
             css={{
               marginBottom: 16,
               [Breakpoint.TABLET]: {

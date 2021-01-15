@@ -7,6 +7,7 @@ export interface Household {
   ref: firebase.firestore.DocumentReference;
   members: string[];
   invitees: string[];
+  searchPreferencesSet?: boolean;
 }
 
 interface AuthState {

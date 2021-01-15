@@ -1,40 +1,60 @@
-import React, { useEffect, useState } from "react";
-import { OptionsType, OptionTypeBase } from "react-select";
+import React, { useContext, useEffect, useState } from "react";
+import { OptionTypeBase } from "react-select";
 import Select from "react-select";
 import { Flex } from "../../../components/atoms/Flex";
-import { Recipe } from "../../../data/recipes";
-import { useStateObject } from "../../../util/use-state-object";
+import { Preference, Recipe } from "../../../data/recipes";
 import { Stack } from "../../../components/atoms/Stack";
 import { IconButton } from "../../../components/atoms/IconButton";
 import {
   faAsterisk,
   faBan,
-  faCross,
   faLessThan,
   faPlus,
   faTimes,
 } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { AuthStateContext } from "data/auth-state";
 
 interface Props {
   recipes: Recipe[];
+  preferences: Preference[];
 }
 
-interface Preference {
-  id: string;
-  type: "ingredient";
-  preference: "exclude" | "reduce " | "prefer" | "require";
-}
-
-export default function RecipeSearchSettingsSection({ recipes }: Props) {
-  const tagFilter$ = useStateObject<string[]>([]);
+export default function RecipeSearchSettingsSection({
+  recipes,
+  preferences,
+}: Props) {
   const [options, setOptions] = useState<OptionTypeBase[] | undefined>();
-  const preferences$ = useStateObject<Preference[]>([]);
+  const { household, insertMeta } = useContext(AuthStateContext);
 
   useEffect(() => {
     setTimeout(() => {
-      setOptions(
-        Object.values(
+      setOptions([
+        {
+          value: "Liked recipes",
+          type: "liked",
+          label: <>Liked recipes</>,
+          fullLabel: <>Liked recipes</>,
+        },
+        {
+          value: "Disliked recipes",
+          type: "disliked",
+          label: <>Disliked recipes</>,
+          fullLabel: <>Disliked recipes</>,
+        },
+        {
+          value: "Recently cooked",
+          type: "recent",
+          label: <>Recently cooked</>,
+          fullLabel: <>Recently cooked</>,
+        },
+        {
+          value: "Ready to cook",
+          type: "ready-to-cook",
+          label: <>Ready to cook</>,
+          fullLabel: <>Ready to cook</>,
+        },
+        ...Object.values(
           Object.fromEntries(
             (recipes || [])
               .map((recipe) => recipe.ingredients)
@@ -43,7 +63,9 @@ export default function RecipeSearchSettingsSection({ recipes }: Props) {
           )
         ).map((ingredient) => ({
           value: ingredient.type.id,
-          label: (
+          type: "ingredient",
+          label: <>{ingredient.type.name}</>,
+          fullLabel: (
             <Flex css={{ alignItems: "center" }}>
               {ingredient.type.imageUrl ? (
                 <img
@@ -55,8 +77,24 @@ export default function RecipeSearchSettingsSection({ recipes }: Props) {
               {ingredient.type.name}
             </Flex>
           ),
-        }))
-      );
+        })),
+        ...Array.from(
+          new Set((recipes || []).map((recipe) => recipe.tags).flat())
+        ).map((tag) => ({
+          value: tag,
+          type: "tag",
+          label: <>#{tag}</>,
+          fullLabel: <>#{tag}</>,
+        })),
+        ...Array.from(
+          new Set((recipes || []).map((recipe) => recipe.utensils).flat())
+        ).map((equipment) => ({
+          value: equipment,
+          type: "equipment",
+          label: <>Requires: {equipment}</>,
+          fullLabel: <>Requires: {equipment}</>,
+        })),
+      ]);
     }, 0);
   }, [recipes]);
 
@@ -102,67 +140,40 @@ export default function RecipeSearchSettingsSection({ recipes }: Props) {
   return (
     <div css={{ position: "relative" }}>
       <Select
-        placeholder="Search ingredients"
+        placeholder="Search ingredients, tags, or equipment"
         css={{ marginBottom: 16 }}
         options={options || []}
         isLoading={options === undefined}
         onChange={(option) => {
-          preferences$.set((value) => [
-            ...value,
-            {
-              id: (option as { value: string }).value,
-              type: "ingredient",
+          household?.ref
+            .collection("searchPreferences")
+            .doc((option as any).value)
+            .set({
+              id: (option as any).value,
+              type: (option as any).type,
               preference: "prefer",
-            },
-          ]);
+              ...insertMeta,
+            });
         }}
         value={null}
       ></Select>
       <Stack css={{ marginBottom: 16 }}>
-        {preferences$.value.map(({ id, preference }) => (
+        {preferences.map(({ id, preference, ref }) => (
           <Flex css={{ alignItems: "center" }}>
-            {options?.find((option) => option.value === id)?.label}
+            {options?.find((option) => option.value === id)?.fullLabel}
             <Select
               css={{ width: 150, marginLeft: "auto" }}
               options={filterOptions}
+              isSearchable={false}
               onChange={(option: any) => {
-                preferences$.set((values) =>
-                  values.map((value) =>
-                    value.id === id
-                      ? { ...value, preference: option.value }
-                      : value
-                  )
-                );
+                ref.update({ preference: option.value });
               }}
               value={filterOptions.find((opt) => opt.value === preference)}
             ></Select>
-            <IconButton
-              icon={faTimes}
-              onClick={() =>
-                preferences$.set((values) =>
-                  values.filter((value) => value.id !== id)
-                )
-              }
-            />
+            <IconButton icon={faTimes} onClick={() => ref.delete()} />
           </Flex>
         ))}
       </Stack>
-      {false && (
-        <Select
-          isMulti
-          placeholder="Choose recipes from tags..."
-          css={{ marginBottom: 16, maxWidth: 600 }}
-          options={Array.from(
-            new Set((recipes || []).map((recipe) => recipe.tags).flat())
-          ).map((tag) => ({
-            value: tag,
-            label: tag,
-          }))}
-          onChange={(options) =>
-            tagFilter$.set((options as any[])?.map((option) => option.value))
-          }
-        ></Select>
-      )}
     </div>
   );
 }

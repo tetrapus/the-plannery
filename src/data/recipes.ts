@@ -2,6 +2,9 @@ import SeedRandom from "seed-random";
 import { ExternalCollectionFactory } from "./CollectionFactory";
 import Ingredient, { IngredientType, normaliseIngredient } from "./ingredients";
 import { Like } from "./likes";
+import { enoughInPantry, PantryItem } from "./pantry";
+import { HistoryItem } from "./recipe-history";
+import { Trash } from "./trash";
 
 export interface RecipeTimer {
   name: string;
@@ -37,6 +40,9 @@ export function getRecipes(recipes: any[] | undefined): Recipe[] | undefined {
   if (recipes === undefined) {
     return undefined;
   }
+  recipes = Object.values(
+    Object.fromEntries(recipes.map((recipe) => [recipe.slug, recipe]))
+  );
 
   return recipes.filter(isValidRecipe).map((item: any) => {
     let yields = item.yields.find((yields: any) => yields.yields === 4);
@@ -72,158 +78,162 @@ const getWeek = function (date: Date) {
   return Math.ceil(dayOfYear / 7);
 };
 
-interface RecommendationFactors {
-  likes: Like[];
-  ingredients: string[];
+export interface Preference {
+  id: string;
+  type:
+    | "ingredient"
+    | "tag"
+    | "equipment"
+    | "liked"
+    | "trash"
+    | "recent"
+    // | "pantry";
+    | "ready-to-cook"; // replace with remaining cost & cost
+  // moods
+  preference: "exclude" | "reduce" | "prefer" | "require";
+  ref: firebase.firestore.DocumentReference;
 }
 
-interface RecommendationFilter {
-  ingredients?: string[];
-  tags?: string[];
-  exclusions?: string[];
+interface PreferenceProcessor {
+  match: (values: Set<Preference["id"]>, recipe: Recipe) => boolean;
 }
+
+function partitionBy<T extends { [key: string]: any }>(arr: T[], key: string) {
+  return arr.reduce(
+    (acc: { [key: string]: T[] }, value: T) => ({
+      ...acc,
+      [value[key]]: [...(acc[value[key]] || []), value],
+    }),
+    {} as { [key: string]: T[] }
+  );
+}
+
+interface SuggestionFactors {
+  likes: Like[];
+  trash: Trash[];
+  history: HistoryItem[];
+  pantry: PantryItem[];
+}
+
+export const DEFAULT_PREFERENCES = [
+  { id: "Liked recipes", type: "liked", preference: "prefer" },
+  { id: "Ready to cook", type: "ready-to-cook", preference: "prefer" },
+  { id: "Recently cooked", type: "recent", preference: "reduce" },
+  { id: "Disliked recipes", type: "trash", preference: "exclude" },
+];
 
 export function getSuggestedRecipes(
   recipes: Recipe[] | undefined,
-  { likes, ingredients }: RecommendationFactors,
-  filter: RecommendationFilter
+  preferences: Preference[] | undefined,
+  sources: SuggestionFactors
 ) {
-  if (recipes === undefined) {
+  if (recipes === undefined || preferences === undefined) {
     return undefined;
   }
   const random = SeedRandom(
     `${getWeek(new Date())}:${new Date().getFullYear()}`
   );
-  let maxMatch = 0;
 
   let weightedRecipes = recipes.map((recipe) => ({
     recipe,
     roll: random(),
+    score: 0,
+    reasons: [],
   }));
 
-  if (filter.exclusions) {
-    const planItems = new Set(filter.exclusions);
-    weightedRecipes = weightedRecipes.filter(
-      ({ recipe }) => !planItems.has(recipe.slug)
-    );
-  }
-  if (filter.ingredients && filter.ingredients.length) {
-    const ingredientFilter = new Set(filter.ingredients);
-    weightedRecipes = weightedRecipes.filter(({ recipe }) =>
-      recipe.ingredients.find((ingredient) =>
-        ingredientFilter.has(ingredient.type.id)
-      )
-    );
-  }
-  if (filter.tags && filter.tags.length) {
-    const tagFilter = new Set(filter.tags);
-    weightedRecipes = weightedRecipes.filter(
-      ({ recipe }) => recipe.tags.filter((tag) => tagFilter.has(tag)).length
-    );
-  }
-  const boostItems = new Set(ingredients);
-  const pantryMatches = weightedRecipes.map(({ recipe, roll }) => {
-    const matchCount = recipe.ingredients.filter((ingredient) =>
-      boostItems.has(ingredient.type.id)
-    ).length;
-    maxMatch = Math.max(matchCount, maxMatch);
-    return {
-      recipe,
-      matchCount,
-      roll,
-    };
-  });
+  const processors: { [key: string]: PreferenceProcessor } = {
+    ingredient: {
+      match: (values: Set<Preference["id"]>, recipe: Recipe) =>
+        !!recipe.ingredients.find((ingredient) =>
+          values.has(ingredient.type.id)
+        ),
+    },
+    tag: {
+      match: (values: Set<Preference["id"]>, recipe: Recipe) =>
+        !!recipe.tags.find((tag) => values.has(tag)),
+    },
+    equipment: {
+      match: (values: Set<Preference["id"]>, recipe: Recipe) =>
+        !!recipe.utensils.find((tag) => values.has(tag)),
+    },
+    liked: {
+      match: (values: Set<Preference["id"]>, recipe: Recipe) =>
+        !!sources.likes.find((like) => like.slug === recipe.slug),
+    },
+    trash: {
+      match: (values: Set<Preference["id"]>, recipe: Recipe) =>
+        !!sources.trash.find((trash) => trash.slug === recipe.slug),
+    },
+    recent: {
+      match: (values: Set<Preference["id"]>, recipe: Recipe) =>
+        !!sources.history
+          .filter(
+            (item) =>
+              Date.now() - item.created?.toMillis() < 1000 * 60 * 60 * 24 * 31
+          )
+          .find((item) => item.slug === recipe.slug),
+    },
+    "ready-to-cook": {
+      match: (values: Set<Preference["id"]>, recipe: Recipe) =>
+        recipe.ingredients.every((ingredient) => {
+          const pantryItem = sources.pantry.find(
+            (item) => item.ingredient.type.id === ingredient.type.id
+          );
+          return enoughInPantry(ingredient, pantryItem);
+        }),
+    },
+  };
 
-  const scoredRecipes = pantryMatches.map(({ recipe, matchCount, roll }) => {
-    return {
-      recipe,
-      score:
-        roll +
-        (likes.find((like) => recipe.slug === like.slug) ? 0.1 : 0) +
-        0.4 * (maxMatch ? matchCount / maxMatch : 0),
-      order: roll,
-    };
-  });
-  return scoredRecipes
-    .sort((a, b) => b.score - a.score)
-    .slice(0, 10)
-    .sort((a, b) => b.order - a.order)
-    .map(({ recipe }) => recipe);
-}
+  const scorers: { [key: string]: (isMatch: boolean) => number | null } = {
+    exclude: (isMatch) => (isMatch ? null : 0),
+    reduce: (isMatch) => (isMatch ? -1 : 0),
+    prefer: (isMatch) => (isMatch ? 1 : 0),
+    require: (isMatch) => (isMatch ? 0 : null),
+  };
 
-export interface Preference {
-  id: string;
-  type: "ingredient";
-  preference: "exclude" | "reduce " | "prefer" | "require";
-}
-
-export function getSuggestedRecipes2(
-  recipes: Recipe[] | undefined,
-  preferences: Preference[]
-) {
-  if (recipes === undefined) {
-    return undefined;
+  // Bucket first by action
+  const preferenceActions = Object.entries(
+    partitionBy(preferences, "preference")
+  )
+    .sort()
+    .reverse();
+  for (const [action, preferences] of preferenceActions) {
+    const preferenceTypes = Object.entries(partitionBy(preferences, "type"));
+    for (const [type, preferences] of preferenceTypes) {
+      const values = new Set(preferences.map((preference) => preference.id));
+      const processedRecipes = weightedRecipes.map((r) => {
+        const isMatch = processors[type].match(values, r.recipe);
+        const score = scorers[action](isMatch);
+        if (score === null) {
+          return undefined;
+        }
+        return { ...r, score: r.score + score };
+      });
+      weightedRecipes = processedRecipes.filter(
+        (recipe) => recipe !== undefined
+      ) as any;
+    }
   }
-  const random = SeedRandom(
-    `${getWeek(new Date())}:${new Date().getFullYear()}`
+
+  const maxScore = Math.max(...weightedRecipes.map((r) => r.score));
+  const minScore = Math.min(...weightedRecipes.map((r) => r.score));
+
+  const scoredRecipes = weightedRecipes.map(
+    ({ recipe, score, roll, reasons }) => {
+      return {
+        recipe,
+        score: roll + 0.4 * (score / (maxScore - minScore || 1)),
+        reasons,
+      };
+    }
   );
-  let maxMatch = 0;
-
-  let weightedRecipes = recipes.map((recipe) => ({
-    recipe,
-    roll: random(),
-  }));
-
-  // Requirements
-
-  if (filter.exclusions) {
-    const planItems = new Set(filter.exclusions);
-    weightedRecipes = weightedRecipes.filter(
-      ({ recipe }) => !planItems.has(recipe.slug)
-    );
-  }
-  if (filter.ingredients && filter.ingredients.length) {
-    const ingredientFilter = new Set(filter.ingredients);
-    weightedRecipes = weightedRecipes.filter(({ recipe }) =>
-      recipe.ingredients.find((ingredient) =>
-        ingredientFilter.has(ingredient.type.id)
-      )
-    );
-  }
-  if (filter.tags && filter.tags.length) {
-    const tagFilter = new Set(filter.tags);
-    weightedRecipes = weightedRecipes.filter(
-      ({ recipe }) => recipe.tags.filter((tag) => tagFilter.has(tag)).length
-    );
-  }
-  const boostItems = new Set(ingredients);
-  const pantryMatches = weightedRecipes.map(({ recipe, roll }) => {
-    const matchCount = recipe.ingredients.filter((ingredient) =>
-      boostItems.has(ingredient.type.id)
-    ).length;
-    maxMatch = Math.max(matchCount, maxMatch);
-    return {
-      recipe,
-      matchCount,
-      roll,
-    };
-  });
-
-  const scoredRecipes = pantryMatches.map(({ recipe, matchCount, roll }) => {
-    return {
-      recipe,
-      score:
-        roll +
-        (likes.find((like) => recipe.slug === like.slug) ? 0.1 : 0) +
-        0.4 * (maxMatch ? matchCount / maxMatch : 0),
-      order: roll,
-    };
-  });
   return scoredRecipes
     .sort((a, b) => b.score - a.score)
     .slice(0, 10)
-    .sort((a, b) => b.order - a.order)
-    .map(({ recipe }) => recipe);
+    .map(({ recipe, reasons }) => ({
+      recipe,
+      reasons,
+    }));
 }
 
 export function getRecipe(recipes: Recipe[] | undefined, slug: string) {
@@ -257,7 +267,9 @@ function getRecipeStep(step: any): RecipeStep {
         `https://img.hellofresh.com/hellofresh_s3${stepImage.path}`
     ),
     ingredients: step.ingredients,
-    timers: step.timers.map((timer: any) => getStepTimer(timer)),
+    timers: step.timers
+      .map((timer: any) => getStepTimer(timer))
+      .filter((timer: any) => !!timer),
   };
 }
 
