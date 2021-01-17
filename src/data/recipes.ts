@@ -91,6 +91,7 @@ export interface Preference {
     | "ready-to-cook"; // replace with remaining cost & cost
   // moods
   preference: "exclude" | "reduce" | "prefer" | "require";
+  pinned?: boolean;
   ref: firebase.firestore.DocumentReference;
 }
 

@@ -8,12 +8,16 @@ import { IconButton } from "../../../components/atoms/IconButton";
 import {
   faAsterisk,
   faBan,
+  faChevronDown,
+  faChevronRight,
   faLessThan,
   faPlus,
+  faThumbtack,
   faTimes,
 } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { AuthStateContext } from "data/auth-state";
+import { useStateObject } from "util/use-state-object";
 
 interface Props {
   recipes: Recipe[];
@@ -25,6 +29,7 @@ export default function RecipeSearchSettingsSection({
   preferences,
 }: Props) {
   const [options, setOptions] = useState<OptionTypeBase[] | undefined>();
+  const showSavedPreferences = useStateObject<boolean>(false);
   const { household, insertMeta } = useContext(AuthStateContext);
 
   useEffect(() => {
@@ -158,21 +163,58 @@ export default function RecipeSearchSettingsSection({
         value={null}
       ></Select>
       <Stack css={{ marginBottom: 16 }}>
-        {preferences.map(({ id, preference, ref }) => (
-          <Flex css={{ alignItems: "center" }}>
-            {options?.find((option) => option.value === id)?.fullLabel}
-            <Select
-              css={{ width: 150, marginLeft: "auto" }}
-              options={filterOptions}
-              isSearchable={false}
-              onChange={(option: any) => {
-                ref.update({ preference: option.value });
+        {[true, false].map((pinnedSection) => {
+          const sectionPreferences = preferences.filter(
+            ({ pinned }) =>
+              pinnedSection === !!pinned &&
+              (pinnedSection && showSavedPreferences.value ? true : !pinned)
+          );
+          return (
+            <Stack
+              css={{
+                borderBottom: "1px solid #dedede",
+                marginBottom: 4,
+                paddingBottom: 4,
               }}
-              value={filterOptions.find((opt) => opt.value === preference)}
-            ></Select>
-            <IconButton icon={faTimes} onClick={() => ref.delete()} />
-          </Flex>
-        ))}
+            >
+              {pinnedSection ? (
+                <h3 onClick={() => showSavedPreferences.set((v) => !v)}>
+                  Saved Preferences{" "}
+                  <IconButton
+                    icon={
+                      showSavedPreferences.value
+                        ? faChevronDown
+                        : faChevronRight
+                    }
+                    css={{ fontSize: 18 }}
+                  />
+                </h3>
+              ) : null}
+              {sectionPreferences.map(({ id, preference, pinned, ref }) => (
+                <Flex css={{ alignItems: "center" }}>
+                  {options?.find((option) => option.value === id)?.fullLabel}
+                  <Select
+                    css={{ width: 150, marginLeft: "auto" }}
+                    options={filterOptions}
+                    isSearchable={false}
+                    onChange={(option: any) => {
+                      ref.update({ preference: option.value });
+                    }}
+                    value={filterOptions.find(
+                      (opt) => opt.value === preference
+                    )}
+                  ></Select>
+                  <IconButton
+                    icon={faThumbtack}
+                    color={pinned ? "black" : "grey"}
+                    onClick={() => ref.update({ pinned: !pinned })}
+                  />
+                  <IconButton icon={faTimes} onClick={() => ref.delete()} />
+                </Flex>
+              ))}
+            </Stack>
+          );
+        })}
       </Stack>
     </div>
   );

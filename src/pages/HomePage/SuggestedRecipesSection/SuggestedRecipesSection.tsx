@@ -68,10 +68,30 @@ export default function SuggestedRecipesSection({ recipes }: Props) {
     if (household && !household.searchPreferencesSet) {
       const batch = db.batch();
       const defaults = [
-        { id: "Liked recipes", type: "liked", preference: "prefer" },
-        { id: "Ready to cook", type: "ready-to-cook", preference: "prefer" },
-        { id: "Recently cooked", type: "recent", preference: "reduce" },
-        { id: "Disliked recipes", type: "trash", preference: "exclude" },
+        {
+          id: "Liked recipes",
+          type: "liked",
+          preference: "prefer",
+          pinned: true,
+        },
+        {
+          id: "Ready to cook",
+          type: "ready-to-cook",
+          preference: "prefer",
+          pinned: true,
+        },
+        {
+          id: "Recently cooked",
+          type: "recent",
+          preference: "reduce",
+          pinned: true,
+        },
+        {
+          id: "Disliked recipes",
+          type: "trash",
+          preference: "exclude",
+          pinned: true,
+        },
       ];
       defaults.forEach((preference) => {
         batch.set(
