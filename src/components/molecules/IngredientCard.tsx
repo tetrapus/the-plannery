@@ -33,7 +33,7 @@ export default function IngredientCard({
     >
       <Flex
         css={{
-          width: 175,
+          width: 160,
           alignItems: "center",
           margin: 4,
           padding: 4,

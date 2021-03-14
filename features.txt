@@ -7,7 +7,7 @@ Meal plan day-by-day
 Navigation
 Sharable plan links
 Shopping list generator
-Likes / Dislikes
+[x] Likes / Dislikes
 Hosting
 Pantry Management
 Smart pantry
