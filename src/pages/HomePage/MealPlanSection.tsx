@@ -54,7 +54,7 @@ export function MealPlanSection({ mealPlan, recipes }: Props) {
 
   return (
     <>
-      <h1>Your meal plan</h1>
+      <h1 css={{ marginLeft: 8 }}>Your meal plan</h1>
       <RecipeList
         recipes={mealPlan.recipes
           .map((mealPlanItem) => getRecipe(recipes, mealPlanItem.slug))

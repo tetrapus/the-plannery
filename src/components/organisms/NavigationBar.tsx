@@ -31,6 +31,12 @@ export default function NavigationBar() {
         [Darkmode]: {
           background: "rgba(34,34,34,0.6)",
         },
+        [Breakpoint.MOBILE]: {
+          background: "rgba(255,255,255,0.6)",
+          [Darkmode]: {
+            background: "rgba(10,10,10,0.6)",
+          },
+        },
       }}
     >
       <Flex css={{ flexGrow: 1, alignItems: "center" }}>
@@ -46,18 +52,18 @@ export default function NavigationBar() {
             margin: "auto",
             display: "flex",
             alignItems: "center",
-            [Breakpoint.MOBILE]: { order: -1, margin: 0 },
+            [Breakpoint.MOBILE]: { order: -1, margin: 0, marginRight: 4 },
           }}
         >
           <img
             src="/logo192.png"
             css={{
               objectFit: `cover`,
-              height: 60,
+              height: 50,
               marginRight: 4,
               [Darkmode]: {
                 background: "white",
-                borderRadius: 31,
+                borderRadius: 24,
               },
             }}
             alt="The Plannery Logo"

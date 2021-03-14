@@ -182,7 +182,10 @@ export default function RecipeSearchSettingsSection({
               }}
             >
               {pinnedSection ? (
-                <h3 onClick={() => showSavedPreferences.set((v) => !v)}>
+                <h3
+                  css={{ marginLeft: 8 }}
+                  onClick={() => showSavedPreferences.set((v) => !v)}
+                >
                   Your Preferences{" "}
                   <IconButton
                     icon={

@@ -28,7 +28,7 @@ export function NowCookingSection({ recipes }: Props) {
   }
   return (
     <>
-      <h1>Now Cooking</h1>
+      <h1 css={{ marginLeft: 8 }}>Now Cooking</h1>
       <RecipeList
         recipes={sessions
           .map((session) => getRecipe(recipes, session.slug))

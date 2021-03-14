@@ -119,7 +119,7 @@ export default function SuggestedRecipesSection({ recipes }: Props) {
 
   return (
     <Stack>
-      <h1>
+      <h1 css={{ marginLeft: 8 }}>
         Suggested for you
         <IconButton
           icon={faCogs}

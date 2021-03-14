@@ -18,7 +18,7 @@ export function ShoppingListSection({ mealPlan, recipes }: Props) {
   }
   return (
     <>
-      <h2>Shopping list</h2>
+      <h2 css={{ marginLeft: 8 }}>Shopping list</h2>
       <IngredientList
         ingredients={getIngredientsForMealPlan(recipes, mealPlan)}
       />
