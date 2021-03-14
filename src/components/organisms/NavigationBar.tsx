@@ -28,6 +28,9 @@ export default function NavigationBar() {
         paddingLeft: 16,
         alignItems: "center",
         background: "rgba(245,245,245,0.6)",
+        [Darkmode]: {
+          background: "rgba(34,34,34,0.6)",
+        },
       }}
     >
       <Flex css={{ flexGrow: 1, alignItems: "center" }}>
