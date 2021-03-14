@@ -1,5 +1,4 @@
 import React, { useContext, useEffect, useState } from "react";
-import { css } from "@emotion/core";
 import ReactMarkdown from "react-markdown";
 import { TagList } from "../../components/molecules/TagList";
 import { Stack } from "../../components/atoms/Stack";
@@ -18,6 +17,8 @@ import { IconButton } from "../../components/atoms/IconButton";
 import { Session } from "../../data/session";
 import IngredientsSection from "./IngredientsSection";
 import styled from "@emotion/styled";
+import { Darkmode } from "../../components/styles/Darkmode";
+import { Breakpoint } from "../../components/styles/Breakpoint";
 
 interface Props {
   recipe: Recipe;
@@ -58,33 +59,47 @@ export default function RecipeTemplate({ recipe }: Props) {
     <div>
       <img
         src={recipe.imageUrl}
-        css={css`
-          width: 100vw;
-          height: 40vh;
-          object-fit: cover;
-        `}
+        css={{
+          width: "100vw",
+          height: "50vh",
+          objectFit: "cover",
+          position: "relative",
+          top: -64,
+          zIndex: -1,
+          [Breakpoint.TABLET]: {
+            position: "initial",
+          },
+        }}
         alt={recipe.name}
       ></img>
       <div
-        css={css`
-          background-color: white;
-          max-width: 800px;
-          margin: auto;
-          position: relative;
-          top: -15vh;
-          min-height: 100vh;
-          box-shadow: gray 1px 1px 4px;
-          border-radius: 2px;
-        `}
+        css={{
+          backgroundColor: "white",
+          maxWidth: 800,
+          margin: "auto",
+          position: "relative",
+          top: "-40vh",
+          [Breakpoint.TABLET]: {
+            top: "-25vh",
+          },
+          minHeight: "100vh",
+          boxShadow: "gray 1px 1px 4px",
+          borderRadius: 2,
+          [Darkmode]: {
+            backgroundColor: "black",
+            boxShadow: "black 1px 1px 4px",
+          },
+        }}
       >
         <Section>
           <Stack css={{ alignItems: `center` }}>
             <a
               href={recipe.url}
-              css={css`
-                color: #2259b5;
-                text-decoration: none;
-              `}
+              css={{
+                color: "#2259b5",
+                textDecoration: "none",
+                [Darkmode]: { color: "#56c7ff" },
+              }}
             >
               <h1 css={{ margin: "12px 24px", fontWeight: "bold" }}>
                 {recipe.name}

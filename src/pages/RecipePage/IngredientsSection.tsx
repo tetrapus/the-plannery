@@ -6,6 +6,7 @@ import Ingredient from "../../data/ingredients";
 import { Recipe } from "../../data/recipes";
 import { Session } from "../../data/session";
 import IngredientChecklist from "./IngredientChecklist";
+import { Darkmode } from "../../components/styles/Darkmode";
 
 interface Props {
   recipe: Recipe;
@@ -30,7 +31,13 @@ export default function IngredientsSection({ recipe, session }: Props) {
     );
   }
   return (
-    <Stack css={{ backgroundColor: "#eeeeee", padding: "0 12px" }}>
+    <Stack
+      css={{
+        backgroundColor: "#eeeeee",
+        padding: "0 12px",
+        [Darkmode]: { background: "#333" },
+      }}
+    >
       <h2>Ingredients</h2>
       <Flex css={{ alignItems: "center" }}>
         <IngredientList

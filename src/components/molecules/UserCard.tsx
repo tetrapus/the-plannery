@@ -2,6 +2,8 @@ import firebase from "firebase";
 import React from "react";
 import { Flex } from "../atoms/Flex";
 import { Stack } from "../atoms/Stack";
+import { Breakpoint } from "../styles/Breakpoint";
+import { Darkmode } from "../styles/Darkmode";
 
 export interface User {
   displayName: string;
@@ -29,9 +31,19 @@ export function UserCard({ user, size }: Props) {
         }}
         alt="Profile"
       />
-      <Stack css={{ margin: size / 8 }}>
+      <Stack
+        css={{ margin: size / 8, [Breakpoint.TABLET]: { display: "none" } }}
+      >
         <div>{user?.displayName}</div>
-        <div css={{ fontSize: size / 3, color: "#666" }}>{user?.email}</div>
+        <div
+          css={{
+            fontSize: size / 3,
+            color: "#666",
+            [Darkmode]: { color: "#aaa" },
+          }}
+        >
+          {user?.email}
+        </div>
       </Stack>
     </Flex>
   );

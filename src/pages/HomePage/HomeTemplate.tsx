@@ -71,7 +71,12 @@ export default function HomeTemplate() {
         </Stack>
       ) : (
         <Stack
-          css={{ maxWidth: 800, marginLeft: "auto", alignItems: "center" }}
+          css={{
+            maxWidth: "80vw",
+            width: 800,
+            height: 300,
+            alignItems: "center",
+          }}
         >
           <Spinner />
           Downloading recipe database...

@@ -11,7 +11,9 @@ interface Props {
 
 export function HistoryTemplate({ history, recipes }: Props) {
   return (
-    <Stack css={{ alignItems: "center", margin: 16 }}>
+    <Stack css={{ margin: "auto" }}>
+      <h1>Recipe History</h1>
+
       <RecipeList
         recipes={history.history
           .map((item) => getRecipe(recipes, item.slug))

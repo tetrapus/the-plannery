@@ -9,6 +9,7 @@ import { Recipe } from "../../data/recipes";
 import { Session } from "../../data/session";
 import { useFirestore } from "../../init/firebase";
 import { useStateObject } from "../../util/use-state-object";
+import { Darkmode } from "../../components/styles/Darkmode";
 
 interface Props {
   recipe: Recipe;
@@ -48,6 +49,10 @@ export default function IngredientChecklist({
           overflow: "scroll",
           width: "100vw",
           flexWrap: ingredientsExpanded$.value ? "wrap" : "inherit",
+          [Darkmode]: {
+            background: "#222",
+            borderBottom: "1px solid black",
+          },
         }}
       >
         <IconButton

@@ -11,6 +11,8 @@ import {
 } from "@fortawesome/free-solid-svg-icons";
 import { IconButton } from "../atoms/IconButton";
 import { UserCard } from "../molecules/UserCard";
+import { Breakpoint } from "components/styles/Breakpoint";
+import { Darkmode } from "../styles/Darkmode";
 
 export default function NavigationBar() {
   const { currentUser } = useContext(AuthStateContext);
@@ -22,26 +24,53 @@ export default function NavigationBar() {
   return (
     <Flex
       css={{
-        backgroundColor: `white`,
-        borderBottom: `1px solid #dedede`,
         height: 64,
         paddingLeft: 16,
         alignItems: "center",
+        background: "rgba(245,245,245,0.6)",
       }}
     >
       <Flex css={{ flexGrow: 1, alignItems: "center" }}>
-        <Link to="/">
-          <img
-            src="/logo.png"
-            css={{ objectFit: `cover`, height: 64 }}
-            alt="The Plannery Logo"
-          />
-        </Link>
         <Link to="/history">
           <IconButton icon={faHistory} />
         </Link>
         <Link to="/shopping-list">
           <IconButton icon={faShoppingBasket} />
+        </Link>
+        <Link
+          to="/"
+          css={{
+            margin: "auto",
+            display: "flex",
+            alignItems: "center",
+            [Breakpoint.MOBILE]: { order: -1, margin: 0 },
+          }}
+        >
+          <img
+            src="/logo192.png"
+            css={{
+              objectFit: `cover`,
+              height: 60,
+              marginRight: 4,
+              [Darkmode]: {
+                background: "white",
+                borderRadius: 31,
+              },
+            }}
+            alt="The Plannery Logo"
+          />
+          <img
+            src="/wordmark.png"
+            css={{
+              objectFit: `cover`,
+              height: 24,
+              [Breakpoint.MOBILE]: { display: "none" },
+              [Darkmode]: {
+                filter: "invert(1)",
+              },
+            }}
+            alt="The Plannery Wordmark"
+          />
         </Link>
       </Flex>
       {currentUser ? (

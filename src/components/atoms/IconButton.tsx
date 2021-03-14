@@ -1,4 +1,5 @@
 import styled from "@emotion/styled";
+import { Darkmode } from "../styles/Darkmode";
 import {
   FontAwesomeIcon,
   FontAwesomeIconProps,
@@ -15,5 +16,8 @@ export const IconButton = styled(FontAwesomeIcon)<IconButtonProps>`
   &:hover {
     color: black;
     cursor: pointer;
+  }
+  ${Darkmode} {
+    filter: invert(1);
   }
 `;

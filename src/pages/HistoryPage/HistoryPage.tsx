@@ -8,7 +8,7 @@ import { useSubscription } from "../../util/use-subscription";
 
 export function HistoryPage() {
   const history = useHouseholdCollection<RecipeHistory>(
-    (doc) => doc.collection("history"),
+    (doc) => doc.collection("history").orderBy("created", "desc"),
     (snapshot) => ({
       history: snapshot.docs.map((doc) => ({
         ...(doc.data() as HistoryItem),

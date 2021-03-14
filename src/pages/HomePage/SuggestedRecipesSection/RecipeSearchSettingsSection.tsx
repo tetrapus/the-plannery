@@ -18,6 +18,7 @@ import {
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { AuthStateContext } from "data/auth-state";
 import { useStateObject } from "util/use-state-object";
+import { Darkmode } from "../../../components/styles/Darkmode";
 
 interface Props {
   recipes: Recipe[];
@@ -146,7 +147,7 @@ export default function RecipeSearchSettingsSection({
     <div css={{ position: "relative" }}>
       <Select
         placeholder="Search ingredients, tags, or equipment"
-        css={{ marginBottom: 16 }}
+        css={{ marginBottom: 16, color: "black" }}
         options={options || []}
         isLoading={options === undefined}
         onChange={(option) => {
@@ -175,11 +176,14 @@ export default function RecipeSearchSettingsSection({
                 borderBottom: "1px solid #dedede",
                 marginBottom: 4,
                 paddingBottom: 4,
+                [Darkmode]: {
+                  borderBottom: "1px solid #444",
+                },
               }}
             >
               {pinnedSection ? (
                 <h3 onClick={() => showSavedPreferences.set((v) => !v)}>
-                  Saved Preferences{" "}
+                  Your Preferences{" "}
                   <IconButton
                     icon={
                       showSavedPreferences.value
@@ -189,12 +193,23 @@ export default function RecipeSearchSettingsSection({
                     css={{ fontSize: 18 }}
                   />
                 </h3>
-              ) : null}
+              ) : /* <h3>
+
+              Options
+              <IconButton
+                icon={
+                  showSavedPreferences.value
+                    ? faChevronDown
+                    : faChevronRight
+                }
+                css={{ fontSize: 18 }}
+              />
+              </h3> */ null}
               {sectionPreferences.map(({ id, preference, pinned, ref }) => (
                 <Flex css={{ alignItems: "center" }}>
                   {options?.find((option) => option.value === id)?.fullLabel}
                   <Select
-                    css={{ width: 150, marginLeft: "auto" }}
+                    css={{ width: 150, marginLeft: "auto", color: "black" }}
                     options={filterOptions}
                     isSearchable={false}
                     onChange={(option: any) => {

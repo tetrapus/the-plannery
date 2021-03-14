@@ -22,7 +22,7 @@ interface Props {
 }
 
 export default function SuggestedRecipesSection({ recipes }: Props) {
-  const showFilters$ = useStateObject<boolean>(false);
+  const showFilters$ = useStateObject<boolean>(true);
   /*const [_, setPreferences] = useState<Preference[]>([
     { id: "Liked recipes", type: "liked", preference: "prefer" },
     { id: "Ready to cook", type: "ready-to-cook", preference: "prefer" },

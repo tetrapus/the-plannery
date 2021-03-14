@@ -3,6 +3,7 @@ import Ingredient from "../../data/ingredients";
 import { Flex } from "../atoms/Flex";
 import { PlaceholderImage } from "../atoms/PlaceholderImage";
 import { Stack } from "../atoms/Stack";
+import { Darkmode } from "../styles/Darkmode";
 
 interface Props {
   ingredient: Ingredient;
@@ -25,6 +26,9 @@ export default function IngredientCard({
     <Stack
       css={{
         borderBottom: "1px solid #dedede",
+        [Darkmode]: {
+          borderBottom: "1px solid #444",
+        },
       }}
     >
       <Flex
@@ -38,10 +42,13 @@ export default function IngredientCard({
           height: "100%",
           borderBottom: done ? "none" : "1px solid #dedede",
           borderRight: done ? "none" : "1px solid #dedede",
-        }}
-        style={{
           background: done ? "inherit" : "white",
           opacity: busy ? 0.5 : 1,
+          [Darkmode]: {
+            background: done ? "inherit" : "#444",
+            borderBottom: done ? "none" : "1px solid #000",
+            borderRight: done ? "none" : "1px solid #000",
+          },
         }}
         onClick={onClick}
         className="IngredientCard"
@@ -62,7 +69,11 @@ export default function IngredientCard({
             paddingLeft: 8,
           }}
         >
-          <div css={{ color: "#555", fontSize: 14 }}>{status}</div>
+          <div
+            css={{ color: "#666", fontSize: 14, [Darkmode]: { color: "#aaa" } }}
+          >
+            {status}
+          </div>
           <div>{ingredient.type.name}</div>
         </Stack>
         {action}
