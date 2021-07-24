@@ -60,6 +60,18 @@ export default function RecipeSearchSettingsSection({
           label: <>Ready to cook</>,
           fullLabel: <>Ready to cook</>,
         },
+        {
+          value: "Fast",
+          type: "fast",
+          label: <>Fast</>,
+          fullLabel: <>Fast</>,
+        },
+        {
+          value: "Easy",
+          type: "easy",
+          label: <>Easy</>,
+          fullLabel: <>Easy</>,
+        },
         ...Object.values(
           Object.fromEntries(
             (recipes || [])

@@ -99,7 +99,9 @@ export interface Preference {
     | "trash"
     | "recent"
     // | "pantry";
-    | "ready-to-cook"; // replace with remaining cost & cost
+    | "ready-to-cook" // replace with remaining cost & cost
+    | "fast"
+    | "easy";
   // moods
   preference: "exclude" | "reduce" | "prefer" | "require";
   pinned?: boolean;
@@ -107,7 +109,7 @@ export interface Preference {
 }
 
 interface PreferenceProcessor {
-  match: (values: Set<Preference["id"]>, recipe: Recipe) => boolean;
+  match: (values: Set<Preference["id"]>, recipe: Recipe) => number;
 }
 
 function partitionBy<T extends { [key: string]: any }>(arr: T[], key: string) {
@@ -156,34 +158,36 @@ export function getSuggestedRecipes(
   const processors: { [key: string]: PreferenceProcessor } = {
     ingredient: {
       match: (values: Set<Preference["id"]>, recipe: Recipe) =>
-        !!recipe.ingredients.find((ingredient) =>
-          values.has(ingredient.type.id)
-        ),
+        recipe.ingredients.find((ingredient) => values.has(ingredient.type.id))
+          ? 1
+          : 0,
     },
     tag: {
       match: (values: Set<Preference["id"]>, recipe: Recipe) =>
-        !!recipe.tags.find((tag) => values.has(tag)),
+        recipe.tags.find((tag) => values.has(tag)) ? 1 : 0,
     },
     equipment: {
       match: (values: Set<Preference["id"]>, recipe: Recipe) =>
-        !!recipe.utensils.find((tag) => values.has(tag)),
+        recipe.utensils.find((tag) => values.has(tag)) ? 1 : 0,
     },
     liked: {
       match: (values: Set<Preference["id"]>, recipe: Recipe) =>
-        !!sources.likes.find((like) => like.slug === recipe.slug),
+        sources.likes.find((like) => like.slug === recipe.slug) ? 1 : 0,
     },
     trash: {
       match: (values: Set<Preference["id"]>, recipe: Recipe) =>
-        !!sources.trash.find((trash) => trash.slug === recipe.slug),
+        sources.trash.find((trash) => trash.slug === recipe.slug) ? 1 : 0,
     },
     recent: {
       match: (values: Set<Preference["id"]>, recipe: Recipe) =>
-        !!sources.history
+        sources.history
           .filter(
             (item) =>
               Date.now() - item.created?.toMillis() < 1000 * 60 * 60 * 24 * 31
           )
-          .find((item) => item.slug === recipe.slug),
+          .find((item) => item.slug === recipe.slug)
+          ? 1
+          : 0,
     },
     "ready-to-cook": {
       match: (values: Set<Preference["id"]>, recipe: Recipe) =>
@@ -192,14 +196,26 @@ export function getSuggestedRecipes(
             (item) => item.ingredient.type.id === ingredient.type.id
           );
           return enoughInPantry(ingredient, pantryItem);
-        }),
+        })
+          ? 1
+          : 0,
+    },
+    easy: {
+      match: (values: Set<Preference["id"]>, recipe: Recipe) =>
+        ({ Easy: 1, Moderate: 0.4, Hard: 0, Expert: 0 }[
+          recipe.difficulty || "Moderate"
+        ]),
+    },
+    fast: {
+      match: (values: Set<Preference["id"]>, recipe: Recipe) =>
+        recipe.prepTime ? Math.max((60 - recipe.prepTime) / 60, 0) : 0.5,
     },
   };
 
-  const scorers: { [key: string]: (isMatch: boolean) => number | null } = {
+  const scorers: { [key: string]: (isMatch: number) => number | null } = {
     exclude: (isMatch) => (isMatch ? null : 0),
-    reduce: (isMatch) => (isMatch ? -1 : 0),
-    prefer: (isMatch) => (isMatch ? 1 : 0),
+    reduce: (isMatch) => (isMatch ? -1 * isMatch : 0),
+    prefer: (isMatch) => (isMatch ? 1 * isMatch : 0),
     require: (isMatch) => (isMatch ? 0 : null),
   };
 
