@@ -15,6 +15,22 @@
       user's mobile device or desktop. See https://developers.google.com/web/fundamentals/web-app-manifest/
     -->
     <link rel="manifest" href="%PUBLIC_URL%/manifest.json" />
+    <script>
+      if (!!navigator.platform && /iP(?:hone|ad|od)/.test(navigator.platform)) {
+        document
+          .querySelector(`link[rel="manifest"]`)
+          .setAttribute(`rel`, `no-ios`);
+        document.title = `AppName`; // default app name | simulate short_name
+        if (
+          `standalone` in window.navigator &&
+          window.navigator.standalone &&
+          sessionStorage.getItem(`iOS-redirect`) === null
+        ) {
+          sessionStorage.setItem(`iOS-redirect`, ``);
+          window.location = `/`; // simulate start_url
+        }
+      }
+    </script>
     <!--
       Notice the use of %PUBLIC_URL% in the tags above.
       It will be replaced with the URL of the `public` folder during the build.
