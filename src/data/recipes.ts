@@ -17,6 +17,8 @@ export interface RecipeStep {
   timers: RecipeTimer[];
 }
 
+type Difficulty = "Easy" | "Moderate" | "Hard" | "Expert";
+
 export interface Recipe {
   name: string;
   subtitle: string;
@@ -29,6 +31,8 @@ export interface Recipe {
   utensils: string[];
   tags: string[];
   serves: number;
+  prepTime?: number;
+  difficulty?: Difficulty;
 }
 
 export const RecipesCollection = ExternalCollectionFactory<any[] | undefined>(
@@ -49,6 +53,9 @@ export function getRecipes(recipes: any[] | undefined): Recipe[] | undefined {
     if (!yields) {
       yields = item.yields[0];
     }
+
+    const prepTime = item.prepTime && item.prepTime.match(/PT(\d+)M/);
+
     return {
       name: item.name,
       subtitle: item.headline,
@@ -63,6 +70,10 @@ export function getRecipes(recipes: any[] | undefined): Recipe[] | undefined {
       steps: item.steps.map(getRecipeStep),
       utensils: item.utensils.map((utensil: any) => utensil.name),
       tags: [...item.cuisines, ...item.tags].map((tag) => tag.name),
+      prepTime: prepTime ? parseInt(prepTime[1]) : undefined,
+      difficulty: (
+        { 1: "Easy", 2: "Moderate", 3: "Hard" } as { [key: number]: Difficulty }
+      )[item.difficulty as number],
     };
   });
 }
@@ -230,7 +241,7 @@ export function getSuggestedRecipes(
   );
   return scoredRecipes
     .sort((a, b) => b.score - a.score)
-    .slice(0, 10)
+    .slice(0, 12)
     .map(({ recipe, reasons }) => ({
       recipe,
       reasons,

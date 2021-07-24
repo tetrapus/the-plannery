@@ -126,6 +126,25 @@ export function RecipeCard({ recipe, children, ...rest }: Props) {
             <div css={{ fontSize: "1em" }}>{recipe.subtitle}</div>
             <div
               css={{
+                color: "white",
+                position: "absolute",
+                top: 0,
+                left: 0,
+                background: {
+                  Easy: "#4fb55d",
+                  Moderate: "#007fed",
+                  Hard: "#363f4d",
+                  Expert: "#000",
+                }[recipe.difficulty || "Expert"],
+                fontSize: 10,
+                padding: "2px 4px",
+                borderBottomRightRadius: 2,
+              }}
+            >
+              {recipe.difficulty}
+            </div>
+            <div
+              css={{
                 color: "grey",
                 fontStyle: "italic",
                 position: "absolute",
@@ -134,7 +153,7 @@ export function RecipeCard({ recipe, children, ...rest }: Props) {
                 fontSize: 14,
               }}
             >
-              {recipe.serves} serves
+              {recipe.prepTime}m &middot; {recipe.serves} serves{" "}
               {pantry ? (
                 <>
                   {" "}
