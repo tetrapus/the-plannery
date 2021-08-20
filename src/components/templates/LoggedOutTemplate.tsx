@@ -5,7 +5,7 @@ import { Stack } from "../atoms/Stack";
 
 // Configure FirebaseUI.
 const uiConfig = {
-  signInFlow: "popup",
+  signInFlow: "redirect",
   callbacks: {
     // Avoid redirects after sign-in.
     signInSuccessWithAuthResult: () => false,
