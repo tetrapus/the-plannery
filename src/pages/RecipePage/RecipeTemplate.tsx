@@ -19,6 +19,7 @@ import IngredientsSection from "./IngredientsSection";
 import styled from "@emotion/styled";
 import { Darkmode } from "../../components/styles/Darkmode";
 import { Breakpoint } from "../../components/styles/Breakpoint";
+import { ImageContent } from "../../components/atoms/ImageContent";
 
 interface Props {
   recipe: Recipe;
@@ -57,7 +58,7 @@ export default function RecipeTemplate({ recipe }: Props) {
 
   return (
     <div>
-      <img
+      <ImageContent
         src={recipe.imageUrl}
         css={{
           width: "100vw",
@@ -65,13 +66,12 @@ export default function RecipeTemplate({ recipe }: Props) {
           objectFit: "cover",
           position: "relative",
           top: -64,
-          zIndex: -1,
           [Breakpoint.TABLET]: {
             position: "initial",
           },
         }}
         alt={recipe.name}
-      ></img>
+      ></ImageContent>
       <div
         css={{
           backgroundColor: "white",

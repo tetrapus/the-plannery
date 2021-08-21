@@ -16,7 +16,10 @@ export default interface Ingredient {
 interface Amount {
   unit: string;
   qty: number;
+  alias?: boolean;
 }
+
+const alias = true;
 
 const globalNormalisers: { [unit: string]: Amount } = {
   tsp: { unit: "ml", qty: 5 },
@@ -24,7 +27,9 @@ const globalNormalisers: { [unit: string]: Amount } = {
   tbs: { unit: "ml", qty: 15 },
   cup: { unit: "ml", qty: 250 },
   litre: { unit: "ml", qty: 1000 },
+  l: { unit: "ml", qty: 1000 },
   kg: { unit: "g", qty: 1000 },
+  each: { unit: "unit", qty: 1, alias },
 };
 
 const ingredientNormalisers: { [name: string]: { [unit: string]: Amount } } = {
@@ -50,6 +55,7 @@ const ingredientNormalisers: { [name: string]: { [unit: string]: Amount } } = {
     packet: { unit: "g", qty: 200 },
   },
   "pork mince": { packet: { unit: "g", qty: 500 } },
+  "beef mince": { packet: { unit: "g", qty: 500 } },
   "chicken breast": { packet: { unit: "g", qty: 500 } },
   "sugar snap peas": { bag: { unit: "g", qty: 150 } },
   potatoes: { unit: { unit: "g", qty: 150 } },
@@ -57,6 +63,7 @@ const ingredientNormalisers: { [name: string]: { [unit: string]: Amount } } = {
     packet: { unit: "g", qty: 100 },
     ml: { unit: "g", qty: 0.4 },
   },
+  parsley: { bag: { unit: "bunch", qty: 1 } },
 };
 
 export function normaliseIngredient(ingredient: Ingredient) {
@@ -95,7 +102,10 @@ export function denormaliseIngredient(
     return;
   }
   const tiers = Object.entries(globalNormalisers)
-    .filter(([unit, normaliser]) => ingredient.unit === normaliser.unit)
+    .filter(
+      ([unit, normaliser]) =>
+        ingredient.unit === normaliser.unit && !normaliser.alias
+    )
     .sort((a, b) => b[1].qty - a[1].qty);
 
   const isDivisible = (number: number, divisor: number) =>
@@ -146,3 +156,5 @@ export function denormaliseIngredient(
 
 export const isSameIngredient = (a: Ingredient, b: Ingredient) =>
   a.type.id === b.type.id && (a.unit === b.unit || !a.unit || !b.unit);
+
+export const displayUnit = (a?: string) => (a && a !== "unit" ? a : "");

@@ -1,7 +1,10 @@
 import { faSearch, faThumbtack } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import React, { useContext, useState } from "react";
-import Ingredient, { denormaliseIngredient } from "../../data/ingredients";
+import Ingredient, {
+  denormaliseIngredient,
+  displayUnit,
+} from "../../data/ingredients";
 import { PantryItem } from "../../data/pantry";
 import { AuthStateContext } from "../../data/auth-state";
 import IngredientCard from "../molecules/IngredientCard";
@@ -75,7 +78,7 @@ export function PantryIngredientCard({ ingredient, pantryItem }: Props) {
       ingredient={ingredient}
       status={`${displayPantryAmount ? `${displayPantryAmount.qty}/` : ""}${
         displayAmount?.qty || ""
-      } ${displayAmount?.unit !== "unit" ? displayAmount?.unit || "" : ""}`}
+      } ${displayUnit(displayAmount?.unit)}`}
       done={!!complete}
       busy={busy}
       onClick={async () => {

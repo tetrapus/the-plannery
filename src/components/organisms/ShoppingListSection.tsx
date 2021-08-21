@@ -13,9 +13,11 @@ export function ShoppingListSection({ mealPlan, recipes }: Props) {
   if (!mealPlan.recipes.length) {
     return null;
   }
+
   if (!recipes) {
     return <Spinner />;
   }
+
   return (
     <>
       <h2 css={{ marginLeft: 8 }}>Shopping list</h2>

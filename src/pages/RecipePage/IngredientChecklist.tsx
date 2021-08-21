@@ -4,7 +4,10 @@ import { Flex } from "../../components/atoms/Flex";
 import { IconButton } from "../../components/atoms/IconButton";
 import IngredientCard from "../../components/molecules/IngredientCard";
 import { AuthStateContext } from "../../data/auth-state";
-import Ingredient, { denormaliseIngredient } from "../../data/ingredients";
+import Ingredient, {
+  denormaliseIngredient,
+  displayUnit,
+} from "../../data/ingredients";
 import { Recipe } from "../../data/recipes";
 import { Session } from "../../data/session";
 import { useFirestore } from "../../init/firebase";
@@ -75,11 +78,9 @@ export default function IngredientChecklist({
               <IngredientCard
                 key={ingredient.type.name}
                 ingredient={ingredient}
-                status={`${displayAmount?.qty || ""} ${
-                  displayAmount?.unit !== "unit"
-                    ? displayAmount?.unit || ""
-                    : ""
-                }`}
+                status={`${displayAmount?.qty || ""} ${displayUnit(
+                  displayAmount?.unit
+                )}`}
                 done={
                   !!usedIngredients &&
                   usedIngredients.includes(ingredient.type.name)

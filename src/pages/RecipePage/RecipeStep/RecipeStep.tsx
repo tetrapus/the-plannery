@@ -9,6 +9,7 @@ import { Stack } from "../../../components/atoms/Stack";
 import { RecipeStep as Step, RecipeTimer } from "../../../data/recipes";
 import { Timer } from "./Timer";
 import { TimerText } from "./TimerText";
+import { ImageContent } from "../../../components/atoms/ImageContent";
 
 interface Props {
   step: Step;
@@ -113,14 +114,14 @@ export function RecipeStep({
       </h1>
       <div css={{ marginRight: "8px" }}>
         {step.images.map((img) => (
-          <img
+          <ImageContent
             key={img}
             src={img}
             css={css`
               width: 250px;
             `}
             alt=""
-          ></img>
+          ></ImageContent>
         ))}
       </div>
       <div
