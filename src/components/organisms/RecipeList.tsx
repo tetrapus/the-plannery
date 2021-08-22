@@ -2,9 +2,7 @@ import React from "react";
 import { RecipeAction, RecipeCard } from "../molecules/RecipeCard";
 import { Stack } from "../atoms/Stack";
 import { Recipe } from "../../data/recipes";
-import { IconProp } from "@fortawesome/fontawesome-svg-core";
 import { Breakpoint } from "../styles/Breakpoint";
-import { IconButton } from "../atoms/IconButton";
 
 interface Props {
   recipes: Recipe[];
