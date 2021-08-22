@@ -59,30 +59,28 @@ export function MealPlanSection({ mealPlan, recipes }: Props) {
         recipes={mealPlan.recipes
           .map((mealPlanItem) => getRecipe(recipes, mealPlanItem.slug))
           .filter((x): x is Recipe => x !== undefined)}
-        actions={[
-          {
-            icon: faTimes,
-            onClick: (recipe) => (e) => {
-              mealPlan.recipes
-                .find((mealPlanItem) => mealPlanItem.slug === recipe.slug)
-                ?.ref.delete();
-              e.preventDefault();
-            },
+        dismiss={{
+          icon: faTimes,
+          onClick: (recipe) => (e) => {
+            mealPlan.recipes
+              .find((mealPlanItem) => mealPlanItem.slug === recipe.slug)
+              ?.ref.delete();
+            e.preventDefault();
           },
-          {
-            icon: faCheck,
-            onClick: (recipe) => (e) => {
-              household?.ref
-                .collection("history")
-                .add({ ...insertMeta, slug: recipe.slug });
-              onClose(recipe);
-              mealPlan.recipes
-                .find((mealPlanItem) => mealPlanItem.slug === recipe.slug)
-                ?.ref.delete();
-              e.preventDefault();
-            },
+        }}
+        select={{
+          icon: faCheck,
+          onClick: (recipe) => (e) => {
+            household?.ref
+              .collection("history")
+              .add({ ...insertMeta, slug: recipe.slug });
+            onClose(recipe);
+            mealPlan.recipes
+              .find((mealPlanItem) => mealPlanItem.slug === recipe.slug)
+              ?.ref.delete();
+            e.preventDefault();
           },
-        ]}
+        }}
       ></RecipeList>
     </>
   );

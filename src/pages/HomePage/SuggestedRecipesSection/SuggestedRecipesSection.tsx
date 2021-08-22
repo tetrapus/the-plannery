@@ -136,17 +136,15 @@ export default function SuggestedRecipesSection({ recipes }: Props) {
       ) : null}
       <RecipeList
         recipes={(suggestedRecipes || []).map((r) => r.recipe)}
-        actions={[
-          {
-            icon: faPlus,
-            onClick: (recipe) => (e) => {
-              household?.ref
-                .collection("mealplan")
-                .add({ slug: recipe.slug, ...insertMeta });
-              e.preventDefault();
-            },
+        select={{
+          icon: faPlus,
+          onClick: (recipe) => (e) => {
+            household?.ref
+              .collection("mealplan")
+              .add({ slug: recipe.slug, ...insertMeta });
+            e.preventDefault();
           },
-        ]}
+        }}
       />
     </Stack>
   );

@@ -1,22 +1,18 @@
 import React from "react";
-import { RecipeCard } from "../molecules/RecipeCard";
+import { RecipeAction, RecipeCard } from "../molecules/RecipeCard";
 import { Stack } from "../atoms/Stack";
 import { Recipe } from "../../data/recipes";
 import { IconProp } from "@fortawesome/fontawesome-svg-core";
 import { Breakpoint } from "../styles/Breakpoint";
 import { IconButton } from "../atoms/IconButton";
 
-interface Action {
-  icon: IconProp;
-  onClick: (recipe: Recipe) => (e: React.MouseEvent) => void;
-}
-
 interface Props {
   recipes: Recipe[];
-  actions: Action[];
+  dismiss?: RecipeAction;
+  select?: RecipeAction;
 }
 
-export function RecipeList({ recipes, actions }: Props) {
+export function RecipeList({ recipes, dismiss, select }: Props) {
   return (
     <Stack
       css={{
@@ -34,42 +30,15 @@ export function RecipeList({ recipes, actions }: Props) {
           <RecipeCard
             recipe={recipe}
             key={idx}
+            dismiss={dismiss}
+            select={select}
             css={{
               marginBottom: 16,
               [Breakpoint.TABLET]: {
                 marginBottom: 0,
               },
             }}
-          >
-            <Stack
-              css={{
-                fontSize: 36,
-                marginLeft: 42,
-                color: "grey",
-                height: "100%",
-                [Breakpoint.TABLET_ONLY]: {
-                  marginLeft: 16,
-                  flexDirection: "row",
-                  width: 100,
-                },
-
-                [Breakpoint.MOBILE]: {
-                  margin: "auto",
-                  flexDirection: "row",
-                  width: "66%",
-                },
-              }}
-            >
-              {actions.map((action, idx) => (
-                <IconButton
-                  key={idx}
-                  icon={action.icon}
-                  onClick={action.onClick(recipe)}
-                  css={{ margin: "auto" }}
-                />
-              ))}
-            </Stack>
-          </RecipeCard>
+          ></RecipeCard>
         );
       })}
     </Stack>

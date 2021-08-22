@@ -33,17 +33,15 @@ export function NowCookingSection({ recipes }: Props) {
         recipes={sessions
           .map((session) => getRecipe(recipes, session.slug))
           .filter((x): x is Recipe => x !== undefined)}
-        actions={[
-          {
-            icon: faStopCircle,
-            onClick: (recipe) => (e) => {
-              sessions
-                .find((session) => session.slug === recipe.slug)
-                ?.ref.delete();
-              e.preventDefault();
-            },
+        dismiss={{
+          icon: faStopCircle,
+          onClick: (recipe) => (e) => {
+            sessions
+              .find((session) => session.slug === recipe.slug)
+              ?.ref.delete();
+            e.preventDefault();
           },
-        ]}
+        }}
       ></RecipeList>
     </>
   );

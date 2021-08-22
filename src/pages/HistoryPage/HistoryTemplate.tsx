@@ -18,7 +18,6 @@ export function HistoryTemplate({ history, recipes }: Props) {
         recipes={history.history
           .map((item) => getRecipe(recipes, item.slug))
           .filter((x): x is Recipe => !!x)}
-        actions={[]}
       ></RecipeList>
     </Stack>
   );
