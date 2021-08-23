@@ -1,6 +1,7 @@
 import { css } from "@emotion/core";
 import { IconProp } from "@fortawesome/fontawesome-svg-core";
 import { IconButton } from "components/atoms/IconButton";
+import { Darkmode } from "components/styles/Darkmode";
 import React, { useContext, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import { LikesContext } from "../../data/likes";
@@ -204,6 +205,9 @@ export function RecipeCard({ recipe, dismiss, select, ...rest }: Props) {
               height: "100%",
               minHeight: 125,
               background: "white",
+              [Darkmode]: {
+                background: "black",
+              },
             }}
             style={{
               left:
