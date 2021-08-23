@@ -98,6 +98,7 @@ export function RecipeCard({ recipe, dismiss, select, ...rest }: Props) {
             width: "45vw",
             margin: "2.5vw",
             minWidth: 125,
+            position: "initial",
           },
           position: "relative",
         }}
@@ -208,6 +209,9 @@ export function RecipeCard({ recipe, dismiss, select, ...rest }: Props) {
               [Darkmode]: {
                 background: "black",
               },
+              [Breakpoint.MOBILE]: {
+                position: "initial",
+              },
             }}
             style={{
               left:
@@ -216,8 +220,10 @@ export function RecipeCard({ recipe, dismiss, select, ...rest }: Props) {
                   : 0,
             }}
             onTouchStart={(event) => {
-              setTouchOffset({ origin: event.touches[0].clientX, value: 0 });
-              console.log(touchOffset);
+              if (window.innerWidth > 480) {
+                setTouchOffset({ origin: event.touches[0].clientX, value: 0 });
+                console.log(touchOffset);
+              }
             }}
             onTouchMove={(event) => {
               if (!touchOffset) {
@@ -312,14 +318,7 @@ export function RecipeCard({ recipe, dismiss, select, ...rest }: Props) {
             css={{
               display: "none",
               [Breakpoint.TABLET]: { display: "inherit" },
-              [Breakpoint.MOBILE]: {
-                display: "none",
-                /*
-                flexDirection: "row",
-                width: "50vw",
-                marginBottom: 24,
-                */
-              },
+              [Breakpoint.MOBILE]: { width: "100%" },
             }}
           >
             <RecipeActions recipe={recipe} dismiss={dismiss} select={select} />
