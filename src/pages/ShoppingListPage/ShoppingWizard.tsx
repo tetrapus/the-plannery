@@ -6,7 +6,7 @@ import { TextInput } from "components/atoms/TextInput";
 import { AuthStateContext } from "data/auth-state";
 import Ingredient from "data/ingredients";
 import React, { useContext, useEffect, useState } from "react";
-import { Product } from "./RichIngredientItem";
+import { Product } from "./ProductCard";
 
 interface Props {
   selectedIngredient?: Ingredient;

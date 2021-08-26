@@ -12,6 +12,11 @@
 
 (function () {
   function wooliesApi(method, resource, body) {
+    const genRanHex = (size) =>
+      [...Array(size)]
+        .map(() => Math.floor(Math.random() * 16).toString(16))
+        .join("");
+
     return new Promise((resolve, reject) => {
       GM_xmlhttpRequest({
         url: `https://www.woolworths.com.au/apis/ui/${resource}`,
@@ -20,6 +25,9 @@
           "accept-language": "en-GB,en-US;q=0.9,en;q=0.8",
           "cache-control": "no-cache",
           "content-type": "application/json",
+          "request-context":
+            "appId=cid-v1:099a45be-5030-453c-b870-6f6cb4dacdb8",
+          "request-id": `|${genRanHex(32)}.${genRanHex(16)}`,
         },
         data: body ? JSON.stringify(body) : "",
         method: method,

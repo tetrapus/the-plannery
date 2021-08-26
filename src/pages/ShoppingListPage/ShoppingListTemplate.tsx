@@ -37,8 +37,8 @@ export function ShoppingListTemplate({ ingredients }: Props) {
 
   const pantryIngredients: PantryIngredient[] = ingredients.map(
     (ingredient) => {
-      const pantryItem = pantry?.items.find(
-        (item) => isSameIngredient(item.ingredient, ingredient) //item.ingredient.type.name === ingredient.type.name
+      const pantryItem = pantry?.items.find((item) =>
+        isSameIngredient(item.ingredient, ingredient)
       );
 
       const complete = !!(
@@ -63,6 +63,38 @@ export function ShoppingListTemplate({ ingredients }: Props) {
     "Pantry Staples": ({ unlimited }: PantryIngredient) => unlimited,
   };
 
+  const ingredientLists: [string, PantryIngredient[]][] = Object.entries(
+    filters
+  ).map(([title, filter]) => [title, pantryIngredients.filter(filter)]);
+
+  useEffect(() => {
+    const listener = (event: KeyboardEvent) => {
+      if (document.activeElement === document.body) {
+        const directions: { [key: string]: number } = {
+          ArrowDown: 1,
+          ArrowUp: -1,
+        };
+        if (directions[event.key]) {
+          const ingredients = ingredientLists
+            .map(([, ingredients]) => ingredients)
+            .flat(1);
+          if (selectedIngredient) {
+            const index = ingredients.findIndex((ingredient) =>
+              isSameIngredient(ingredient.ingredient, selectedIngredient)
+            );
+            setSelectedIngredient(
+              ingredients[index + directions[event.key]]?.ingredient
+            );
+          } else {
+            setSelectedIngredient(ingredients[0]?.ingredient);
+          }
+        }
+      }
+    };
+    document.addEventListener("keydown", listener);
+    return () => document.removeEventListener("keydown", listener);
+  }, [ingredientLists, selectedIngredient]);
+
   const preferredProducts =
     useHouseholdCollection(
       (household) => household.collection("productPreferences"),
@@ -82,8 +114,7 @@ export function ShoppingListTemplate({ ingredients }: Props) {
   return (
     <Flex>
       <Stack css={{ flexGrow: 1 }}>
-        {Object.entries(filters).map(([title, filter]) => {
-          const ingredients = pantryIngredients.filter(filter);
+        {ingredientLists.map(([title, ingredients]) => {
           if (!ingredients.length) return null;
           const sectionPrice = Object.entries(preferredProducts)
             .filter(([key, value]) =>
