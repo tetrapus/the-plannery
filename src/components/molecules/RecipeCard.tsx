@@ -38,19 +38,18 @@ function RecipeActions({
     <Stack
       css={{
         fontSize: 36,
-        marginLeft: 42,
+        marginLeft: 16,
         color: "grey",
         height: "100%",
-        [Breakpoint.TABLET_ONLY]: {
-          marginLeft: 16,
-          flexDirection: "row",
-          width: 100,
-        },
+        flexDirection: "column",
+        width: 100,
+        borderLeft: "1px solid #e0e0e0",
 
         [Breakpoint.MOBILE]: {
           margin: "auto",
           flexDirection: "row",
           width: "66%",
+          borderLeft: "none",
         },
       }}
     >
@@ -63,7 +62,7 @@ function RecipeActions({
             key={idx}
             icon={action.icon}
             onClick={action.onClick(recipe)}
-            css={{ margin: "auto" }}
+            css={{ margin: "auto", padding: 8, color: "#d0d0d0" }}
           />
         );
       })}
@@ -111,7 +110,7 @@ export function RecipeCard({ recipe, dismiss, select, ...rest }: Props) {
       >
         <Flex
           css={css(CardStyle, {
-            width: 600,
+            width: 750,
             minHeight: 125,
             alignItems: "center",
             position: "relative",
@@ -316,8 +315,6 @@ export function RecipeCard({ recipe, dismiss, select, ...rest }: Props) {
           </Stack>
           <div
             css={{
-              display: "none",
-              [Breakpoint.TABLET]: { display: "inherit" },
               [Breakpoint.MOBILE]: { width: "100%" },
             }}
           >
@@ -325,9 +322,6 @@ export function RecipeCard({ recipe, dismiss, select, ...rest }: Props) {
           </div>
         </Flex>
       </Link>
-      <div css={{ [Breakpoint.TABLET]: { display: "none" } }}>
-        <RecipeActions recipe={recipe} dismiss={dismiss} select={select} />
-      </div>
     </Flex>
   );
 }
