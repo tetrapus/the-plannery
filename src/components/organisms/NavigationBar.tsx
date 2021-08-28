@@ -5,6 +5,7 @@ import { Flex } from "../atoms/Flex";
 import { AuthStateContext } from "../../data/auth-state";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
+  faCompass,
   faHistory,
   faShoppingBasket,
   faTimes,
@@ -41,11 +42,14 @@ export default function NavigationBar() {
       }}
     >
       <Flex css={{ flexGrow: 1, alignItems: "center" }}>
-        <Link to="/history">
-          <IconButton icon={faHistory} />
-        </Link>
         <Link to="/shopping-list">
           <IconButton icon={faShoppingBasket} />
+        </Link>
+        <Link to="/browse">
+          <IconButton icon={faCompass} />
+        </Link>
+        <Link to="/history">
+          <IconButton icon={faHistory} />
         </Link>
         <Link
           to="/"

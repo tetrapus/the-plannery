@@ -18,6 +18,7 @@ import { ShoppingListPage } from "./pages/ShoppingListPage/ShoppingListPage";
 import { useSubscription } from "./util/use-subscription";
 import { Trash, TrashContext } from "./data/trash";
 import ScrollToTop from "./util/ScrollToTop";
+import { BrowsePage } from "pages/BrowsePage/BrowsePage";
 
 initFirebase();
 
@@ -118,6 +119,9 @@ function App() {
                     </Route>
                     <Route path="/shopping-list">
                       <ShoppingListPage />
+                    </Route>
+                    <Route path="/browse">
+                      <BrowsePage />
                     </Route>
                     <Route path="/">
                       <HomePage></HomePage>

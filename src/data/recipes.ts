@@ -55,7 +55,6 @@ export function getRecipes(recipes: any[] | undefined): Recipe[] | undefined {
     }
 
     const prepTime = item.prepTime && item.prepTime.match(/PT(\d+)M/);
-
     return {
       name: item.name,
       subtitle: item.headline,
@@ -139,7 +138,8 @@ export const DEFAULT_PREFERENCES = [
 export function getSuggestedRecipes(
   recipes: Recipe[] | undefined,
   preferences: Preference[] | undefined,
-  sources: SuggestionFactors
+  sources: SuggestionFactors,
+  limit: number = 12
 ) {
   if (recipes === undefined || preferences === undefined) {
     return undefined;
@@ -257,7 +257,7 @@ export function getSuggestedRecipes(
   );
   return scoredRecipes
     .sort((a, b) => b.score - a.score)
-    .slice(0, 12)
+    .slice(0, limit)
     .map(({ recipe, reasons }) => ({
       recipe,
       reasons,

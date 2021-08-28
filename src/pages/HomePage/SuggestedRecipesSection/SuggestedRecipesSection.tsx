@@ -1,5 +1,5 @@
 import { faCogs, faPlus } from "@fortawesome/free-solid-svg-icons";
-import React, { useContext, useEffect } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import { IconButton } from "../../../components/atoms/IconButton";
 import { Stack } from "../../../components/atoms/Stack";
 import { RecipeList } from "../../../components/organisms/RecipeList";
@@ -16,6 +16,7 @@ import { MealPlanItem } from "../../../data/meal-plan";
 import RecipeSearchSettingsSection from "./RecipeSearchSettingsSection";
 import { RecipeHistory, HistoryItem } from "data/recipe-history";
 import { db } from "init/firebase";
+import { Button } from "components/atoms/Button";
 
 interface Props {
   recipes: Recipe[];
@@ -104,12 +105,19 @@ export default function SuggestedRecipesSection({ recipes }: Props) {
     }
   }, [household, insertMeta]);
 
-  const suggestedRecipes = getSuggestedRecipes(recipes, preferences, {
-    likes,
-    trash,
-    pantry: pantry?.items || [],
-    history: history?.history || [],
-  })?.filter(
+  const [limit, setLimit] = useState<number>(12);
+
+  const suggestedRecipes = getSuggestedRecipes(
+    recipes,
+    preferences,
+    {
+      likes,
+      trash,
+      pantry: pantry?.items || [],
+      history: history?.history || [],
+    },
+    limit
+  )?.filter(
     ({ recipe }) => !mealPlan?.recipes.find((r) => r.slug === recipe.slug)
   );
 
@@ -146,6 +154,9 @@ export default function SuggestedRecipesSection({ recipes }: Props) {
           },
         }}
       />
+      <Button onClick={() => setLimit(limit + 12)} css={{ marginBottom: 128 }}>
+        Load More
+      </Button>
     </Stack>
   );
 }
