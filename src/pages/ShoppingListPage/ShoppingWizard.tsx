@@ -6,9 +6,9 @@ import { Stack } from "components/atoms/Stack";
 import { TextInput } from "components/atoms/TextInput";
 import { QuantityInput } from "components/molecules/QuantityInput";
 import { AuthStateContext } from "data/auth-state";
-import Ingredient from "data/ingredients";
-import { Product } from "data/product";
-import React, { useContext, useEffect, useState } from "react";
+import Ingredient, { normaliseIngredient } from "data/ingredients";
+import { isConvertible, normaliseProduct, Product } from "data/product";
+import React, { ChangeEvent, useContext, useEffect, useState } from "react";
 import { ProductOption } from "./ProductOption";
 import { LinkButton } from "../../components/atoms/LinkButton";
 import { TextButton } from "../../components/atoms/TextButton";
@@ -26,10 +26,15 @@ export function ShoppingWizard({ selectedIngredient, onSelection }: Props) {
   );
   const [selectedProduct, setSelectedProduct] = useState<Product | undefined>();
   const { household } = useContext(AuthStateContext);
+  const [conversion, setConversion] = useState<number | undefined>();
 
   useEffect(() => {
     setSelectedProduct(undefined);
   }, [selectedIngredient]);
+
+  useEffect(() => {
+    setConversion(undefined);
+  }, [selectedProduct]);
 
   useEffect(() => {
     if (loading) {
@@ -48,17 +53,48 @@ export function ShoppingWizard({ selectedIngredient, onSelection }: Props) {
     setLoading(true);
   }, [selectedIngredient]);
 
+  useEffect(() => {
+    if (!selectedProduct || !selectedIngredient) return;
+    const normalisedIngredient = normaliseIngredient(
+      selectedIngredient
+    ) as Ingredient;
+    const normalisedProduct = normaliseProduct(
+      selectedProduct,
+      normalisedIngredient
+    );
+    const convertable = isConvertible(normalisedProduct, normalisedIngredient);
+    const estimatedAmount = convertable
+      ? normalisedProduct?.qty || 1
+      : undefined;
+
+    if (conversion === undefined && estimatedAmount) {
+      setConversion(estimatedAmount);
+    }
+  }, [selectedIngredient, selectedProduct, conversion]);
+
   const chooseProduct = () => {
     if (!selectedProduct || !selectedIngredient) {
       return;
     }
+    const normalisedIngredient = normaliseIngredient(
+      selectedIngredient
+    ) as Ingredient;
     household?.ref
       .collection("productPreferences")
       .doc(selectedIngredient.type.name)
       .set({
         [selectedProduct.Stockcode]: selectedProduct,
       });
+    if (conversion) {
+      household?.ref
+        .collection("productConversions")
+        .doc(selectedProduct.Stockcode.toString())
+        .set({
+          [normalisedIngredient.unit || "unit"]: conversion,
+        });
+    }
     setSelectedProduct(undefined);
+
     onSelection();
   };
 
@@ -185,6 +221,12 @@ export function ShoppingWizard({ selectedIngredient, onSelection }: Props) {
                         >
                           <QuantityInput
                             suffix={selectedIngredient.unit}
+                            value={conversion || ""}
+                            onChange={(e: ChangeEvent<HTMLInputElement>) =>
+                              setConversion(
+                                e.target.value ? parseFloat(e.target.value) : 0
+                              )
+                            }
                             autoFocus
                           ></QuantityInput>
                         </form>
@@ -200,7 +242,7 @@ export function ShoppingWizard({ selectedIngredient, onSelection }: Props) {
                           I don't know
                         </LinkButton>
                         <TextButton
-                          css={{ margin: "16px auto" }}
+                          css={{ margin: "0 auto 16px" }}
                           onClick={() => chooseProduct()}
                         >
                           Save Preference

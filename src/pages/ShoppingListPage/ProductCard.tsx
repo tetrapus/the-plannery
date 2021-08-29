@@ -9,6 +9,7 @@ import {
   isConvertible,
   normaliseProduct,
   Product,
+  ProductConversions,
   TrolleyItem,
 } from "data/product";
 import React, { ChangeEvent, useCallback, useEffect, useRef } from "react";
@@ -19,6 +20,7 @@ interface Props {
   ingredient: Ingredient;
   trolley: TrolleyItem[];
   selected: boolean;
+  conversions: ProductConversions;
   onAddToCart(): void;
 }
 
@@ -27,31 +29,52 @@ export function ProductCard({
   ingredient,
   trolley,
   selected,
+  conversions,
   onAddToCart,
 }: Props) {
   const [quantity, setQuantity] = useState<number | undefined>();
-  const normalisedIngredient = normaliseIngredient(ingredient);
-  const orderStep = product.Unit === "Each" ? 1 : 100;
-  const getDefaultQty = (value?: number) =>
-    Math.min(
-      Math.max(
-        Math.ceil((value || 0) * orderStep) / orderStep,
-        product.MinimumQuantity
-      ),
-      product.SupplyLimit
-    );
-  const normalisedProduct = normaliseProduct(product, ingredient);
-  const convertable = isConvertible(normalisedProduct, normalisedIngredient);
-  const estimatedAmount = convertable
-    ? (normalisedIngredient?.qty || 0) / (normalisedProduct?.qty || 1)
-    : ["ml", "g"].includes(normalisedIngredient?.unit || "")
-    ? 1
-    : normalisedIngredient?.qty || 1;
-  const requiredAmount = getDefaultQty(estimatedAmount);
+  const [ratio, setRatio] = useState<number | undefined>();
 
-  if (quantity === undefined && requiredAmount) {
-    setQuantity(requiredAmount);
-  }
+  useEffect(() => {
+    console.log("running effect for", product.Name);
+    const normalisedIngredient = normaliseIngredient(ingredient);
+    const normalisedProduct = normaliseProduct(product, ingredient);
+    const orderStep = product.Unit === "Each" ? 1 : 100;
+    const getDefaultQty = (value?: number) =>
+      Math.min(
+        Math.max(
+          Math.ceil((value || 0) * orderStep) / orderStep,
+          product.MinimumQuantity
+        ),
+        product.SupplyLimit
+      );
+    let ratio =
+      conversions[product.Stockcode]?.conversions[
+        normalisedIngredient?.unit || "unit"
+      ];
+    const sameUnit = isConvertible(normalisedProduct, normalisedIngredient);
+    if (!ratio && sameUnit) {
+      ratio = normalisedProduct?.qty || 1;
+    }
+
+    const estimatedAmount = ratio
+      ? (normalisedIngredient?.qty || 0) / ratio
+      : ["ml", "g"].includes(normalisedIngredient?.unit || "")
+      ? 1
+      : normalisedIngredient?.qty || 1;
+    console.log({
+      product: product.Name,
+      ratio,
+      estimatedAmount,
+      normalisedIngredient,
+    });
+    const requiredAmount = getDefaultQty(estimatedAmount);
+
+    if (requiredAmount) {
+      setQuantity(requiredAmount);
+    }
+    setRatio(ratio);
+  }, [ingredient, product, conversions]);
 
   const trolleyItem = trolley.find(
     (item) => item.Stockcode === product.Stockcode
@@ -127,11 +150,11 @@ export function ProductCard({
             marginRight: 4,
           }}
         >
-          <div>
+          <div css={{ marginBottom: 8 }}>
             {product.Name} {product.PackageSize}
           </div>
           <div css={{ fontSize: 12 }}>
-            <Price amount={product.Price} />
+            <Price amount={product.Price * (quantity || 1)} />
             <span css={{ color: "grey" }}>{product.CupString}</span>
           </div>
         </Stack>
@@ -146,7 +169,7 @@ export function ProductCard({
             flexGrow: 1,
           }}
           onChange={(e: ChangeEvent<HTMLInputElement>) =>
-            setQuantity(e.target.value ? parseInt(e.target.value) : undefined)
+            setQuantity(e.target.value ? parseInt(e.target.value) : 0)
           }
           onKeyDown={(e) => {
             if (e.key === "Enter") {
@@ -154,7 +177,7 @@ export function ProductCard({
             }
           }}
         />
-        {normalisedProduct?.unit !== normalisedIngredient?.unit ? (
+        {ratio && quantity ? (
           <div
             css={{
               background: "#dedede",
@@ -165,13 +188,7 @@ export function ProductCard({
               },
             }}
           >
-            ≈{" "}
-            {convertable
-              ? (ingredient?.qty || 1) *
-                ((requiredAmount * (normalisedProduct?.qty || 1)) /
-                  (normalisedIngredient?.qty || 1))
-              : requiredAmount}{" "}
-            {displayUnit(ingredient?.unit)}
+            ≈ {ratio * quantity} {displayUnit(ingredient?.unit)}
           </div>
         ) : null}
       </Stack>

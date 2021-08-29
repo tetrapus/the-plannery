@@ -135,3 +135,11 @@ export function isConvertible(
     product?.unit === ingredient?.unit
   );
 }
+
+export interface ProductConversions {
+  [stockcode: string]: {
+    ref: firebase.firestore.DocumentReference;
+    id: string;
+    conversions: { [unit: string]: number };
+  };
+}

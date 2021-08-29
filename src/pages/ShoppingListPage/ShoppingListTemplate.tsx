@@ -114,6 +114,23 @@ export function ShoppingListTemplate({ ingredients }: Props) {
         )
     ) || {};
 
+  const productConversions =
+    useHouseholdCollection(
+      (household) => household.collection("productConversions"),
+      (snapshot) =>
+        Object.fromEntries(
+          snapshot.docs.map((doc) => [
+            doc.id,
+            {
+              ref: doc.ref,
+              id: doc.id,
+              conversions: doc.data(),
+            },
+          ])
+        )
+    ) || {};
+  console.log(productConversions);
+
   return (
     <Flex>
       <Stack
@@ -170,6 +187,7 @@ export function ShoppingListTemplate({ ingredients }: Props) {
                         ingredient={ingredient}
                         pantryItem={pantryItem}
                         trolley={trolley}
+                        conversions={productConversions}
                         selected={
                           selectedIngredient?.type.name === ingredient.type.name
                         }

@@ -37,6 +37,7 @@ export function QuantityInput({
           background: "#f0f0f0",
           width: "100%",
         }}
+        onFocus={(event) => event.target.select()}
       ></TextInput>
       {suffix ? (
         <Stack

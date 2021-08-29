@@ -9,7 +9,7 @@ import { Breakpoint } from "components/styles/Breakpoint";
 import { ProductCard } from "./ProductCard";
 import { Darkmode } from "components/styles/Darkmode";
 import { Grid } from "../../components/atoms/Grid";
-import { Product, TrolleyItem } from "data/product";
+import { Product, ProductConversions, TrolleyItem } from "data/product";
 
 interface Props {
   ingredient: Ingredient;
@@ -18,6 +18,7 @@ interface Props {
   selected: boolean;
   productOptions: Product[];
   trolley: TrolleyItem[];
+  conversions: ProductConversions;
   onAddToCart: () => void;
 }
 
@@ -28,6 +29,7 @@ export function RichIngredientItem({
   selected,
   productOptions,
   trolley,
+  conversions,
   onAddToCart,
 }: Props) {
   const product = productOptions[0];
@@ -156,6 +158,7 @@ export function RichIngredientItem({
             ingredient={ingredient}
             trolley={trolley}
             selected={selected}
+            conversions={conversions}
             onAddToCart={onAddToCart}
           />
         ) : null}
