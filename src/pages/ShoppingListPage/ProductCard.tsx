@@ -2,124 +2,17 @@ import { Card } from "components/atoms/Card";
 import { Flex } from "components/atoms/Flex";
 import { Price } from "components/atoms/Price";
 import { Stack } from "components/atoms/Stack";
-import { TextInput } from "components/atoms/TextInput";
+import { QuantityInput } from "components/molecules/QuantityInput";
 import { Darkmode } from "components/styles/Darkmode";
 import Ingredient, { displayUnit, normaliseIngredient } from "data/ingredients";
-import React, { useCallback, useEffect, useRef } from "react";
+import {
+  isConvertible,
+  normaliseProduct,
+  Product,
+  TrolleyItem,
+} from "data/product";
+import React, { ChangeEvent, useCallback, useEffect, useRef } from "react";
 import { useState } from "react";
-
-export interface Product {
-  TileID: number;
-  Stockcode: number;
-  Barcode: string;
-  GtinFormat: number;
-  CupPrice: number;
-  InstoreCupPrice: string;
-  CupMeasure: string;
-  CupString: string;
-  InstoreCupString: string;
-  HasCupPrice: boolean;
-  InstoreHasCupPrice: boolean;
-  Price: number;
-  InstorePrice: number;
-  Name: string;
-  DisplayName: null | string;
-  UrlFriendlyName: string;
-  Description: string;
-  SmallImageFile: string;
-  MediumImageFile: string;
-  LargeImageFile: string;
-  IsNew: boolean;
-  IsOnSpecial: boolean;
-  InstoreIsOnSpecial: boolean;
-  IsEdrSpecial: boolean;
-  SavingsAmount: number;
-  InstoreSavingsAmount: number;
-  WasPrice: number;
-  InstoreWasPrice: number;
-  QuantityInTrolley: number;
-  Unit: string;
-  MinimumQuantity: number;
-  HasBeenBoughtBefore: boolean;
-  IsInTrolley: boolean;
-  Source: string;
-  SupplyLimit: number;
-  MaxSupplyLimitMessage: null | string;
-  IsRanged: boolean;
-  IsInStock: boolean;
-  PackageSize: string;
-  IsPmDelivery: boolean;
-  IsForCollection: boolean;
-  IsForDelivery: boolean;
-  IsForExpress: boolean;
-  ProductRestrictionMessage: null | string;
-  ProductWarningMessage: null | string;
-  IsCentreTag: boolean;
-  HeaderTag: null;
-  HasHeaderTag: boolean;
-  UnitWeightInGrams: number;
-  SupplyLimitMessage: string;
-  SmallFormatDescription: string;
-  FullDescription: string;
-  IsAvailable: boolean;
-  InstoreIsAvailable: boolean;
-  IsPurchasable: boolean;
-  InstoreIsPurchasable: boolean;
-  AgeRestricted: boolean;
-  DisplayQuantity: number | null;
-  RichDescription: string;
-  IsDeliveryPass: boolean;
-  HideWasSavedPrice: boolean;
-  SapCategories: null;
-  Brand: string | null;
-  IsRestrictedByDeliveryMethod: boolean;
-  IsBundle: boolean;
-  IsInFamily: boolean;
-  UrlOverride: null;
-  AdditionalAttributes: { [key: string]: any };
-  DetailsImagePaths: string[];
-  Variety: null;
-  Rating: {
-    ReviewCount: number;
-    RatingCount: number;
-    RatingSum: number;
-    OneStarCount: number;
-    TwoStarCount: number;
-    ThreeStarCount: number;
-    FourStarCount: number;
-    FiveStarCount: number;
-    Average: number;
-    OneStarPercentage: number;
-    TwoStarPercentage: number;
-    ThreeStarPercentage: number;
-    FourStarPercentage: number;
-    FiveStarPercentage: number;
-  };
-  HasProductSubs: boolean;
-  IsSponsoredAd: boolean;
-  AdID: null;
-  AdIndex: null;
-  IsMarketProduct: boolean;
-  ThirdPartyProductInfo: null;
-  MarketFeatures: null;
-  MarketSpecifications: null;
-}
-
-export type TrolleyItem = Product & {
-  Quantity: number;
-  ListPrice: number;
-  SalePrice: number;
-  UnitSalePrice: number;
-  Updated: string;
-  MatchedPromotions: any[];
-  MissedPromotions: any[];
-  IsRestricted: boolean;
-  Discount: number;
-  DeferredDiscount: number;
-  IsFrozen: boolean;
-  IsBundleProduct: boolean;
-  BundleProductQuantity: number;
-};
 
 interface Props {
   product: Product;
@@ -136,16 +29,7 @@ export function ProductCard({
   selected,
   onAddToCart,
 }: Props) {
-  const [quantity, setQuantity] = useState<number>();
-  const [qty, unit] =
-    product.Unit === "Each"
-      ? product.PackageSize.match(/^(\d+)(.+)$/)?.slice(1, 3) || ["1", "each"]
-      : ["1", product.Unit.toLowerCase()];
-  const normalisedProduct = normaliseIngredient({
-    ...ingredient,
-    qty: parseInt(qty),
-    unit: unit.toLowerCase(),
-  });
+  const [quantity, setQuantity] = useState<number | undefined>();
   const normalisedIngredient = normaliseIngredient(ingredient);
   const orderStep = product.Unit === "Each" ? 1 : 100;
   const getDefaultQty = (value?: number) =>
@@ -156,10 +40,8 @@ export function ProductCard({
       ),
       product.SupplyLimit
     );
-  const convertable =
-    normalisedProduct !== undefined &&
-    normalisedIngredient !== undefined &&
-    normalisedProduct?.unit === normalisedIngredient?.unit;
+  const normalisedProduct = normaliseProduct(product, ingredient);
+  const convertable = isConvertible(normalisedProduct, normalisedIngredient);
   const estimatedAmount = convertable
     ? (normalisedIngredient?.qty || 0) / (normalisedProduct?.qty || 1)
     : ["ml", "g"].includes(normalisedIngredient?.unit || "")
@@ -194,7 +76,7 @@ export function ProductCard({
 
   useEffect(() => {
     const listener = (event: KeyboardEvent) => {
-      if (selected) {
+      if (selected && document.activeElement === document.body) {
         if (event.key === "Enter") {
           cartCallback();
         } else if (event.key.match(/[0-9]/)) {
@@ -256,52 +138,22 @@ export function ProductCard({
       </Flex>
       {/* TODO: Merge into TextInput */}
       <Stack>
-        <Flex
+        <QuantityInput
+          value={quantity || ""}
+          inputRef={input}
           css={{
-            borderBottom: "1px solid #dedede",
-            fontSize: 24,
-            background: "#f0f0f0",
+            width: 32,
             flexGrow: 1,
-            ":focus-within": { borderBottom: "1px solid #55050b" },
-            [Darkmode]: {
-              background: "black",
-            },
           }}
-        >
-          <TextInput
-            value={quantity}
-            ref={input}
-            css={{
-              width: 32,
-              flexGrow: 1,
-              textAlign: product.Unit === "Each" ? "center" : "right",
-              height: "auto",
-              borderBottom: "none !important",
-              fontSize: 24,
-
-              background: "#f0f0f0",
-            }}
-            onChange={(e) => setQuantity(parseInt(e.target.value))}
-            onKeyDown={(e) => {
-              if (e.key === "Enter") {
-                input.current?.blur();
-              }
-            }}
-          ></TextInput>
-          {product.Unit === "Each" ? null : (
-            <Stack
-              css={{
-                justifyContent: "center",
-                textTransform: "lowercase",
-                paddingBottom: 3,
-                color: "grey",
-                paddingRight: 16,
-              }}
-            >
-              {product.Unit}
-            </Stack>
-          )}
-        </Flex>
+          onChange={(e: ChangeEvent<HTMLInputElement>) =>
+            setQuantity(e.target.value ? parseInt(e.target.value) : undefined)
+          }
+          onKeyDown={(e) => {
+            if (e.key === "Enter") {
+              input.current?.blur();
+            }
+          }}
+        />
         {normalisedProduct?.unit !== normalisedIngredient?.unit ? (
           <div
             css={{

@@ -5,11 +5,13 @@ import { Flex } from "components/atoms/Flex";
 import { Spinner } from "components/atoms/Spinner";
 import { Stack } from "components/atoms/Stack";
 import { TextInput } from "components/atoms/TextInput";
-import { Darkmode } from "components/styles/Darkmode";
+import { QuantityInput } from "components/molecules/QuantityInput";
 import { AuthStateContext } from "data/auth-state";
 import Ingredient from "data/ingredients";
+import { Product } from "data/product";
 import React, { useContext, useEffect, useState } from "react";
-import { Product } from "./ProductCard";
+import { ProductOption } from "./ProductOption";
+import { LinkButton } from "../../components/atoms/LinkButton";
 
 interface Props {
   selectedIngredient?: Ingredient;
@@ -22,7 +24,12 @@ export function ShoppingWizard({ selectedIngredient, onSelection }: Props) {
   const [searchResults, setSearchResults] = useState<{ Products: Product[] }[]>(
     []
   );
+  const [selectedProduct, setSelectedProduct] = useState<Product | undefined>();
   const { household } = useContext(AuthStateContext);
+
+  useEffect(() => {
+    setSelectedProduct(undefined);
+  }, [selectedIngredient]);
 
   useEffect(() => {
     if (loading) {
@@ -40,6 +47,20 @@ export function ShoppingWizard({ selectedIngredient, onSelection }: Props) {
     setSearchTerm(selectedIngredient.type.name);
     setLoading(true);
   }, [selectedIngredient]);
+
+  const chooseProduct = () => {
+    if (!selectedProduct || !selectedIngredient) {
+      return;
+    }
+    household?.ref
+      .collection("productPreferences")
+      .doc(selectedIngredient.type.name)
+      .set({
+        [selectedProduct.Stockcode]: selectedProduct,
+      });
+    setSelectedProduct(undefined);
+    onSelection();
+  };
 
   return (
     <Stack
@@ -127,54 +148,66 @@ export function ShoppingWizard({ selectedIngredient, onSelection }: Props) {
               searchResults
                 .filter((result) => result.Products[0].IsAvailable)
                 .map((result) => (
-                  <Flex
-                    key={result.Products[0].Stockcode}
-                    onClick={() => {
-                      if (!selectedIngredient) {
-                        return;
-                      }
-                      household?.ref
-                        .collection("productPreferences")
-                        .doc(selectedIngredient.type.name)
-                        .set({
-                          [result.Products[0].Stockcode]: result.Products[0],
-                        });
-                      onSelection();
-                    }}
-                    css={{
-                      borderBottom: "1px solid #dedede",
-                      [Darkmode]: {
-                        borderColor: "#333",
-                      },
-                      ":hover": {
-                        background: "#f0f0f0",
-                        borderBottom: "1px solid #55050b",
-                        [Darkmode]: {
-                          background: "#333",
-                          borderColor: "#333",
-                        },
-                      },
-                    }}
-                  >
-                    <img
-                      src={result.Products[0].SmallImageFile}
-                      css={{ height: 64, margin: 4 }}
-                      alt=""
-                    />
-
-                    <Stack css={{ marginLeft: 4, marginTop: 8 }}>
-                      <div>
-                        {result.Products[0].Name}{" "}
-                        {result.Products[0].PackageSize}
-                      </div>
-                      <div css={{ fontSize: 12 }}>
-                        ${result.Products[0].Price.toFixed(2)}{" "}
-                        <span css={{ color: "grey" }}>
-                          {result.Products[0].CupString}
-                        </span>
-                      </div>
-                    </Stack>
-                  </Flex>
+                  <>
+                    <div
+                      css={{
+                        opacity:
+                          selectedProduct === undefined ||
+                          selectedProduct.Stockcode ===
+                            result.Products[0].Stockcode
+                            ? 1
+                            : 0.4,
+                      }}
+                    >
+                      <ProductOption
+                        key={result.Products[0].Stockcode}
+                        product={result.Products[0]}
+                        onSelection={() => {
+                          if (!selectedIngredient) {
+                            return;
+                          }
+                          setSelectedProduct(result.Products[0]);
+                        }}
+                      />
+                    </div>
+                    {selectedProduct !== undefined &&
+                    selectedProduct.Stockcode ===
+                      result.Products[0].Stockcode ? (
+                      <>
+                        <h3 css={{ margin: "16px auto" }}>
+                          How much {selectedIngredient.type.name} is this?
+                        </h3>
+                        <form
+                          onSubmit={(e) => {
+                            chooseProduct();
+                            e.preventDefault();
+                          }}
+                        >
+                          <QuantityInput
+                            suffix={selectedIngredient.unit}
+                            autoFocus
+                          ></QuantityInput>
+                        </form>
+                        <LinkButton
+                          css={{
+                            marginLeft: "auto",
+                            marginTop: 4,
+                            marginRight: 4,
+                            marginBottom: 4,
+                          }}
+                          onClick={() => chooseProduct()}
+                        >
+                          I don't know
+                        </LinkButton>
+                        <Button
+                          css={{ margin: "16px auto" }}
+                          onClick={() => chooseProduct()}
+                        >
+                          Save Preference
+                        </Button>
+                      </>
+                    ) : null}
+                  </>
                 ))
             )}
           </Stack>

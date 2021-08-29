@@ -6,9 +6,10 @@ import { Recipe } from "data/recipes";
 import Ingredient, { displayUnit } from "data/ingredients";
 import { PantryItem } from "data/pantry";
 import { Breakpoint } from "components/styles/Breakpoint";
-import { Product, ProductCard, TrolleyItem } from "./ProductCard";
+import { ProductCard } from "./ProductCard";
 import { Darkmode } from "components/styles/Darkmode";
 import { Grid } from "../../components/atoms/Grid";
+import { Product, TrolleyItem } from "data/product";
 
 interface Props {
   ingredient: Ingredient;
