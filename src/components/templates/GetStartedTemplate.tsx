@@ -1,6 +1,6 @@
 import React, { useContext, useEffect, useState } from "react";
 import { Stack } from "../atoms/Stack";
-import { Button } from "../atoms/Button";
+import { TextButton } from "../atoms/TextButton";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faUserPlus, faUtensils } from "@fortawesome/free-solid-svg-icons";
 import { AuthStateContext } from "../../data/auth-state";
@@ -30,7 +30,7 @@ export function GetStartedTemplate() {
   return (
     <Stack css={{ marginLeft: "auto", marginRight: "auto", marginTop: 64 }}>
       <h1>Welcome to The Plannery</h1>
-      <Button
+      <TextButton
         css={{ marginBottom: 8 }}
         onClick={() =>
           db.collection("household").add({
@@ -45,9 +45,9 @@ export function GetStartedTemplate() {
           css={{ opacity: 0.4, marginRight: 12 }}
         />
         Create a new plan
-      </Button>
+      </TextButton>
       {invitations.map((household) => (
-        <Button
+        <TextButton
           key={household.id}
           onClick={() =>
             household.ref.update({
@@ -65,7 +65,7 @@ export function GetStartedTemplate() {
             css={{ opacity: 0.4, marginRight: 12 }}
           />
           Join {household.get("ownerName")}'s home
-        </Button>
+        </TextButton>
       ))}
     </Stack>
   );

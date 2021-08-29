@@ -16,7 +16,7 @@ import { MealPlanItem } from "../../../data/meal-plan";
 import RecipeSearchSettingsSection from "./RecipeSearchSettingsSection";
 import { RecipeHistory, HistoryItem } from "data/recipe-history";
 import { db } from "init/firebase";
-import { Button } from "components/atoms/Button";
+import { TextButton } from "components/atoms/TextButton";
 
 interface Props {
   recipes: Recipe[];
@@ -154,9 +154,12 @@ export default function SuggestedRecipesSection({ recipes }: Props) {
           },
         }}
       />
-      <Button onClick={() => setLimit(limit + 12)} css={{ marginBottom: 128 }}>
+      <TextButton
+        onClick={() => setLimit(limit + 12)}
+        css={{ marginBottom: 128 }}
+      >
         Load More
-      </Button>
+      </TextButton>
     </Stack>
   );
 }

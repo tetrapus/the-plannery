@@ -2,7 +2,6 @@ import React, { useContext, useEffect, useState } from "react";
 import Ingredient, { isSameIngredient } from "../../data/ingredients";
 import { Stack } from "../../components/atoms/Stack";
 import { Flex } from "../../components/atoms/Flex";
-import { Button } from "components/atoms/Button";
 import { RichIngredientItem } from "./RichIngredientItem";
 import { PantryContext, PantryItem } from "data/pantry";
 import { useHouseholdCollection } from "../../data/auth-state";
@@ -10,6 +9,7 @@ import { ShoppingWizard } from "./ShoppingWizard";
 import { Price } from "components/atoms/Price";
 import { Darkmode } from "components/styles/Darkmode";
 import { Breakpoint } from "components/styles/Breakpoint";
+import { TextButton } from "../../components/atoms/TextButton";
 interface Props {
   ingredients: Ingredient[];
 }
@@ -192,14 +192,14 @@ export function ShoppingListTemplate({ ingredients }: Props) {
                   );
                 })}
               </Stack>
-              <Button
+              <TextButton
                 css={{ margin: "8px auto" }}
                 onClick={() => {
                   (window.location as any) = "https://woolworths.com.au/";
                 }}
               >
                 View Cart
-              </Button>
+              </TextButton>
             </Stack>
           );
         })}

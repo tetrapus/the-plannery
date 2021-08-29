@@ -1,5 +1,6 @@
 import { css } from "@emotion/core";
 import { IconProp } from "@fortawesome/fontawesome-svg-core";
+import { Button } from "components/atoms/Button";
 import { IconButton } from "components/atoms/IconButton";
 import { Darkmode } from "components/styles/Darkmode";
 import React, { useContext, useRef, useState } from "react";
@@ -62,12 +63,12 @@ function RecipeActions({
           return null;
         }
         return (
-          <IconButton
-            key={idx}
-            icon={action.icon}
-            onClick={action.onClick(recipe)}
-            css={{ margin: "auto", padding: 8 }}
-          />
+          <Button key={idx} onClick={action.onClick(recipe)}>
+            <IconButton
+              icon={action.icon}
+              css={{ margin: "auto", padding: 8 }}
+            />
+          </Button>
         );
       })}
     </Stack>

@@ -1,5 +1,4 @@
 import { css } from "@emotion/core";
-import { Button } from "components/atoms/Button";
 import { CardStyle } from "components/atoms/Card";
 import { Flex } from "components/atoms/Flex";
 import { Spinner } from "components/atoms/Spinner";
@@ -12,6 +11,7 @@ import { Product } from "data/product";
 import React, { useContext, useEffect, useState } from "react";
 import { ProductOption } from "./ProductOption";
 import { LinkButton } from "../../components/atoms/LinkButton";
+import { TextButton } from "../../components/atoms/TextButton";
 
 interface Props {
   selectedIngredient?: Ingredient;
@@ -133,12 +133,12 @@ export function ShoppingWizard({ selectedIngredient, onSelection }: Props) {
                 css={{ flexGrow: 1 }}
                 placeholder="Search Woolworths"
               ></TextInput>
-              <Button
+              <TextButton
                 onClick={() => setLoading(true)}
                 css={{ height: "fit-content", margin: 4 }}
               >
                 Search
-              </Button>
+              </TextButton>
             </Flex>
           </form>
           <Stack css={{ overflow: "scroll" }}>
@@ -199,12 +199,12 @@ export function ShoppingWizard({ selectedIngredient, onSelection }: Props) {
                         >
                           I don't know
                         </LinkButton>
-                        <Button
+                        <TextButton
                           css={{ margin: "16px auto" }}
                           onClick={() => chooseProduct()}
                         >
                           Save Preference
-                        </Button>
+                        </TextButton>
                       </>
                     ) : null}
                   </>
