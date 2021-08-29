@@ -159,7 +159,11 @@ export default function RecipeSearchSettingsSection({
     <div css={{ position: "relative" }}>
       <Select
         placeholder="Search ingredients, tags, or equipment"
-        css={{ marginBottom: 16, color: "black" }}
+        css={{
+          marginBottom: 16,
+          color: "black",
+          [Darkmode]: { filter: "invert(1)", zIndex: 100 },
+        }}
         options={options || []}
         isLoading={options === undefined}
         onChange={(option) => {
@@ -220,28 +224,39 @@ export default function RecipeSearchSettingsSection({
                 css={{ fontSize: 18 }}
               />
               </h3> */ null}
-              {sectionPreferences.map(({ id, preference, pinned, ref }) => (
-                <Flex css={{ alignItems: "center" }}>
-                  {options?.find((option) => option.value === id)?.fullLabel}
-                  <Select
-                    css={{ width: 150, marginLeft: "auto", color: "black" }}
-                    options={filterOptions}
-                    isSearchable={false}
-                    onChange={(option: any) => {
-                      ref.update({ preference: option.value });
-                    }}
-                    value={filterOptions.find(
-                      (opt) => opt.value === preference
-                    )}
-                  ></Select>
-                  <IconButton
-                    icon={faThumbtack}
-                    color={pinned ? "black" : "grey"}
-                    onClick={() => ref.update({ pinned: !pinned })}
-                  />
-                  <IconButton icon={faTimes} onClick={() => ref.delete()} />
-                </Flex>
-              ))}
+              {sectionPreferences.map(
+                ({ id, preference, pinned, ref }, idx) => (
+                  <Flex css={{ alignItems: "center" }}>
+                    {options?.find((option) => option.value === id)?.fullLabel}
+                    <Select
+                      css={{
+                        width: 150,
+                        marginLeft: "auto",
+                        color: "black",
+                        [Darkmode]: {
+                          filter: "invert(1)",
+                          zIndex: sectionPreferences.length - idx,
+                        },
+                      }}
+                      options={filterOptions}
+                      isSearchable={false}
+                      onChange={(option: any) => {
+                        ref.update({ preference: option.value });
+                      }}
+                      value={filterOptions.find(
+                        (opt) => opt.value === preference
+                      )}
+                    ></Select>
+                    <IconButton
+                      icon={faThumbtack}
+                      color={pinned ? "black" : undefined}
+                      css={{ height: 24 }}
+                      onClick={() => ref.update({ pinned: !pinned })}
+                    />
+                    <IconButton icon={faTimes} onClick={() => ref.delete()} />
+                  </Flex>
+                )
+              )}
             </Stack>
           );
         })}

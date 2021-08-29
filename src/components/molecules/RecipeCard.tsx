@@ -45,6 +45,10 @@ function RecipeActions({
         width: 100,
         borderLeft: "1px solid #e0e0e0",
 
+        [Darkmode]: {
+          borderLeft: "1px solid #333",
+        },
+
         [Breakpoint.MOBILE]: {
           margin: "auto",
           flexDirection: "row",
@@ -62,7 +66,7 @@ function RecipeActions({
             key={idx}
             icon={action.icon}
             onClick={action.onClick(recipe)}
-            css={{ margin: "auto", padding: 8, color: "#d0d0d0" }}
+            css={{ margin: "auto", padding: 8 }}
           />
         );
       })}

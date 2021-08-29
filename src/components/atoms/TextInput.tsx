@@ -1,4 +1,5 @@
 import styled from "@emotion/styled";
+import { Darkmode } from "components/styles/Darkmode";
 
 export const TextInput = styled.input`
   margin: 8px 4px;
@@ -13,5 +14,14 @@ export const TextInput = styled.input`
   }
   &:focus-visible {
     outline: none;
+  }
+  ${Darkmode} {
+    background: black;
+    color: white;
+    border-bottom: 1px solid #333;
+
+    &:focus {
+      border-bottom: 1px solid orange;
+    }
   }
 `;

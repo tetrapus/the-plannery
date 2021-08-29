@@ -7,6 +7,7 @@ import Ingredient, { displayUnit } from "data/ingredients";
 import { PantryItem } from "data/pantry";
 import { Breakpoint } from "components/styles/Breakpoint";
 import { Product, ProductCard, TrolleyItem } from "./ProductCard";
+import { Darkmode } from "components/styles/Darkmode";
 
 interface Props {
   ingredient: Ingredient;
@@ -47,8 +48,15 @@ export function RichIngredientItem({
       css={{
         borderBottom: selected ? "1px solid #55050b" : "1px solid #dedede",
         background: selected ? "white" : "inherit",
+        [Darkmode]: {
+          background: selected ? "black" : "inherit",
+          borderBottom: selected ? "1px solid orange" : "1px solid #333",
+        },
         ":hover": {
-          background: "white",
+          background: "#dedede",
+          [Darkmode]: {
+            background: "#333",
+          },
         },
       }}
       onClick={() => onSearch()}

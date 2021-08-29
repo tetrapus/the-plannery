@@ -12,12 +12,12 @@ type IconButtonProps = {
 export const IconButton = styled(FontAwesomeIcon)<IconButtonProps>`
   font-size: ${(props) => (props.iconSize ? props.iconSize : 32)}px;
   margin: 0 8px;
-  color: ${(props) => (props.color ? props.color : "grey")};
+  color: ${(props) => (props.color ? props.color : "#c0c0c0")};
   &:hover {
     color: black;
     cursor: pointer;
   }
   ${Darkmode} {
-    filter: invert(1);
+    filter: invert(0.8);
   }
 `;

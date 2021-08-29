@@ -3,6 +3,7 @@ import { Flex } from "components/atoms/Flex";
 import { Price } from "components/atoms/Price";
 import { Stack } from "components/atoms/Stack";
 import { TextInput } from "components/atoms/TextInput";
+import { Darkmode } from "components/styles/Darkmode";
 import Ingredient, { displayUnit, normaliseIngredient } from "data/ingredients";
 import React, { useCallback, useEffect, useRef } from "react";
 import { useState } from "react";
@@ -220,6 +221,7 @@ export function ProductCard({
               ? "1px solid green"
               : "1px solid orange"
             : "none",
+        background: "white",
       }}
       onClick={(e) => e.stopPropagation()}
     >
@@ -232,7 +234,7 @@ export function ProductCard({
       >
         <img
           src={product.SmallImageFile}
-          css={{ height: 64, margin: 4 }}
+          css={{ height: 64, margin: 4, borderRadius: 3 }}
           alt=""
         />
 
@@ -261,6 +263,9 @@ export function ProductCard({
             background: "#f0f0f0",
             flexGrow: 1,
             ":focus-within": { borderBottom: "1px solid #55050b" },
+            [Darkmode]: {
+              background: "black",
+            },
           }}
         >
           <TextInput
@@ -303,6 +308,9 @@ export function ProductCard({
               background: "#dedede",
               textAlign: "center",
               fontSize: 14,
+              [Darkmode]: {
+                background: "#333",
+              },
             }}
           >
             ≈{" "}

@@ -8,6 +8,7 @@ import { PantryContext, PantryItem } from "data/pantry";
 import { useHouseholdCollection } from "../../data/auth-state";
 import { ShoppingWizard } from "./ShoppingWizard";
 import { Price } from "components/atoms/Price";
+import { Darkmode } from "components/styles/Darkmode";
 interface Props {
   ingredients: Ingredient[];
 }
@@ -139,6 +140,9 @@ export function ShoppingListTemplate({ ingredients }: Props) {
                   top: 0,
                   background: "#f5f5f5",
                   zIndex: 1,
+                  [Darkmode]: {
+                    background: "black",
+                  },
                 }}
               >
                 <h1 css={{ marginLeft: 128 }}>{title}</h1>

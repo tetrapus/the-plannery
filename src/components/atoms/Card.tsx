@@ -8,7 +8,8 @@ export const CardStyle = css({
   background: "white",
   [Darkmode]: {
     background: "black",
-    boxShadow: "black 1px 1px 3px",
+    boxShadow: "none",
+    border: "1px solid #333",
   },
 });
 

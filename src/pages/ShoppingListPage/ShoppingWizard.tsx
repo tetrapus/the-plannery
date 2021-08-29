@@ -1,8 +1,10 @@
 import { Button } from "components/atoms/Button";
+import { CardStyle } from "components/atoms/Card";
 import { Flex } from "components/atoms/Flex";
 import { Spinner } from "components/atoms/Spinner";
 import { Stack } from "components/atoms/Stack";
 import { TextInput } from "components/atoms/TextInput";
+import { Darkmode } from "components/styles/Darkmode";
 import { AuthStateContext } from "data/auth-state";
 import Ingredient from "data/ingredients";
 import React, { useContext, useEffect, useState } from "react";
@@ -40,10 +42,9 @@ export function ShoppingWizard({ selectedIngredient }: Props) {
   return (
     <Stack
       css={{
-        background: "white",
+        ...CardStyle,
         width: 400,
         borderRadius: "3px 0px 0px 0px",
-        boxShadow: "0 0 4px grey",
         height: "100vh",
         position: "sticky",
         top: 0,
@@ -140,9 +141,16 @@ export function ShoppingWizard({ selectedIngredient }: Props) {
                     }}
                     css={{
                       borderBottom: "1px solid #dedede",
+                      [Darkmode]: {
+                        borderColor: "#333",
+                      },
                       ":hover": {
                         background: "#f0f0f0",
                         borderBottom: "1px solid #55050b",
+                        [Darkmode]: {
+                          background: "#333",
+                          borderColor: "#333",
+                        },
                       },
                     }}
                   >
