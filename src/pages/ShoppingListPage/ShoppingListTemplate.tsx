@@ -9,6 +9,7 @@ import { useHouseholdCollection } from "../../data/auth-state";
 import { ShoppingWizard } from "./ShoppingWizard";
 import { Price } from "components/atoms/Price";
 import { Darkmode } from "components/styles/Darkmode";
+import { Breakpoint } from "components/styles/Breakpoint";
 interface Props {
   ingredients: Ingredient[];
 }
@@ -22,6 +23,7 @@ interface PantryIngredient {
 
 export function ShoppingListTemplate({ ingredients }: Props) {
   const [selectedIngredient, setSelectedIngredient] = useState<Ingredient>();
+  const [showWizard, setShowWizard] = useState<boolean>(false);
   const [trolley, setTrolley] = useState<any[]>([]);
 
   useEffect(() => {
@@ -114,7 +116,14 @@ export function ShoppingListTemplate({ ingredients }: Props) {
 
   return (
     <Flex>
-      <Stack css={{ flexGrow: 1 }}>
+      <Stack
+        css={{
+          flexGrow: 1,
+          [Breakpoint.MOBILE]: {
+            display: showWizard ? "none" : "inherit",
+          },
+        }}
+      >
         {ingredientLists.map(([title, ingredients]) => {
           if (!ingredients.length) return null;
           const sectionPrice = Object.entries(preferredProducts)
@@ -166,6 +175,7 @@ export function ShoppingListTemplate({ ingredients }: Props) {
                         }
                         onSearch={() => {
                           setSelectedIngredient(ingredient);
+                          setShowWizard(true);
                         }}
                         onAddToCart={() => {
                           (document as any).woolies
@@ -194,7 +204,19 @@ export function ShoppingListTemplate({ ingredients }: Props) {
           );
         })}
       </Stack>
-      <ShoppingWizard selectedIngredient={selectedIngredient} />
+      <Stack
+        css={{
+          [Breakpoint.MOBILE]: {
+            display: showWizard ? "inherit" : "none",
+            width: "100%",
+          },
+        }}
+      >
+        <ShoppingWizard
+          selectedIngredient={selectedIngredient}
+          onSelection={() => setShowWizard(false)}
+        />
+      </Stack>
     </Flex>
   );
 }

@@ -1,3 +1,4 @@
+import { css } from "@emotion/core";
 import { Button } from "components/atoms/Button";
 import { CardStyle } from "components/atoms/Card";
 import { Flex } from "components/atoms/Flex";
@@ -12,9 +13,10 @@ import { Product } from "./ProductCard";
 
 interface Props {
   selectedIngredient?: Ingredient;
+  onSelection(): void;
 }
 
-export function ShoppingWizard({ selectedIngredient }: Props) {
+export function ShoppingWizard({ selectedIngredient, onSelection }: Props) {
   const [searchTerm, setSearchTerm] = useState("");
   const [loading, setLoading] = useState(false);
   const [searchResults, setSearchResults] = useState<{ Products: Product[] }[]>(
@@ -41,15 +43,14 @@ export function ShoppingWizard({ selectedIngredient }: Props) {
 
   return (
     <Stack
-      css={{
-        ...CardStyle,
-        width: 400,
+      css={css(CardStyle, {
+        minWidth: 400,
         borderRadius: "3px 0px 0px 0px",
         height: "100vh",
         position: "sticky",
         top: 0,
         zIndex: 2,
-      }}
+      })}
     >
       {!selectedIngredient ? (
         (document as any).woolies ? (
@@ -138,6 +139,7 @@ export function ShoppingWizard({ selectedIngredient }: Props) {
                         .set({
                           [result.Products[0].Stockcode]: result.Products[0],
                         });
+                      onSelection();
                     }}
                     css={{
                       borderBottom: "1px solid #dedede",
