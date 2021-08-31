@@ -1,5 +1,6 @@
 import { faTrash } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import firebase from "firebase";
 import React, { useContext, useState } from "react";
 import { AuthStateContext } from "../../data/auth-state";
 import { Recipe } from "../../data/recipes";
@@ -26,11 +27,25 @@ export const TrashButton = ({ recipe, ...rest }: Props) => {
         setBusy(true);
         try {
           if (trash) {
-            await trash.ref.delete();
+            if (trash.ref) {
+              await trash.ref.delete();
+            } else {
+              await household?.ref
+                ?.collection("blobs")
+                .doc("trash")
+                .set(
+                  { [recipe.slug]: firebase.firestore.FieldValue.delete() },
+                  { merge: true }
+                );
+            }
           } else {
             await household?.ref
-              ?.collection("trash")
-              .add({ slug: recipe.slug, ...insertMeta });
+              ?.collection("blobs")
+              .doc("trash")
+              .set(
+                { [recipe.slug]: { slug: recipe.slug, ...insertMeta } },
+                { merge: true }
+              );
           }
         } catch {}
         setBusy(false);

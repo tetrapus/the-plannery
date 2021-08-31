@@ -40,6 +40,36 @@ db.enablePersistence().catch((err) => {
   }
 });
 
+export function useFirestoreDoc<S, T>(
+  rootDoc: S | undefined | null,
+  collectionFn: (
+    rootDoc: S
+  ) =>
+    | firebase.firestore.DocumentReference<firebase.firestore.DocumentData>
+    | undefined,
+  transformerFn: (
+    snapshot: firebase.firestore.DocumentSnapshot<firebase.firestore.DocumentData>
+  ) => T
+): T | undefined {
+  const [state, setState] = useState<T>();
+  useEffect(() => {
+    console.log("Snapshot updated:", state);
+  }, [state]);
+  const collection = useCallback(collectionFn, []);
+  const transformer = useCallback(transformerFn, []);
+  useEffect(() => {
+    if (!rootDoc) {
+      return;
+    }
+    const query = collection(rootDoc);
+    if (!query) {
+      return;
+    }
+    return query.onSnapshot((snapshot) => setState(transformer(snapshot)));
+  }, [rootDoc, collection, transformer]);
+  return state;
+}
+
 export function useFirestore<S, T>(
   rootDoc: S | undefined | null,
   collectionFn: (
@@ -48,7 +78,7 @@ export function useFirestore<S, T>(
   transformerFn: (
     snapshot: firebase.firestore.QuerySnapshot<firebase.firestore.DocumentData>
   ) => T
-) {
+): T | undefined {
   const [state, setState] = useState<T>();
   useEffect(() => {
     console.log("Snapshot updated:", state);

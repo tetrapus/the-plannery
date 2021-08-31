@@ -3,7 +3,12 @@ import "./App.css";
 import { BrowserRouter as Router } from "react-router-dom";
 import NavigationBar from "./components/organisms/NavigationBar";
 import firebase from "firebase";
-import { db, initFirebase, useFirestore } from "./init/firebase";
+import {
+  db,
+  initFirebase,
+  useFirestore,
+  useFirestoreDoc,
+} from "./init/firebase";
 import { AuthStateContext, Household } from "./data/auth-state";
 import { Stack } from "./components/atoms/Stack";
 import { Spinner } from "./components/atoms/Spinner";
@@ -66,19 +71,35 @@ function App() {
     [currentUser, household]
   );
 
-  const likes = useFirestore(
+  const likesCollection = useFirestore(
     household,
     (doc) => doc.ref.collection("likes"),
     (snapshot) =>
       snapshot.docs.map((doc) => ({ ref: doc.ref, ...doc.data() } as Like))
   );
 
-  const trash = useFirestore(
+  const likesBlob = useFirestoreDoc(
+    household,
+    (doc) => doc.ref.collection("blobs").doc("likes"),
+    (snapshot) => Object.values(snapshot.data() || {}) as Like[]
+  );
+
+  const likes = [...(likesCollection || []), ...(likesBlob || [])];
+
+  const trashCollection = useFirestore(
     household,
     (doc) => doc.ref.collection("trash"),
     (snapshot) =>
       snapshot.docs.map((doc) => ({ ref: doc.ref, ...doc.data() } as Trash))
   );
+
+  const trashBlob = useFirestoreDoc(
+    household,
+    (doc) => doc.ref.collection("blobs").doc("trash"),
+    (snapshot) => Object.values(snapshot.data() || {}) as Trash[]
+  );
+
+  const trash = [...(trashCollection || []), ...(trashBlob || [])];
 
   const pantry = useFirestore(
     household,
