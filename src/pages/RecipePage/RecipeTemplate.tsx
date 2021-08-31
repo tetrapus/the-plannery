@@ -62,12 +62,14 @@ export default function RecipeTemplate({ recipe }: Props) {
         src={recipe.imageUrl}
         css={{
           width: "100vw",
+          minHeight: "50vh",
           height: "50vh",
           objectFit: "cover",
           position: "relative",
           top: -64,
           [Breakpoint.TABLET]: {
             position: "initial",
+            minHeight: "25vh",
           },
         }}
         alt={recipe.name}

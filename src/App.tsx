@@ -1,8 +1,6 @@
 import React, { useEffect, useMemo } from "react";
 import "./App.css";
-import { RecipePage } from "./pages/RecipePage/RecipePage";
-import { BrowserRouter as Router, Switch, Route } from "react-router-dom";
-import HomePage from "./pages/HomePage/HomePage";
+import { BrowserRouter as Router } from "react-router-dom";
 import NavigationBar from "./components/organisms/NavigationBar";
 import firebase from "firebase";
 import { db, initFirebase, useFirestore } from "./init/firebase";
@@ -13,12 +11,10 @@ import { LoggedOutTemplate } from "./components/templates/LoggedOutTemplate";
 import { GetStartedTemplate } from "./components/templates/GetStartedTemplate";
 import { Like, LikesContext } from "./data/likes";
 import { PantryContext, PantryItem } from "./data/pantry";
-import { HistoryPage } from "./pages/HistoryPage/HistoryPage";
-import { ShoppingListPage } from "./pages/ShoppingListPage/ShoppingListPage";
 import { useSubscription } from "./util/use-subscription";
 import { Trash, TrashContext } from "./data/trash";
 import ScrollToTop from "./util/ScrollToTop";
-import { BrowsePage } from "pages/BrowsePage/BrowsePage";
+import { Planner } from "pages/Planner";
 
 initFirebase();
 
@@ -110,23 +106,7 @@ function App() {
                 ) : !household ? (
                   <GetStartedTemplate />
                 ) : (
-                  <Switch>
-                    <Route path="/recipes/:slug">
-                      <RecipePage></RecipePage>
-                    </Route>
-                    <Route path="/history">
-                      <HistoryPage />
-                    </Route>
-                    <Route path="/shopping-list">
-                      <ShoppingListPage />
-                    </Route>
-                    <Route path="/browse">
-                      <BrowsePage />
-                    </Route>
-                    <Route path="/">
-                      <HomePage></HomePage>
-                    </Route>
-                  </Switch>
+                  <Planner />
                 )}
               </Stack>
             </Router>

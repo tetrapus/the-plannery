@@ -157,6 +157,7 @@ export function RecipeCard({ recipe, dismiss, select, ...rest }: Props) {
                   ? 1 - touchOffset.value / -150
                   : 1,
             }}
+            onError={(e) => (e.currentTarget.style.display = "none")}
             alt={recipe.name}
           />
           <div

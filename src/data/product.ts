@@ -1,3 +1,4 @@
+import firebase from "firebase";
 import Ingredient, { normaliseIngredient } from "./ingredients";
 
 export interface Product {

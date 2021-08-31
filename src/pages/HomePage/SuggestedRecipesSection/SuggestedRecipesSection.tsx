@@ -46,7 +46,10 @@ export default function SuggestedRecipesSection({ recipes }: Props) {
   const pantry = useContext(PantryContext);
 
   const history = useHouseholdCollection<RecipeHistory>(
-    (doc) => doc.collection("history"),
+    (doc) =>
+      doc
+        .collection("history")
+        .where("created", ">", new Date(Date.now() - 1000 * 60 * 60 * 24 * 31)),
     (snapshot) => ({
       history: snapshot.docs.map((doc) => ({
         ...(doc.data() as HistoryItem),

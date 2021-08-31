@@ -36,7 +36,6 @@ export function ProductCard({
   const [ratio, setRatio] = useState<number | undefined>();
 
   useEffect(() => {
-    console.log("running effect for", product.Name);
     const normalisedIngredient = normaliseIngredient(ingredient);
     const normalisedProduct = normaliseProduct(product, ingredient);
     const orderStep = product.Unit === "Each" ? 1 : 100;
@@ -62,12 +61,7 @@ export function ProductCard({
       : ["ml", "g"].includes(normalisedIngredient?.unit || "")
       ? 1
       : normalisedIngredient?.qty || 1;
-    console.log({
-      product: product.Name,
-      ratio,
-      estimatedAmount,
-      normalisedIngredient,
-    });
+
     const requiredAmount = getDefaultQty(estimatedAmount);
 
     if (requiredAmount) {
@@ -131,7 +125,7 @@ export function ProductCard({
       onClick={(e) => e.stopPropagation()}
     >
       <Flex
-        css={{ flexGrow: 1 }}
+        css={{ flexGrow: 1, padding: 8 }}
         onClick={() => {
           if (quantity === undefined) return;
           onAddToCart();
@@ -155,7 +149,9 @@ export function ProductCard({
           </div>
           <div css={{ fontSize: 12 }}>
             <Price amount={product.Price * (quantity || 1)} />
-            <span css={{ color: "grey" }}>{product.CupString}</span>
+            <span css={{ color: "grey", marginLeft: 4 }}>
+              {product.CupString}
+            </span>
           </div>
         </Stack>
       </Flex>
@@ -183,6 +179,7 @@ export function ProductCard({
               background: "#dedede",
               textAlign: "center",
               fontSize: 14,
+              padding: 4,
               [Darkmode]: {
                 background: "#333",
               },

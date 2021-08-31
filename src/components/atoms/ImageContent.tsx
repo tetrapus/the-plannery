@@ -12,7 +12,11 @@ export function ImageContent(props: any) {
         ></Lightbox>
       ) : null}
       {/* eslint-disable-next-line */}
-      <img {...props} onClick={() => setLightboxOpen(true)}></img>
+      <img
+        {...props}
+        onClick={() => setLightboxOpen(true)}
+        onError={(e) => (e.currentTarget.style.visibility = "hidden")}
+      ></img>
     </>
   );
 }

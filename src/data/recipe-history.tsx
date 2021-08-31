@@ -1,3 +1,5 @@
+import firebase from "firebase";
+
 export interface HistoryItem {
   slug: string;
   by: string;

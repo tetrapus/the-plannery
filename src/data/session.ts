@@ -1,3 +1,4 @@
+import firebase from "firebase";
 export interface Session {
   by: string;
   ref: firebase.firestore.DocumentReference;

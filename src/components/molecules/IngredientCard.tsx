@@ -58,6 +58,7 @@ export default function IngredientCard({
             src={ingredient.type.imageUrl}
             css={{ height: 48, width: 48 }}
             alt={ingredient.type.name}
+            onError={(e) => (e.currentTarget.style.display = "none")}
           ></img>
         ) : (
           <PlaceholderImage />

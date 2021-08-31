@@ -92,6 +92,7 @@ export function RichIngredientItem({
             },
           }}
           alt={ingredient.type.name}
+          onError={(e) => (e.currentTarget.style.display = "none")}
         ></img>
       ) : (
         <PlaceholderImage />

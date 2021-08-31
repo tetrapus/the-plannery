@@ -3,6 +3,7 @@ import React from "react";
 import { useHouseholdCollection } from "../../data/auth-state";
 import { getRecipe, Recipe } from "../../data/recipes";
 import { RecipeList } from "../../components/organisms/RecipeList";
+import firebase from "firebase";
 
 interface Session {
   ref: firebase.firestore.DocumentReference;

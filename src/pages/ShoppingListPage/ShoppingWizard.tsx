@@ -101,7 +101,7 @@ export function ShoppingWizard({ selectedIngredient, onSelection }: Props) {
   return (
     <Stack
       css={css(CardStyle, {
-        minWidth: 400,
+        width: 400,
         borderRadius: "3px 0px 0px 0px",
         height: "100vh",
         position: "sticky",

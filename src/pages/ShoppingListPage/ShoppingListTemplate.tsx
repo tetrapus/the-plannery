@@ -81,16 +81,24 @@ export function ShoppingListTemplate({ ingredients }: Props) {
           const ingredients = ingredientLists
             .map(([, ingredients]) => ingredients)
             .flat(1);
+          let nextIngredient;
           if (selectedIngredient) {
             const index = ingredients.findIndex((ingredient) =>
               isSameIngredient(ingredient.ingredient, selectedIngredient)
             );
-            setSelectedIngredient(
-              ingredients[index + directions[event.key]]?.ingredient
-            );
+            nextIngredient =
+              ingredients[index + directions[event.key]]?.ingredient;
           } else {
-            setSelectedIngredient(ingredients[0]?.ingredient);
+            nextIngredient = ingredients[0]?.ingredient;
           }
+          setSelectedIngredient(nextIngredient);
+          document
+            .querySelector(`[data-id="${nextIngredient.type.id}"]`)
+            ?.scrollIntoView({
+              block: "end",
+              inline: "nearest",
+              behavior: "smooth",
+            });
         }
       }
     };
@@ -129,7 +137,6 @@ export function ShoppingListTemplate({ ingredients }: Props) {
           ])
         )
     ) || {};
-  console.log(productConversions);
 
   return (
     <Flex>
@@ -181,7 +188,7 @@ export function ShoppingListTemplate({ ingredients }: Props) {
               <Stack>
                 {ingredients.map(({ ingredient, pantryItem }) => {
                   return (
-                    <>
+                    <div data-id={ingredient.type.id}>
                       <RichIngredientItem
                         key={ingredient.type.id}
                         ingredient={ingredient}
@@ -206,7 +213,7 @@ export function ShoppingListTemplate({ ingredients }: Props) {
                           preferredProducts[ingredient.type.name]?.options || {}
                         )}
                       />
-                    </>
+                    </div>
                   );
                 })}
               </Stack>

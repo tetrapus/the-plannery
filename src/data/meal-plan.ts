@@ -1,3 +1,4 @@
+import firebase from "firebase";
 import Ingredient from "./ingredients";
 import { getRecipe, Recipe } from "./recipes";
 
