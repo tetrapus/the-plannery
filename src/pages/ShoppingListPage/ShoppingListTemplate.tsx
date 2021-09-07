@@ -4,12 +4,16 @@ import { Stack } from "../../components/atoms/Stack";
 import { Flex } from "../../components/atoms/Flex";
 import { RichIngredientItem } from "./RichIngredientItem";
 import { PantryContext, PantryItem } from "data/pantry";
-import { useHouseholdCollection } from "../../data/auth-state";
+import {
+  useHouseholdCollection,
+  useHouseholdDocument,
+} from "../../data/auth-state";
 import { ShoppingWizard } from "./ShoppingWizard";
 import { Price } from "components/atoms/Price";
 import { Darkmode } from "components/styles/Darkmode";
 import { Breakpoint } from "components/styles/Breakpoint";
 import { TextButton } from "../../components/atoms/TextButton";
+import { Product } from "data/product";
 interface Props {
   ingredients: Ingredient[];
 }
@@ -106,7 +110,7 @@ export function ShoppingListTemplate({ ingredients }: Props) {
     return () => document.removeEventListener("keydown", listener);
   }, [ingredientLists, selectedIngredient]);
 
-  const preferredProducts =
+  const preferredProductsCollection =
     useHouseholdCollection(
       (household) => household.collection("productPreferences"),
       (snapshot) =>
@@ -116,13 +120,31 @@ export function ShoppingListTemplate({ ingredients }: Props) {
             {
               ref: doc.ref,
               id: doc.id,
-              options: doc.data(),
+              options: doc.data() as Product,
             },
           ])
         )
     ) || {};
 
-  const productConversions =
+  const preferredProductsDocument =
+    useHouseholdDocument(
+      (household) => household.collection("blobs").doc("productPreferences"),
+      (snapshot) =>
+        Object.fromEntries(
+          Object.entries(snapshot.data() || {}).map(([id, data]) => [
+            id,
+            { id: id, options: data as Product },
+          ])
+        )
+    ) || {};
+
+  const preferredProducts: { [key: string]: { id: string; options: Product } } =
+    {
+      ...preferredProductsCollection,
+      ...preferredProductsDocument,
+    };
+
+  const productConversionsCollection =
     useHouseholdCollection(
       (household) => household.collection("productConversions"),
       (snapshot) =>
@@ -137,6 +159,23 @@ export function ShoppingListTemplate({ ingredients }: Props) {
           ])
         )
     ) || {};
+
+  const productConversionsBlob =
+    useHouseholdDocument(
+      (household) => household.collection("blobs").doc("productConversions"),
+      (snapshot) =>
+        Object.fromEntries(
+          Object.entries(snapshot.data() || {}).map(([id, data]) => [
+            id,
+            { id: id, conversions: data },
+          ])
+        )
+    ) || {};
+
+  const productConversions = {
+    ...productConversionsCollection,
+    ...productConversionsBlob,
+  };
 
   return (
     <Flex>

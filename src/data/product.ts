@@ -139,7 +139,7 @@ export function isConvertible(
 
 export interface ProductConversions {
   [stockcode: string]: {
-    ref: firebase.firestore.DocumentReference;
+    ref?: firebase.firestore.DocumentReference;
     id: string;
     conversions: { [unit: string]: number };
   };

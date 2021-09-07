@@ -80,18 +80,28 @@ export function ShoppingWizard({ selectedIngredient, onSelection }: Props) {
       selectedIngredient
     ) as Ingredient;
     household?.ref
-      .collection("productPreferences")
-      .doc(selectedIngredient.type.name)
-      .set({
-        [selectedProduct.Stockcode]: selectedProduct,
-      });
+      .collection("blobs")
+      .doc("productPreferences")
+      .set(
+        {
+          [selectedIngredient.type.name]: {
+            [selectedProduct.Stockcode]: selectedProduct,
+          },
+        },
+        { mergeFields: [selectedIngredient.type.name] }
+      );
     if (conversion) {
       household?.ref
-        .collection("productConversions")
-        .doc(selectedProduct.Stockcode.toString())
-        .set({
-          [normalisedIngredient.unit || "unit"]: conversion,
-        });
+        .collection("blobs")
+        .doc("productConversions")
+        .set(
+          {
+            [selectedProduct.Stockcode.toString()]: {
+              [normalisedIngredient.unit || "unit"]: conversion,
+            },
+          },
+          { merge: true }
+        );
     }
     setSelectedProduct(undefined);
 
