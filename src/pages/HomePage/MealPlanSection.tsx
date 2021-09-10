@@ -8,6 +8,8 @@ import { RecipeList } from "../../components/organisms/RecipeList";
 import { isSameIngredient } from "../../data/ingredients";
 import { db } from "../../init/firebase";
 import { Spinner } from "../../components/atoms/Spinner";
+import { TextButton } from "components/atoms/TextButton";
+import { Flex } from "components/atoms/Flex";
 
 interface Props {
   mealPlan: MealPlan;
@@ -52,9 +54,28 @@ export function MealPlanSection({ mealPlan, recipes }: Props) {
     batch.commit();
   };
 
+  const showNewPlanButton = mealPlan.recipes.every(
+    (recipe) => (recipe.planId || null) === (household?.planId || null)
+  );
+
   return (
     <>
-      <h1 css={{ marginLeft: 8 }}>Your meal plan</h1>
+      <Flex css={{ width: "100%" }}>
+        <h1 css={{ marginLeft: 8, flexGrow: 1 }}>Your meal plan </h1>
+        {showNewPlanButton ? (
+          <TextButton
+            css={{ margin: "auto", marginRight: 8 }}
+            onClick={() => {
+              household?.ref.set(
+                { planId: (household?.planId || 0) + 1 },
+                { merge: true }
+              );
+            }}
+          >
+            Start a New Plan
+          </TextButton>
+        ) : null}
+      </Flex>
       <RecipeList
         recipes={mealPlan.recipes
           .map((mealPlanItem) => getRecipe(recipes, mealPlanItem.slug))

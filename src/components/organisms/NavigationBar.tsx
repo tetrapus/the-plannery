@@ -4,16 +4,11 @@ import { Link } from "react-router-dom";
 import { Flex } from "../atoms/Flex";
 import { AuthStateContext } from "../../data/auth-state";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import {
-  faCompass,
-  faHistory,
-  faShoppingBasket,
-  faTimes,
-} from "@fortawesome/free-solid-svg-icons";
-import { IconButton } from "../atoms/IconButton";
+import { faTimes } from "@fortawesome/free-solid-svg-icons";
 import { UserCard } from "../molecules/UserCard";
 import { Breakpoint } from "components/styles/Breakpoint";
 import { Darkmode } from "../styles/Darkmode";
+import { AnimatedIconButton } from "components/atoms/AnimatedIconButton";
 
 export default function NavigationBar() {
   const { currentUser } = useContext(AuthStateContext);
@@ -43,13 +38,13 @@ export default function NavigationBar() {
     >
       <Flex css={{ flexGrow: 1, alignItems: "center" }}>
         <Link to="/shopping-list">
-          <IconButton icon={faShoppingBasket} />
+          <AnimatedIconButton iconType="paperbag" />
         </Link>
         <Link to="/browse">
-          <IconButton icon={faCompass} />
+          <AnimatedIconButton iconType="pasta" />
         </Link>
         <Link to="/history">
-          <IconButton icon={faHistory} />
+          <AnimatedIconButton iconType="reverseclock" />
         </Link>
         <Link
           to="/"

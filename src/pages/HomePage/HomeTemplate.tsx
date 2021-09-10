@@ -1,12 +1,11 @@
-import React, { useContext, useEffect, useState } from "react";
+import React, { useContext } from "react";
 import { Stack } from "../../components/atoms/Stack";
 import { Flex } from "../../components/atoms/Flex";
-import { MealPlan, MealPlanItem } from "../../data/meal-plan";
+import { MealPlanContext } from "../../data/meal-plan";
 import { getRecipes, Recipe, RecipesCollection } from "../../data/recipes";
 import { PantryContext } from "../../data/pantry";
 import { Spinner } from "../../components/atoms/Spinner";
 import { Breakpoint } from "../../components/styles/Breakpoint";
-import { AuthStateContext } from "../../data/auth-state";
 import { MealPlanSection } from "./MealPlanSection";
 import { ShoppingListSection } from "../../components/organisms/ShoppingListSection";
 import { YourHomeSection } from "./YourHomeSection";
@@ -15,38 +14,10 @@ import { NowCookingSection } from "./NowCookingSection";
 import PantrySection from "./PantrySection";
 import SuggestedRecipesSection from "./SuggestedRecipesSection/SuggestedRecipesSection";
 
-interface State {
-  mealPlan: MealPlan;
-  ingredientFilter: string[];
-  ingredientBoosts: string[];
-  usePantry: boolean;
-}
-
 export default function HomeTemplate() {
-  const initialState = {
-    mealPlan: { recipes: [] },
-    ingredientFilter: [],
-    ingredientBoosts: [],
-    usePantry: false,
-  };
-  const [{ mealPlan }, setState] = useState<State>(initialState);
-  const { household } = useContext(AuthStateContext);
   const pantry = useContext(PantryContext);
 
-  useEffect(() => {
-    if (household?.ref) {
-      return household?.ref.collection("mealplan").onSnapshot((snapshot) =>
-        setState((state) => ({
-          ...state,
-          mealPlan: {
-            recipes: snapshot.docs.map(
-              (doc) => ({ ref: doc.ref, ...doc.data() } as MealPlanItem)
-            ),
-          },
-        }))
-      );
-    }
-  }, [household]);
+  const mealPlan = useContext(MealPlanContext);
 
   const recipes = useSubscription<Recipe[]>((setState) =>
     RecipesCollection.subscribe((value) => setState(getRecipes(value)))
@@ -65,8 +36,12 @@ export default function HomeTemplate() {
           }}
         >
           <NowCookingSection recipes={recipes} />
-          <MealPlanSection mealPlan={mealPlan} recipes={recipes} />
-          <ShoppingListSection mealPlan={mealPlan} recipes={recipes} />
+          {mealPlan ? (
+            <>
+              <MealPlanSection mealPlan={mealPlan} recipes={recipes} />
+              <ShoppingListSection mealPlan={mealPlan} recipes={recipes} />{" "}
+            </>
+          ) : null}
           <SuggestedRecipesSection recipes={recipes} />
         </Stack>
       ) : (

@@ -4,7 +4,7 @@
 // @version      0.1
 // @description  Shop for items from the Plannery on Woolies
 // @author       mayor@joey.town
-// @match        https://the-plannery.web.app/
+// @match        https://the-plannery.web.app/*
 // @icon         https://the-plannery.web.app/favicon.ico
 // @grant        GM_xmlhttpRequest
 // @connect      woolworths.com.au

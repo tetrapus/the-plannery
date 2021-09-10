@@ -1,4 +1,5 @@
 import firebase from "firebase";
+import React from "react";
 import Ingredient from "./ingredients";
 import { getRecipe, Recipe } from "./recipes";
 
@@ -7,10 +8,15 @@ export interface MealPlanItem {
   slug: string;
   by: string;
   added: firebase.firestore.Timestamp;
+  planId?: number;
 }
 export interface MealPlan {
   recipes: MealPlanItem[];
 }
+
+export const MealPlanContext = React.createContext<MealPlan | undefined>(
+  undefined
+);
 
 export function getIngredientsForMealPlan(
   recipes: Recipe[],

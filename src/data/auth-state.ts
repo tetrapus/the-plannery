@@ -8,6 +8,7 @@ export interface Household {
   members: string[];
   invitees: string[];
   searchPreferencesSet?: boolean;
+  planId?: number;
 }
 
 interface AuthState {

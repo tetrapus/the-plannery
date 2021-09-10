@@ -20,6 +20,7 @@ import { useSubscription } from "./util/use-subscription";
 import { Trash, TrashContext } from "./data/trash";
 import ScrollToTop from "./util/ScrollToTop";
 import { Planner } from "pages/Planner";
+import { MealPlan, MealPlanContext, MealPlanItem } from "data/meal-plan";
 
 initFirebase();
 
@@ -111,26 +112,38 @@ function App() {
     })
   );
 
+  const mealPlan: MealPlan | undefined = useFirestore(
+    household,
+    (doc) => doc.ref.collection("mealplan").orderBy("created"),
+    (snapshot) => ({
+      recipes: snapshot.docs.map(
+        (doc) => ({ ref: doc.ref, ...doc.data() } as MealPlanItem)
+      ),
+    })
+  );
+
   return (
     <AuthStateContext.Provider value={authState}>
       <LikesContext.Provider value={likes || []}>
         <TrashContext.Provider value={trash || []}>
           <PantryContext.Provider value={pantry}>
-            <Router>
-              <Stack css={{ minHeight: "100vh" }}>
-                <ScrollToTop />
-                <NavigationBar></NavigationBar>
-                {currentUser === undefined ? (
-                  <Spinner />
-                ) : !currentUser ? (
-                  <LoggedOutTemplate />
-                ) : !household ? (
-                  <GetStartedTemplate />
-                ) : (
-                  <Planner />
-                )}
-              </Stack>
-            </Router>
+            <MealPlanContext.Provider value={mealPlan}>
+              <Router>
+                <Stack css={{ minHeight: "100vh" }}>
+                  <ScrollToTop />
+                  <NavigationBar></NavigationBar>
+                  {currentUser === undefined ? (
+                    <Spinner />
+                  ) : !currentUser ? (
+                    <LoggedOutTemplate />
+                  ) : !household ? (
+                    <GetStartedTemplate />
+                  ) : (
+                    <Planner />
+                  )}
+                </Stack>
+              </Router>
+            </MealPlanContext.Provider>
           </PantryContext.Provider>
         </TrashContext.Provider>
       </LikesContext.Provider>

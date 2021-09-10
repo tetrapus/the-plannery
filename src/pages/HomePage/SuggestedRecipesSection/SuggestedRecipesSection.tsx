@@ -12,11 +12,11 @@ import {
   AuthStateContext,
   useHouseholdCollection,
 } from "../../../data/auth-state";
-import { MealPlanItem } from "../../../data/meal-plan";
 import RecipeSearchSettingsSection from "./RecipeSearchSettingsSection";
 import { RecipeHistory, HistoryItem } from "data/recipe-history";
 import { db } from "init/firebase";
 import { TextButton } from "components/atoms/TextButton";
+import { MealPlanContext } from "../../../data/meal-plan";
 
 interface Props {
   recipes: Recipe[];
@@ -24,13 +24,6 @@ interface Props {
 
 export default function SuggestedRecipesSection({ recipes }: Props) {
   const showFilters$ = useStateObject<boolean>(true);
-  /*const [_, setPreferences] = useState<Preference[]>([
-    { id: "Liked recipes", type: "liked", preference: "prefer" },
-    { id: "Ready to cook", type: "ready-to-cook", preference: "prefer" },
-    { id: "Recently cooked", type: "recent", preference: "reduce" },
-    { id: "Disliked recipes", type: "trash", preference: "exclude" },
-  ]); */
-
   const preferences = useHouseholdCollection(
     (doc) => doc.collection("searchPreferences"),
     (snapshot) =>
@@ -58,14 +51,7 @@ export default function SuggestedRecipesSection({ recipes }: Props) {
     })
   );
 
-  const mealPlan = useHouseholdCollection(
-    (doc) => doc.collection("mealplan"),
-    (snapshot) => ({
-      recipes: snapshot.docs.map(
-        (doc) => ({ ref: doc.ref, ...doc.data() } as MealPlanItem)
-      ),
-    })
-  );
+  const mealPlan = useContext(MealPlanContext);
   const { household, insertMeta } = useContext(AuthStateContext);
 
   useEffect(() => {
@@ -150,9 +136,11 @@ export default function SuggestedRecipesSection({ recipes }: Props) {
         select={{
           icon: faPlus,
           onClick: (recipe) => (e) => {
-            household?.ref
-              .collection("mealplan")
-              .add({ slug: recipe.slug, ...insertMeta });
+            household?.ref.collection("mealplan").add({
+              slug: recipe.slug,
+              ...insertMeta,
+              planId: household?.planId || null,
+            });
             e.preventDefault();
           },
         }}
