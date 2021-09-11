@@ -1,6 +1,5 @@
 import React, { useContext } from "react";
 import { Stack } from "../../components/atoms/Stack";
-import { Flex } from "../../components/atoms/Flex";
 import { MealPlanContext } from "../../data/meal-plan";
 import { getRecipes, Recipe, RecipesCollection } from "../../data/recipes";
 import { PantryContext } from "../../data/pantry";
@@ -13,6 +12,7 @@ import { useSubscription } from "../../util/use-subscription";
 import { NowCookingSection } from "./NowCookingSection";
 import PantrySection from "./PantrySection";
 import SuggestedRecipesSection from "./SuggestedRecipesSection/SuggestedRecipesSection";
+import { Grid } from "../../components/atoms/Grid";
 
 export default function HomeTemplate() {
   const pantry = useContext(PantryContext);
@@ -24,49 +24,54 @@ export default function HomeTemplate() {
   );
 
   return (
-    <Flex css={{ margin: "auto" }}>
-      {recipes ? (
-        <Stack
-          css={{
-            maxWidth: 800,
-            placeItems: "flex-start",
-            [Breakpoint.DESKTOP]: {
-              marginLeft: "auto",
-            },
-          }}
-        >
-          <NowCookingSection recipes={recipes} />
-          {mealPlan ? (
-            <>
-              <MealPlanSection mealPlan={mealPlan} recipes={recipes} />
-              <ShoppingListSection mealPlan={mealPlan} recipes={recipes} />{" "}
-            </>
-          ) : null}
-          <SuggestedRecipesSection recipes={recipes} />
-        </Stack>
-      ) : (
-        <Stack
-          css={{
-            maxWidth: "80vw",
-            width: 800,
-            height: 300,
-            alignItems: "center",
-          }}
-        >
-          <Spinner />
-          Downloading recipe database...
-        </Stack>
-      )}
+    <Grid
+      css={{
+        gridTemplateColumns: "1fr minmax(100px, 800px) 1fr",
+      }}
+    >
       <Stack
         css={{
-          width: "calc(50vw - 400px)",
+          placeItems: "flex-start",
+          margin: "0 auto",
+          gridColumn: "2 / 3",
+          [Breakpoint.TABLET]: {
+            gridColumn: "1 / 4",
+            margin: 0,
+          },
+        }}
+      >
+        {recipes ? (
+          <>
+            <NowCookingSection recipes={recipes} />
+            {mealPlan ? (
+              <>
+                <MealPlanSection mealPlan={mealPlan} recipes={recipes} />
+                <ShoppingListSection
+                  mealPlan={mealPlan}
+                  recipes={recipes}
+                />{" "}
+              </>
+            ) : null}
+            <SuggestedRecipesSection recipes={recipes} />
+          </>
+        ) : (
+          <Stack>
+            <Spinner size={256} />
+            Downloading recipe database...
+          </Stack>
+        )}
+      </Stack>
+
+      <Stack
+        css={{
           marginLeft: 16,
+          gridColumn: "3 / 4",
           [Breakpoint.LAPTOP]: { display: "none" },
         }}
       >
         <YourHomeSection />
         <PantrySection pantry={pantry?.items.map((item) => item.ingredient)} />
       </Stack>
-    </Flex>
+    </Grid>
   );
 }

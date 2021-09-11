@@ -9,6 +9,9 @@ import { UserCard } from "../molecules/UserCard";
 import { Breakpoint } from "components/styles/Breakpoint";
 import { Darkmode } from "../styles/Darkmode";
 import { AnimatedIconButton } from "components/atoms/AnimatedIconButton";
+import paperbag from "animations/paper-bag.json";
+import pasta from "animations/pasta.json";
+import reverseclock from "animations/reverse-clock.json";
 
 export default function NavigationBar() {
   const { currentUser } = useContext(AuthStateContext);
@@ -38,13 +41,13 @@ export default function NavigationBar() {
     >
       <Flex css={{ flexGrow: 1, alignItems: "center" }}>
         <Link to="/shopping-list">
-          <AnimatedIconButton iconType="paperbag" />
+          <AnimatedIconButton animation={paperbag} />
         </Link>
         <Link to="/browse">
-          <AnimatedIconButton iconType="pasta" />
+          <AnimatedIconButton animation={pasta} />
         </Link>
         <Link to="/history">
-          <AnimatedIconButton iconType="reverseclock" />
+          <AnimatedIconButton animation={reverseclock} />
         </Link>
         <Link
           to="/"

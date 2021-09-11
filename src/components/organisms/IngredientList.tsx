@@ -1,7 +1,6 @@
 import React, { useContext } from "react";
 import { Flex } from "../atoms/Flex";
 import { PantryIngredientCard } from "./PantryIngredientCard";
-import { css } from "@emotion/core";
 import { enoughInPantry, inPantry, PantryContext } from "../../data/pantry";
 import Ingredient from "../../data/ingredients";
 import { Spinner } from "../atoms/Spinner";
@@ -21,9 +20,9 @@ export function IngredientList({ ingredients, sortKey, ...rest }: Props) {
 
   return (
     <Flex
-      css={css`
-        flex-wrap: wrap;
-      `}
+      css={{
+        flexWrap: "wrap",
+      }}
       {...rest}
     >
       {ingredients

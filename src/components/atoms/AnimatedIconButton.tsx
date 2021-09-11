@@ -1,22 +1,18 @@
 import React, { useState } from "react";
 import Lottie from "react-lottie";
-import paperbag from "./animations/paper-bag.json";
-import reverseclock from "./animations/reverse-clock.json";
-import pasta from "./animations/pasta.json";
 
-type IconButtonProps = {
+interface IconButtonProps {
   iconSize?: number;
-  iconType: "paperbag" | "reverseclock" | "pasta";
-};
+  animation: any;
+  autoplay?: boolean;
+}
 
-const icons = {
-  paperbag,
-  reverseclock,
-  pasta,
-};
-
-export function AnimatedIconButton(props: IconButtonProps) {
-  const [isPlaying, setIsPlaying] = useState(false);
+export function AnimatedIconButton({
+  iconSize,
+  animation,
+  autoplay = false,
+}: IconButtonProps) {
+  const [isPlaying, setIsPlaying] = useState(autoplay);
   return (
     <div
       onMouseEnter={() => {
@@ -33,14 +29,14 @@ export function AnimatedIconButton(props: IconButtonProps) {
       <Lottie
         css={{ pointerEvents: "none" }}
         options={{
-          autoplay: false,
-          animationData: icons[props.iconType],
+          autoplay: autoplay,
+          animationData: animation,
           rendererSettings: {
             preserveAspectRatio: "xMidYMid slice",
           },
         }}
-        height={props.iconSize || 48}
-        width={props.iconSize || 48}
+        height={iconSize || 48}
+        width={iconSize || 48}
         isStopped={!isPlaying}
         isPaused={false}
       />

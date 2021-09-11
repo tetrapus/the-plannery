@@ -55,6 +55,7 @@ function RecipeActions({
           flexDirection: "row",
           width: "66%",
           borderLeft: "none",
+          justifyContent: "center",
         },
       }}
     >

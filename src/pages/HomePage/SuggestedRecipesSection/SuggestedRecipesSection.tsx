@@ -17,6 +17,7 @@ import { RecipeHistory, HistoryItem } from "data/recipe-history";
 import { db } from "init/firebase";
 import { TextButton } from "components/atoms/TextButton";
 import { MealPlanContext } from "../../../data/meal-plan";
+import { Breakpoint } from "components/styles/Breakpoint";
 
 interface Props {
   recipes: Recipe[];
@@ -147,7 +148,12 @@ export default function SuggestedRecipesSection({ recipes }: Props) {
       />
       <TextButton
         onClick={() => setLimit(limit + 12)}
-        css={{ marginBottom: 128 }}
+        css={{
+          marginBottom: 128,
+          [Breakpoint.TABLET]: {
+            margin: 16,
+          },
+        }}
       >
         Load More
       </TextButton>
