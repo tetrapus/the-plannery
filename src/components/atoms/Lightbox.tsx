@@ -1,5 +1,6 @@
 import React from "react";
 import { Stack } from "./Stack";
+import { TransformWrapper, TransformComponent } from "react-zoom-pan-pinch";
 
 interface Props {
   mainSrc: string;
@@ -20,16 +21,22 @@ export function Lightbox(props: Props) {
       }}
       onClick={() => props.onCloseRequest()}
     >
-      <img
-        src={props.mainSrc}
-        alt=""
-        css={{
-          margin: "5vh 5vw",
-          maxWidth: "90vw",
-          maxHeight: "90vh",
-          objectFit: "scale-down",
-        }}
-      ></img>
+      <div css={{ margin: "auto" }}>
+        <TransformWrapper>
+          <TransformComponent>
+            <img
+              src={props.mainSrc}
+              alt=""
+              css={{
+                margin: "5vh 5vw",
+                maxWidth: "90vw",
+                maxHeight: "90vh",
+                objectFit: "scale-down",
+              }}
+            ></img>
+          </TransformComponent>
+        </TransformWrapper>
+      </div>
     </Stack>
   );
 }
