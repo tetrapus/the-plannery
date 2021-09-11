@@ -74,8 +74,11 @@ export function ProductCard({
     (item) => item.Stockcode === product.Stockcode
   );
 
+  const [loading, setLoading] = useState(false);
+
   const cartCallback = useCallback(async () => {
     if (quantity === undefined) return;
+    setLoading(true);
     const trolleyItem = trolley.find(
       (item) => item.Stockcode === product.Stockcode
     );
@@ -87,6 +90,7 @@ export function ProductCard({
       await (document as any).woolies.removeFromCart(product.Stockcode);
     }
     onAddToCart();
+    setLoading(false);
   }, [onAddToCart, product, quantity, trolley]);
 
   const input = useRef<HTMLInputElement>(null);
@@ -121,14 +125,14 @@ export function ProductCard({
               : "1px solid orange"
             : "none",
         background: "white",
+        opacity: loading ? 0.5 : 1,
       }}
       onClick={(e) => e.stopPropagation()}
     >
       <Flex
-        css={{ flexGrow: 1, padding: 8 }}
+        css={{ flexGrow: 1, padding: 8, cursor: "pointer" }}
         onClick={() => {
-          if (quantity === undefined) return;
-          onAddToCart();
+          cartCallback();
         }}
       >
         <img
