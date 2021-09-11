@@ -40,8 +40,6 @@ db.enablePersistence().catch((err) => {
   }
 });
 
-db.disableNetwork();
-
 export function useFirestoreDoc<S, T>(
   rootDoc: S | undefined | null,
   collectionFn: (
