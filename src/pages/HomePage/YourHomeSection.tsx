@@ -1,4 +1,3 @@
-import { faUserPlus } from "@fortawesome/free-solid-svg-icons";
 import firebase from "firebase";
 import React, { useContext, useState } from "react";
 import {
@@ -6,7 +5,6 @@ import {
   useHouseholdCollection,
 } from "../../data/auth-state";
 import { Flex } from "../../components/atoms/Flex";
-import { IconButton } from "../../components/atoms/IconButton";
 import { Stack } from "../../components/atoms/Stack";
 import { TextInput } from "../../components/atoms/TextInput";
 import { User, UserCard } from "../../components/molecules/UserCard";

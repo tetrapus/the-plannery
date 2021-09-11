@@ -1,3 +1,4 @@
+import { Darkmode } from "components/styles/Darkmode";
 import React, { useState } from "react";
 import Lottie from "react-lottie";
 
@@ -35,6 +36,11 @@ export function AnimatedIconButton({
         css={{
           pointerEvents: "none",
           filter: active ? "inherit" : "grayscale(1)",
+          [Darkmode]: {
+            filter: active
+              ? "invert(0.66) hue-rotate(180deg)"
+              : "invert(1)  hue-rotate(180deg) grayscale(1)",
+          },
         }}
       >
         <Lottie

@@ -10,6 +10,8 @@ import { db } from "../../init/firebase";
 import { Spinner } from "../../components/atoms/Spinner";
 import { TextButton } from "components/atoms/TextButton";
 import { Flex } from "components/atoms/Flex";
+import { Darkmode } from "components/styles/Darkmode";
+import { Stack } from "components/atoms/Stack";
 
 interface Props {
   mealPlan: MealPlan;
@@ -58,6 +60,17 @@ export function MealPlanSection({ mealPlan, recipes }: Props) {
     (recipe) => (recipe.planId || null) === (household?.planId || null)
   );
 
+  const plans = [
+    ...mealPlan.recipes.map((recipe) => recipe.planId || 0),
+    household?.planId,
+  ]
+    .sort()
+    .reduce(
+      (prev, curr) =>
+        prev.length && curr === prev[prev.length - 1] ? prev : [...prev, curr],
+      [] as any[]
+    );
+
   return (
     <>
       <Flex css={{ width: "100%" }}>
@@ -76,33 +89,92 @@ export function MealPlanSection({ mealPlan, recipes }: Props) {
           </TextButton>
         ) : null}
       </Flex>
-      <RecipeList
-        recipes={mealPlan.recipes
-          .map((mealPlanItem) => getRecipe(recipes, mealPlanItem.slug))
-          .filter((x): x is Recipe => x !== undefined)}
-        dismiss={{
-          icon: faTimes,
-          onClick: (recipe) => (e) => {
-            mealPlan.recipes
-              .find((mealPlanItem) => mealPlanItem.slug === recipe.slug)
-              ?.ref.delete();
-            e.preventDefault();
-          },
-        }}
-        select={{
-          icon: faCheck,
-          onClick: (recipe) => (e) => {
-            household?.ref
-              .collection("history")
-              .add({ ...insertMeta, slug: recipe.slug });
-            onClose(recipe);
-            mealPlan.recipes
-              .find((mealPlanItem) => mealPlanItem.slug === recipe.slug)
-              ?.ref.delete();
-            e.preventDefault();
-          },
-        }}
-      ></RecipeList>
+      <Stack>
+        {plans.map((plan) => {
+          const planRecipes = mealPlan.recipes.filter(
+            (mealPlanItem) => (mealPlanItem.planId || 0) === plan
+          );
+
+          return (
+            <div
+              key={plan}
+              css={{
+                ":not(:last-child)": {
+                  borderBottom: "1px solid #dedede",
+                  [Darkmode]: {
+                    borderBottom: "1px solid #000",
+                  },
+                },
+              }}
+            >
+              {planRecipes.length ? (
+                <RecipeList
+                  recipes={planRecipes
+                    .map((mealPlanItem) =>
+                      getRecipe(recipes, mealPlanItem.slug)
+                    )
+                    .filter((x): x is Recipe => x !== undefined)}
+                  dismiss={{
+                    icon: faTimes,
+                    onClick: (recipe) => (e) => {
+                      mealPlan.recipes
+                        .find(
+                          (mealPlanItem) => mealPlanItem.slug === recipe.slug
+                        )
+                        ?.ref.delete();
+                      e.preventDefault();
+                    },
+                  }}
+                  select={{
+                    icon: faCheck,
+                    onClick: (recipe) => (e) => {
+                      household?.ref
+                        .collection("history")
+                        .add({ ...insertMeta, slug: recipe.slug });
+                      onClose(recipe);
+                      mealPlan.recipes
+                        .find(
+                          (mealPlanItem) => mealPlanItem.slug === recipe.slug
+                        )
+                        ?.ref.delete();
+                      e.preventDefault();
+                    },
+                  }}
+                ></RecipeList>
+              ) : (
+                <Stack
+                  css={{
+                    margin: 8,
+                    backgroundImage: `url("data:image/svg+xml,%3csvg width='100%25' height='100%25' xmlns='http://www.w3.org/2000/svg'%3e%3crect width='100%25' height='100%25' fill='none' stroke='%23dedede' stroke-width='4' stroke-dasharray='6%2c 14' stroke-dashoffset='0' stroke-linecap='square'/%3e%3c/svg%3e")`,
+                    [Darkmode]: {
+                      backgroundImage: `url("data:image/svg+xml,%3csvg width='100%25' height='100%25' xmlns='http://www.w3.org/2000/svg'%3e%3crect width='100%25' height='100%25' fill='none' stroke='%23000' stroke-width='4' stroke-dasharray='6%2c 14' stroke-dashoffset='0' stroke-linecap='square'/%3e%3c/svg%3e")`,
+                    },
+                    padding: "32px 48px",
+                    alignItems: "center",
+                  }}
+                >
+                  <h3>Get started on your next meal plan</h3>
+                  <div>
+                    <div>
+                      <strong>1.</strong> Update your pantry with ingredients
+                      you want to use
+                    </div>
+                    <div>
+                      <strong>2.</strong> Shortlist some recipes
+                    </div>
+                    <div>
+                      <strong>3.</strong> Buy your ingredients
+                    </div>
+                    <div>
+                      <strong>4.</strong> Start cooking!
+                    </div>
+                  </div>
+                </Stack>
+              )}
+            </div>
+          );
+        })}
+      </Stack>
     </>
   );
 }

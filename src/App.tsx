@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import "./App.css";
 import { BrowserRouter as Router } from "react-router-dom";
 import NavigationBar from "./components/organisms/NavigationBar";
@@ -21,10 +21,19 @@ import { Trash, TrashContext } from "./data/trash";
 import ScrollToTop from "./util/ScrollToTop";
 import { Planner } from "pages/Planner";
 import { MealPlan, MealPlanContext, MealPlanItem } from "data/meal-plan";
+import { AnimatedIconButton } from "components/atoms/AnimatedIconButton";
+import sun from "animations/sun.json";
+import moon from "animations/moon.json";
 
 initFirebase();
 
 function App() {
+  const systemDarkMode = window.matchMedia("(prefers-color-scheme: dark)");
+  const [darkmode, setDarkMode] = useState(systemDarkMode.matches);
+  systemDarkMode.addEventListener("change", (event) => {
+    setDarkMode(event.matches);
+  });
+
   const currentUser = useSubscription<firebase.User | null>((setState) =>
     firebase.auth().onAuthStateChanged((user) => setState(user))
   );
@@ -129,7 +138,11 @@ function App() {
           <PantryContext.Provider value={pantry}>
             <MealPlanContext.Provider value={mealPlan}>
               <Router>
-                <Stack css={{ minHeight: "100vh" }}>
+                <Stack
+                  css={{ minHeight: "100vh" }}
+                  className={darkmode ? "Darkmode" : ""}
+                  id="AppRoot"
+                >
                   <ScrollToTop />
                   <NavigationBar></NavigationBar>
                   {currentUser === undefined ? (
@@ -141,6 +154,11 @@ function App() {
                   ) : (
                     <Planner />
                   )}
+                  <AnimatedIconButton
+                    onClick={() => setDarkMode(!darkmode)}
+                    animation={darkmode ? sun : moon}
+                    css={{ marginLeft: "auto" }}
+                  />
                 </Stack>
               </Router>
             </MealPlanContext.Provider>

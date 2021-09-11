@@ -1,6 +1,5 @@
-import { faCogs, faPlus } from "@fortawesome/free-solid-svg-icons";
+import { faPlus } from "@fortawesome/free-solid-svg-icons";
 import React, { useContext, useEffect, useState } from "react";
-import { IconButton } from "../../../components/atoms/IconButton";
 import { Stack } from "../../../components/atoms/Stack";
 import { RecipeList } from "../../../components/organisms/RecipeList";
 import { LikesContext } from "../../../data/likes";

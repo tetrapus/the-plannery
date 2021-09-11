@@ -1,1 +1,1 @@
-export const Darkmode = "@media (prefers-color-scheme: dark)";
+export const Darkmode = ".Darkmode &"; //"@media (prefers-color-scheme: dark)";
