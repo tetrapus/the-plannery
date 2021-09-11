@@ -19,8 +19,7 @@ export default function HomeTemplate() {
 
   const mealPlan = useContext(MealPlanContext);
 
-  const recipes = undefined;
-  useSubscription<Recipe[]>((setState) =>
+  const recipes = useSubscription<Recipe[]>((setState) =>
     RecipesCollection.subscribe((value) => setState(getRecipes(value)))
   );
 
@@ -65,7 +64,13 @@ export default function HomeTemplate() {
             <SuggestedRecipesSection recipes={recipes} />
           </>
         ) : (
-          <Stack>
+          <Stack
+            css={{
+              marginLeft: "auto",
+              marginRight: "auto",
+              alignItems: "center",
+            }}
+          >
             <Spinner size={256} />
             Downloading recipe database...
           </Stack>
