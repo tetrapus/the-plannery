@@ -18,6 +18,8 @@ import { db } from "init/firebase";
 import { TextButton } from "components/atoms/TextButton";
 import { MealPlanContext } from "../../../data/meal-plan";
 import { Breakpoint } from "components/styles/Breakpoint";
+import { AnimatedIconButton } from "components/atoms/AnimatedIconButton";
+import rules from "animations/rules.json";
 
 interface Props {
   recipes: Recipe[];
@@ -117,11 +119,15 @@ export default function SuggestedRecipesSection({ recipes }: Props) {
 
   return (
     <Stack>
-      <h1 css={{ marginLeft: 8 }}>
+      <h1 css={{ marginLeft: 8, display: "flex" }}>
         Suggested for you
-        <IconButton
-          icon={faCogs}
-          onClick={() => showFilters$.set((state) => !state)}
+        <AnimatedIconButton
+          animation={rules}
+          css={{ marginLeft: "auto" }}
+          active={!showFilters$.value}
+          onClick={() => {
+            showFilters$.set((state) => !state);
+          }}
         />
       </h1>
       {showFilters$.value && preferences !== undefined ? (

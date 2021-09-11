@@ -31,6 +31,15 @@ export default function HomeTemplate() {
     >
       <Stack
         css={{
+          margin: "0 16px",
+          gridColumn: "1 / 2",
+          [Breakpoint.LAPTOP]: { display: "none" },
+        }}
+      >
+        <YourHomeSection />
+      </Stack>
+      <Stack
+        css={{
           placeItems: "flex-start",
           margin: "0 auto",
           gridColumn: "2 / 3",
@@ -61,7 +70,6 @@ export default function HomeTemplate() {
           </Stack>
         )}
       </Stack>
-
       <Stack
         css={{
           marginLeft: 16,
@@ -69,7 +77,6 @@ export default function HomeTemplate() {
           [Breakpoint.LAPTOP]: { display: "none" },
         }}
       >
-        <YourHomeSection />
         <PantrySection pantry={pantry?.items.map((item) => item.ingredient)} />
       </Stack>
     </Grid>
