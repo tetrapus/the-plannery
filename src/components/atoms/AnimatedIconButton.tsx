@@ -46,6 +46,7 @@ export function AnimatedIconButton({
         <Lottie
           options={{
             autoplay: autoplay,
+            loop: false,
             animationData: animation,
             rendererSettings: {
               preserveAspectRatio: "xMidYMid slice",

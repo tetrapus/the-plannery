@@ -65,7 +65,7 @@ export function Spinner(
     <div
       css={{
         margin: "auto",
-        animation: `${fadeInOut} 3s infinite linear`,
+        animation: `${fadeInOut} 2.5s infinite linear`,
         animationDelay: "0.75s",
         transform: "scale(0) translateX(50%)",
       }}

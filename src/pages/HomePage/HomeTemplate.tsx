@@ -19,7 +19,8 @@ export default function HomeTemplate() {
 
   const mealPlan = useContext(MealPlanContext);
 
-  const recipes = useSubscription<Recipe[]>((setState) =>
+  const recipes = undefined;
+  useSubscription<Recipe[]>((setState) =>
     RecipesCollection.subscribe((value) => setState(getRecipes(value)))
   );
 
