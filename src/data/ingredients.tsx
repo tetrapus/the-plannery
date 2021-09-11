@@ -1,3 +1,4 @@
+import React from "react";
 import { Recipe } from "./recipes";
 
 export interface IngredientType {
@@ -101,12 +102,15 @@ export function denormaliseIngredient(
   if (!ingredient.qty || !ingredient.unit) {
     return;
   }
-  const tiers = Object.entries(globalNormalisers)
-    .filter(
-      ([unit, normaliser]) =>
-        ingredient.unit === normaliser.unit && !normaliser.alias
-    )
-    .sort((a, b) => b[1].qty - a[1].qty);
+  const tiers: [string, Amount][] = [
+    ...Object.entries(globalNormalisers)
+      .filter(
+        ([unit, normaliser]) =>
+          ingredient.unit === normaliser.unit && !normaliser.alias
+      )
+      .sort((a, b) => b[1].qty - a[1].qty),
+    [ingredient.unit, { unit: ingredient.unit, qty: 1 }],
+  ];
 
   const isDivisible = (number: number, divisor: number) =>
     Math.abs(Math.round(number / divisor) - number / divisor) < 0.00001;
@@ -158,3 +162,12 @@ export const isSameIngredient = (a: Ingredient, b: Ingredient) =>
   a.type.id === b.type.id && (a.unit === b.unit || !a.unit || !b.unit);
 
 export const displayUnit = (a?: string) => (a && a !== "unit" ? a : "");
+
+export function IngredientAmount({ ingredient }: { ingredient: Ingredient }) {
+  const displayIngredient = denormaliseIngredient(ingredient);
+  return (
+    <>
+      {displayIngredient?.qty || ""} {displayUnit(displayIngredient?.unit)}
+    </>
+  );
+}

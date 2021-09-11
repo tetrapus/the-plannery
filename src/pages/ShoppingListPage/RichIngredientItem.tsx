@@ -3,13 +3,14 @@ import { PlaceholderImage } from "components/atoms/PlaceholderImage";
 import { Stack } from "components/atoms/Stack";
 import React, { useEffect } from "react";
 import { Recipe } from "data/recipes";
-import Ingredient, { displayUnit } from "data/ingredients";
+import Ingredient from "data/ingredients";
 import { PantryItem } from "data/pantry";
 import { Breakpoint } from "components/styles/Breakpoint";
 import { ProductCard } from "./ProductCard";
 import { Darkmode } from "components/styles/Darkmode";
 import { Grid } from "../../components/atoms/Grid";
 import { Product, ProductConversions, TrolleyItem } from "data/product";
+import { IngredientAmount } from "../../data/ingredients";
 
 interface Props {
   ingredient: Ingredient;
@@ -46,6 +47,8 @@ export function RichIngredientItem({
     return () => document.removeEventListener("keydown", listener);
   }, [productOptions, onSearch, selected]);
 
+  const neededQty = (ingredient.qty || 0) - (pantryItem?.ingredient.qty || 0);
+
   return (
     <Grid
       key={ingredient.type.id}
@@ -67,6 +70,9 @@ export function RichIngredientItem({
           background: "#dedede",
           [Darkmode]: {
             background: "#333",
+          },
+          "& img": {
+            opacity: 1,
           },
         },
       }}
@@ -109,11 +115,10 @@ export function RichIngredientItem({
             <span css={{ color: "grey" }}>
               {pantryItem && pantryItem.ingredient.qty ? (
                 <>
-                  {pantryItem.ingredient.qty || ""}{" "}
-                  {displayUnit(pantryItem.ingredient?.unit)} /{" "}
+                  <IngredientAmount ingredient={pantryItem.ingredient} /> /{" "}
                 </>
               ) : null}
-              {ingredient.qty || ""} {displayUnit(ingredient?.unit)}{" "}
+              <IngredientAmount ingredient={ingredient} />{" "}
             </span>
             <span css={{ textTransform: "capitalize" }}>
               {ingredient.type.name}
@@ -122,15 +127,15 @@ export function RichIngredientItem({
         </Flex>
         <Stack css={{ fontSize: 12 }}>
           Used In
-          <table css={{ color: "grey" }}>
+          <table css={{ color: "grey", width: "fit-content" }}>
             {ingredient.usedIn?.map((recipe: Recipe) => {
               const needed = recipe.ingredients.find(
                 (i) => i.type.name === ingredient.type.name
               );
               return (
                 <tr key={recipe.slug}>
-                  <td css={{ paddingRight: 4 }}>
-                    {needed?.qty} {needed?.unit}
+                  <td css={{ paddingRight: 8, minWidth: 32 }}>
+                    {needed ? <IngredientAmount ingredient={needed} /> : null}
                   </td>
                   <td css={{ fontStyle: "italic" }}>{recipe.name}</td>
                 </tr>
@@ -156,7 +161,7 @@ export function RichIngredientItem({
         {product ? (
           <ProductCard
             product={product}
-            ingredient={ingredient}
+            ingredient={{ ...ingredient, qty: neededQty }}
             trolley={trolley}
             selected={selected}
             conversions={conversions}

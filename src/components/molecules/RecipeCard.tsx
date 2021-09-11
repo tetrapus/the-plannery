@@ -56,6 +56,9 @@ function RecipeActions({
           width: "66%",
           borderLeft: "none",
           justifyContent: "center",
+          [Darkmode]: {
+            borderLeft: "none",
+          },
         },
       }}
     >

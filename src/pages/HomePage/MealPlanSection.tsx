@@ -12,6 +12,7 @@ import { TextButton } from "components/atoms/TextButton";
 import { Flex } from "components/atoms/Flex";
 import { Darkmode } from "components/styles/Darkmode";
 import { Stack } from "components/atoms/Stack";
+import { Breakpoint } from "../../components/styles/Breakpoint";
 
 interface Props {
   mealPlan: MealPlan;
@@ -102,7 +103,12 @@ export function MealPlanSection({ mealPlan, recipes }: Props) {
                 ":not(:last-child)": {
                   borderBottom: "1px solid #dedede",
                   [Darkmode]: {
-                    borderBottom: "1px solid #000",
+                    borderBottom: "1px solid #333",
+                  },
+                  paddingBottom: 8,
+                  marginBottom: 24,
+                  [Breakpoint.TABLET]: {
+                    marginBottom: 8,
                   },
                 },
               }}
