@@ -38,7 +38,7 @@ export function AnimatedIconButton({
           filter: active ? "inherit" : "grayscale(1)",
           [Darkmode]: {
             filter: active
-              ? "invert(0.66) hue-rotate(180deg)"
+              ? "invert(0.8) hue-rotate(180deg)"
               : "invert(1)  hue-rotate(180deg) grayscale(1)",
           },
         }}
