@@ -39,7 +39,7 @@ export function ShoppingWizard({ selectedIngredient, onSelection }: Props) {
   useEffect(() => {
     if (loading) {
       (document as any).woolies.search(searchTerm).then((result: any) => {
-        setSearchResults(result.Products);
+        setSearchResults(result.Products || []);
         setLoading(false);
       });
     }
