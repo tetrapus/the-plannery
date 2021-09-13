@@ -38,7 +38,14 @@ export function ProductOption({ product, onSelection }: Props) {
 
       <Stack css={{ marginLeft: 4, marginTop: 8 }}>
         <div>
-          {product.Name} {product.PackageSize}
+          <a
+            href={`https://www.woolworths.com.au/shop/productdetails/${product.Stockcode}`}
+            onClick={(e) => e.stopPropagation()}
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            {product.Name} {product.PackageSize}
+          </a>
         </div>
         <div css={{ fontSize: 12 }}>
           ${product.Price.toFixed(2)}{" "}

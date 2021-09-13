@@ -11,6 +11,7 @@ import { Darkmode } from "components/styles/Darkmode";
 import { Grid } from "../../components/atoms/Grid";
 import { Product, ProductConversions, TrolleyItem } from "data/product";
 import { IngredientAmount } from "../../data/ingredients";
+import { Link } from "react-router-dom";
 
 interface Props {
   ingredient: Ingredient;
@@ -137,7 +138,14 @@ export function RichIngredientItem({
                   <td css={{ paddingRight: 8, minWidth: 32 }}>
                     {needed ? <IngredientAmount ingredient={needed} /> : null}
                   </td>
-                  <td css={{ fontStyle: "italic" }}>{recipe.name}</td>
+                  <td css={{ fontStyle: "italic" }}>
+                    <Link
+                      to={`/recipes/${recipe.slug}`}
+                      onClick={(e) => e.stopPropagation()}
+                    >
+                      {recipe.name}
+                    </Link>
+                  </td>
                 </tr>
               );
             })}
