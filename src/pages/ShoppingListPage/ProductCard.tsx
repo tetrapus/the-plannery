@@ -4,14 +4,8 @@ import { Price } from "components/atoms/Price";
 import { Stack } from "components/atoms/Stack";
 import { QuantityInput } from "components/molecules/QuantityInput";
 import { Darkmode } from "components/styles/Darkmode";
-import Ingredient, { displayUnit, normaliseIngredient } from "data/ingredients";
-import {
-  isConvertible,
-  normaliseProduct,
-  Product,
-  ProductConversions,
-  TrolleyItem,
-} from "data/product";
+import Ingredient, { displayUnit } from "data/ingredients";
+import { Product, TrolleyItem } from "data/product";
 import React, { ChangeEvent, useCallback, useEffect, useRef } from "react";
 import { useState } from "react";
 
@@ -20,8 +14,9 @@ interface Props {
   ingredient: Ingredient;
   trolley: TrolleyItem[];
   selected: boolean;
-  conversions: ProductConversions;
-  onAddToCart(): void;
+  defaultQuantity?: number;
+  ratio?: number;
+  onAddToCart(quantity: number): Promise<void>;
 }
 
 export function ProductCard({
@@ -29,46 +24,12 @@ export function ProductCard({
   ingredient,
   trolley,
   selected,
-  conversions,
+  ratio,
+  defaultQuantity,
   onAddToCart,
 }: Props) {
-  const [quantity, setQuantity] = useState<number | undefined>();
-  const [ratio, setRatio] = useState<number | undefined>();
-
-  useEffect(() => {
-    const normalisedIngredient = normaliseIngredient(ingredient);
-    const normalisedProduct = normaliseProduct(product, ingredient);
-    const orderStep = product.Unit === "Each" ? 1 : 100;
-    const getDefaultQty = (value?: number) =>
-      Math.min(
-        Math.max(
-          Math.ceil((value || 0) * orderStep) / orderStep,
-          product.MinimumQuantity
-        ),
-        product.SupplyLimit
-      );
-    let ratio =
-      conversions[product.Stockcode]?.conversions[
-        normalisedIngredient?.unit || "unit"
-      ];
-    const sameUnit = isConvertible(normalisedProduct, normalisedIngredient);
-    if (!ratio && sameUnit) {
-      ratio = normalisedProduct?.qty || 1;
-    }
-
-    const estimatedAmount = ratio
-      ? (normalisedIngredient?.qty || 0) / ratio
-      : ["ml", "g"].includes(normalisedIngredient?.unit || "")
-      ? 1
-      : normalisedIngredient?.qty || 1;
-
-    const requiredAmount = getDefaultQty(estimatedAmount);
-
-    if (requiredAmount) {
-      setQuantity(requiredAmount);
-    }
-    setRatio(ratio);
-  }, [ingredient, product, conversions]);
+  const [quantity, setQuantity] = useState<number | undefined>(defaultQuantity);
+  useEffect(() => setQuantity(defaultQuantity), [defaultQuantity]);
 
   const trolleyItem = trolley.find(
     (item) => item.Stockcode === product.Stockcode
@@ -79,19 +40,9 @@ export function ProductCard({
   const cartCallback = useCallback(async () => {
     if (quantity === undefined) return;
     setLoading(true);
-    const trolleyItem = trolley.find(
-      (item) => item.Stockcode === product.Stockcode
-    );
-    if (!trolleyItem) {
-      await (document as any).woolies.addToCart(product.Stockcode, quantity);
-    } else if (trolleyItem.QuantityInTrolley < quantity) {
-      await (document as any).woolies.updateCart(product.Stockcode, quantity);
-    } else {
-      await (document as any).woolies.removeFromCart(product.Stockcode);
-    }
-    onAddToCart();
+    await onAddToCart(quantity);
     setLoading(false);
-  }, [onAddToCart, product, quantity, trolley]);
+  }, [onAddToCart, quantity]);
 
   const input = useRef<HTMLInputElement>(null);
 

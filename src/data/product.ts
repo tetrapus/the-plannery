@@ -144,3 +144,39 @@ export interface ProductConversions {
     conversions: { [unit: string]: number };
   };
 }
+
+export function convertIngredientToProduct(
+  ingredient: Ingredient,
+  product: Product,
+  conversions: ProductConversions
+) {
+  const normalisedIngredient = normaliseIngredient(ingredient);
+  const normalisedProduct = normaliseProduct(product, ingredient);
+  const orderStep = product.Unit === "Each" ? 1 : 100;
+  const getDefaultQty = (value?: number) =>
+    Math.min(
+      Math.max(
+        Math.ceil((value || 0) * orderStep) / orderStep,
+        product.MinimumQuantity
+      ),
+      product.SupplyLimit
+    );
+  let ratio =
+    conversions[product.Stockcode]?.conversions[
+      normalisedIngredient?.unit || "unit"
+    ];
+  const sameUnit = isConvertible(normalisedProduct, normalisedIngredient);
+  if (!ratio && sameUnit) {
+    ratio = normalisedProduct?.qty || 1;
+  }
+
+  const estimatedAmount = ratio
+    ? (normalisedIngredient?.qty || 0) / ratio
+    : ["ml", "g"].includes(normalisedIngredient?.unit || "")
+    ? 1
+    : normalisedIngredient?.qty || 1;
+
+  const requiredAmount = getDefaultQty(estimatedAmount);
+
+  return { requiredAmount, ratio };
+}

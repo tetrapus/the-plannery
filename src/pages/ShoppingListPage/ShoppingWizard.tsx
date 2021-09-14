@@ -1,5 +1,4 @@
 import { css } from "@emotion/core";
-import { CardStyle } from "components/atoms/Card";
 import { Flex } from "components/atoms/Flex";
 import { Spinner } from "components/atoms/Spinner";
 import { Stack } from "components/atoms/Stack";
@@ -12,6 +11,11 @@ import React, { ChangeEvent, useContext, useEffect, useState } from "react";
 import { ProductOption } from "./ProductOption";
 import { LinkButton } from "../../components/atoms/LinkButton";
 import { TextButton } from "../../components/atoms/TextButton";
+import { ExternalLink } from "../../components/atoms/ExternalLink";
+import { ErrorBanner } from "../../components/atoms/ErrorBanner";
+import { Darkmode } from "components/styles/Darkmode";
+import { AnimatedIconButton } from "components/atoms/AnimatedIconButton";
+import paperbag from "animations/paper-bag.json";
 
 interface Props {
   selectedIngredient?: Ingredient;
@@ -20,7 +24,7 @@ interface Props {
 
 export function ShoppingWizard({ selectedIngredient, onSelection }: Props) {
   const [searchTerm, setSearchTerm] = useState("");
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState<boolean | "searchFailed">(false);
   const [searchResults, setSearchResults] = useState<{ Products: Product[] }[]>(
     []
   );
@@ -38,10 +42,15 @@ export function ShoppingWizard({ selectedIngredient, onSelection }: Props) {
 
   useEffect(() => {
     if (loading) {
-      (document as any).woolies.search(searchTerm).then((result: any) => {
-        setSearchResults(result.Products || []);
-        setLoading(false);
-      });
+      (document as any).woolies
+        .search(searchTerm)
+        .then((result: any) => {
+          setSearchResults(result.Products || []);
+          setLoading(false);
+        })
+        .catch(() => {
+          setLoading("searchFailed");
+        });
     }
   }, [loading, searchTerm]);
 
@@ -110,18 +119,29 @@ export function ShoppingWizard({ selectedIngredient, onSelection }: Props) {
 
   return (
     <Stack
-      css={css(CardStyle, {
+      css={css({
         width: 400,
-        borderRadius: "3px 0px 0px 0px",
         height: "100vh",
         position: "sticky",
         top: 0,
         zIndex: 2,
+        border: "1px solid #dedede",
+        borderRight: "none",
+        background: "white",
+        [Darkmode]: {
+          borderColor: "black",
+          background: "black",
+        },
       })}
     >
       {!selectedIngredient ? (
         (document as any).woolies ? (
           <Stack>
+            <AnimatedIconButton
+              animation={paperbag}
+              iconSize={128}
+              autoplay={true}
+            />
             <h2 css={{ margin: "8px 16px", textAlign: "center" }}>
               Choose an ingredient to start shopping
             </h2>
@@ -138,23 +158,23 @@ export function ShoppingWizard({ selectedIngredient, onSelection }: Props) {
             </h2>
             <div>
               1. Download and install{" "}
-              <a
+              <ExternalLink
                 href="https://www.tampermonkey.net/"
                 target="_blank"
                 rel="noopener noreferrer"
                 css={{ fontWeight: "bold", color: "#007fed" }}
               >
                 TamperMonkey
-              </a>
+              </ExternalLink>
             </div>
             <div>
               2. Install the{" "}
-              <a
+              <ExternalLink
                 href="/woolies.user.js"
                 css={{ fontWeight: "bold", color: "#007fed" }}
               >
                 Plannery x Woolworths Integration Plugin
-              </a>
+              </ExternalLink>
               .
             </div>
             <div>3. Refresh the page.</div>
@@ -188,7 +208,20 @@ export function ShoppingWizard({ selectedIngredient, onSelection }: Props) {
             </Flex>
           </form>
           <Stack css={{ overflow: "scroll" }}>
-            {loading ? (
+            {loading === "searchFailed" ? (
+              <ErrorBanner>
+                Couldn't load search results. Make sure you are logged in to{" "}
+                <ExternalLink
+                  href="https://www.woolworths.com.au/"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  css={{ fontWeight: "bold", color: "#007fed" }}
+                >
+                  Woolworths
+                </ExternalLink>{" "}
+                before using this feature.
+              </ErrorBanner>
+            ) : loading ? (
               <Spinner />
             ) : (
               searchResults

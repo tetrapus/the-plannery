@@ -33,7 +33,11 @@
         method: method,
         onload: (response) => {
           console.log(response);
-          resolve(JSON.parse(response.responseText || "null"));
+          try {
+            resolve(JSON.parse(response.responseText || "null"));
+          } catch {
+            reject(response);
+          }
         },
         onerror: (response) => reject(response),
         onabort: (response) => reject(response),

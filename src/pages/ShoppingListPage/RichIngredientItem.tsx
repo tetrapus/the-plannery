@@ -18,10 +18,12 @@ interface Props {
   onSearch: () => void;
   pantryItem?: PantryItem;
   selected: boolean;
-  productOptions: Product[];
+  product?: Product;
   trolley: TrolleyItem[];
   conversions: ProductConversions;
-  onAddToCart: () => void;
+  requiredAmount?: number;
+  ratio?: number;
+  onAddToCart: (quantity: number) => Promise<void>;
 }
 
 export function RichIngredientItem({
@@ -29,24 +31,24 @@ export function RichIngredientItem({
   onSearch,
   pantryItem,
   selected,
-  productOptions,
+  product,
   trolley,
   conversions,
+  requiredAmount,
+  ratio,
   onAddToCart,
 }: Props) {
-  const product = productOptions[0];
-
   useEffect(() => {
     const listener = (event: KeyboardEvent) => {
       if (selected && event.key === "Enter") {
-        if (!productOptions.length) {
+        if (!product) {
           onSearch();
         }
       }
     };
     document.addEventListener("keydown", listener);
     return () => document.removeEventListener("keydown", listener);
-  }, [productOptions, onSearch, selected]);
+  }, [product, onSearch, selected]);
 
   const neededQty = (ingredient.qty || 0) - (pantryItem?.ingredient.qty || 0);
 
@@ -166,13 +168,14 @@ export function RichIngredientItem({
           gridArea: "Product",
         }}
       >
-        {product ? (
+        {product && conversions ? (
           <ProductCard
             product={product}
             ingredient={{ ...ingredient, qty: neededQty }}
             trolley={trolley}
             selected={selected}
-            conversions={conversions}
+            ratio={ratio}
+            defaultQuantity={requiredAmount}
             onAddToCart={onAddToCart}
           />
         ) : null}
