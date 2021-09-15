@@ -84,7 +84,7 @@ export function RecipeCard({ recipe, dismiss, select, ...rest }: Props) {
   const pantry = useContext(PantryContext);
   const ref = useRef<HTMLDivElement>(null);
 
-  const [touchOffset, setTouchOffset] = useState<
+  const [touchOffset] = useState<
     { origin: number; value: number } | undefined
   >();
 
@@ -228,6 +228,7 @@ export function RecipeCard({ recipe, dismiss, select, ...rest }: Props) {
                   ? touchOffset.value
                   : 0,
             }}
+            /*
             onTouchStart={(event) => {
               if (window.innerWidth > 480) {
                 setTouchOffset({ origin: event.touches[0].clientX, value: 0 });
@@ -267,6 +268,7 @@ export function RecipeCard({ recipe, dismiss, select, ...rest }: Props) {
               setTouchOffset(undefined);
               console.log(touchOffset);
             }}
+            */
           >
             <Stack
               css={{
