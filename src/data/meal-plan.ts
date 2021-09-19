@@ -9,6 +9,7 @@ export interface MealPlanItem {
   by: string;
   added: firebase.firestore.Timestamp;
   planId?: number;
+  order?: number;
 }
 export interface MealPlan {
   recipes: MealPlanItem[];

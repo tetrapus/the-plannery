@@ -3,6 +3,7 @@ import { Switch, Route } from "react-router-dom";
 import { BrowsePage } from "./BrowsePage/BrowsePage";
 import { HistoryPage } from "./HistoryPage/HistoryPage";
 import HomePage from "./HomePage/HomePage";
+import { PrepPage } from "./PrepPage/PrepPage";
 import { RecipePage } from "./RecipePage/RecipePage";
 import { ShoppingListPage } from "./ShoppingListPage/ShoppingListPage";
 
@@ -10,7 +11,7 @@ export function Planner() {
   return (
     <Switch>
       <Route path="/recipes/:slug">
-        <RecipePage></RecipePage>
+        <RecipePage />
       </Route>
       <Route path="/history">
         <HistoryPage />
@@ -21,8 +22,11 @@ export function Planner() {
       <Route path="/browse">
         <BrowsePage />
       </Route>
+      <Route path="/prep">
+        <PrepPage />
+      </Route>
       <Route path="/">
-        <HomePage></HomePage>
+        <HomePage />
       </Route>
     </Switch>
   );

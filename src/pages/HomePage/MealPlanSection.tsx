@@ -1,7 +1,12 @@
-import { faCheck, faTimes } from "@fortawesome/free-solid-svg-icons";
-import React, { useContext } from "react";
+import {
+  faCheck,
+  faMinus,
+  faPlus,
+  faTimes,
+} from "@fortawesome/free-solid-svg-icons";
+import React, { useContext, useState } from "react";
 import { AuthStateContext } from "../../data/auth-state";
-import { MealPlan } from "../../data/meal-plan";
+import { MealPlan, MealPlanItem } from "../../data/meal-plan";
 import { PantryContext } from "../../data/pantry";
 import { getRecipe, Recipe } from "../../data/recipes";
 import { RecipeList } from "../../components/organisms/RecipeList";
@@ -13,6 +18,11 @@ import { Flex } from "components/atoms/Flex";
 import { Darkmode } from "components/styles/Darkmode";
 import { Stack } from "components/atoms/Stack";
 import { Breakpoint } from "../../components/styles/Breakpoint";
+import reorder from "animations/reorder.json";
+import prepare from "animations/prepare.json";
+import { AnimatedIconButton } from "../../components/atoms/AnimatedIconButton";
+import firebase from "firebase";
+import { Link } from "react-router-dom";
 
 interface Props {
   mealPlan: MealPlan;
@@ -22,6 +32,7 @@ interface Props {
 export function MealPlanSection({ mealPlan, recipes }: Props) {
   const { household, insertMeta } = useContext(AuthStateContext);
   const pantry = useContext(PantryContext);
+  const [mode, setMode] = useState<"reorder" | undefined>();
 
   if (!mealPlan.recipes.length) {
     return null;
@@ -72,82 +83,109 @@ export function MealPlanSection({ mealPlan, recipes }: Props) {
       [] as any[]
     );
 
+  const queuedRecipes = mealPlan.recipes
+    .filter((item) => item.order)
+    .sort((a, b) => (a.order as number) - (b.order as number));
+
+  const sections: { [plan: string]: MealPlanItem[] } = {
+    ...(queuedRecipes.length ? { "Queued Recipes": queuedRecipes } : {}),
+    ...Object.fromEntries(
+      plans.map((plan) => {
+        return [
+          plans.length === 1 || plan !== household?.planId ? "Planned" : "",
+          mealPlan.recipes.filter(
+            (mealPlanItem) =>
+              (mealPlanItem.planId || 0) === plan && !mealPlanItem.order
+          ),
+        ];
+      })
+    ),
+  };
+
   return (
     <>
       <Flex css={{ width: "100%" }}>
-        <h1 css={{ marginLeft: 8, flexGrow: 1 }}>Your meal plan </h1>
-        {showNewPlanButton ? (
+        <h1
+          css={{
+            marginLeft: 8,
+            flexGrow: 1,
+            display: "flex",
+            alignItems: "center",
+          }}
+        >
+          Your meal plan
+          {!mode ? (
+            <AnimatedIconButton
+              animation={reorder}
+              iconSize={40}
+              onClick={() => setMode("reorder")}
+            />
+          ) : null}
+          {mealPlan.recipes && (
+            <Link to="/prep">
+              <AnimatedIconButton animation={prepare} iconSize={40} />
+            </Link>
+          )}
+        </h1>
+        {!mode ? (
+          <>
+            {showNewPlanButton ? (
+              <TextButton
+                css={{ margin: "auto", marginRight: 8 }}
+                onClick={() => {
+                  household?.ref.set(
+                    { planId: (household?.planId || 0) + 1 },
+                    { merge: true }
+                  );
+                }}
+              >
+                Start a New Plan
+              </TextButton>
+            ) : null}
+          </>
+        ) : (
           <TextButton
             css={{ margin: "auto", marginRight: 8 }}
-            onClick={() => {
-              household?.ref.set(
-                { planId: (household?.planId || 0) + 1 },
-                { merge: true }
-              );
-            }}
+            onClick={() => setMode(undefined)}
           >
-            Start a New Plan
+            Done
           </TextButton>
-        ) : null}
+        )}
       </Flex>
       <Stack>
-        {plans.map((plan) => {
-          const planRecipes = mealPlan.recipes.filter(
-            (mealPlanItem) => (mealPlanItem.planId || 0) === plan
-          );
-
+        {Object.entries(sections).map(([plan, planRecipes]) => {
           return (
             <div
               key={plan}
               css={{
-                ":not(:last-child)": {
-                  borderBottom: "1px solid #dedede",
-                  [Darkmode]: {
-                    borderBottom: "1px solid #333",
-                  },
-                  paddingBottom: 8,
-                  marginBottom: 24,
-                  [Breakpoint.TABLET]: {
-                    marginBottom: 8,
-                  },
+                borderTop: "1px solid #dedede",
+                [Darkmode]: {
+                  borderTop: "1px solid #333",
+                },
+                paddingTop: 24,
+                marginTop: 8,
+                [Breakpoint.TABLET]: {
+                  paddingTop: 8,
                 },
               }}
             >
-              {planRecipes.length ? (
-                <RecipeList
-                  recipes={planRecipes
-                    .map((mealPlanItem) =>
-                      getRecipe(recipes, mealPlanItem.slug)
-                    )
-                    .filter((x): x is Recipe => x !== undefined)}
-                  dismiss={{
-                    icon: faTimes,
-                    onClick: (recipe) => (e) => {
-                      mealPlan.recipes
-                        .find(
-                          (mealPlanItem) => mealPlanItem.slug === recipe.slug
-                        )
-                        ?.ref.delete();
-                      e.preventDefault();
+              {plan && (
+                <div
+                  css={{
+                    position: "absolute",
+                    transform: "translateY(-36px)",
+                    display: "inline-block",
+                    padding: "2px 4px",
+                    background: "#f5f5f5",
+                    [Darkmode]: {
+                      background: "#222",
                     },
                   }}
-                  select={{
-                    icon: faCheck,
-                    onClick: (recipe) => (e) => {
-                      household?.ref
-                        .collection("history")
-                        .add({ ...insertMeta, slug: recipe.slug });
-                      onClose(recipe);
-                      mealPlan.recipes
-                        .find(
-                          (mealPlanItem) => mealPlanItem.slug === recipe.slug
-                        )
-                        ?.ref.delete();
-                      e.preventDefault();
-                    },
-                  }}
-                ></RecipeList>
-              ) : (
+                >
+                  {plan}
+                </div>
+              )}
+              {!planRecipes.length && plan === "" ? (
                 <Stack
                   css={{
                     margin: 8,
@@ -176,6 +214,93 @@ export function MealPlanSection({ mealPlan, recipes }: Props) {
                     </div>
                   </div>
                 </Stack>
+              ) : (
+                <RecipeList
+                  recipes={planRecipes
+                    .map((mealPlanItem) =>
+                      getRecipe(recipes, mealPlanItem.slug)
+                    )
+                    .filter((x): x is Recipe => x !== undefined)}
+                  dismiss={
+                    mode === "reorder"
+                      ? plan === "Queued Recipes"
+                        ? {
+                            icon: faMinus,
+                            onClick: (recipe) => (e) => {
+                              mealPlan.recipes
+                                .find(
+                                  (mealPlanItem) =>
+                                    mealPlanItem.slug === recipe.slug
+                                )
+                                ?.ref.set(
+                                  {
+                                    order:
+                                      firebase.firestore.FieldValue.delete(),
+                                  },
+                                  { merge: true }
+                                );
+                              e.preventDefault();
+                            },
+                          }
+                        : undefined
+                      : {
+                          icon: faTimes,
+                          onClick: (recipe) => (e) => {
+                            mealPlan.recipes
+                              .find(
+                                (mealPlanItem) =>
+                                  mealPlanItem.slug === recipe.slug
+                              )
+                              ?.ref.delete();
+                            e.preventDefault();
+                          },
+                        }
+                  }
+                  select={
+                    mode === "reorder"
+                      ? plan !== "Queued Recipes"
+                        ? {
+                            icon: faPlus,
+                            onClick: (recipe) => (e) => {
+                              mealPlan.recipes
+                                .find(
+                                  (mealPlanItem) =>
+                                    mealPlanItem.slug === recipe.slug
+                                )
+                                ?.ref.set(
+                                  {
+                                    order:
+                                      Math.max(
+                                        0,
+                                        ...mealPlan.recipes.map(
+                                          (recipe) => recipe.order || 0
+                                        )
+                                      ) + 1,
+                                  },
+                                  { merge: true }
+                                );
+                              e.preventDefault();
+                            },
+                          }
+                        : undefined
+                      : {
+                          icon: faCheck,
+                          onClick: (recipe) => (e) => {
+                            household?.ref
+                              .collection("history")
+                              .add({ ...insertMeta, slug: recipe.slug });
+                            onClose(recipe);
+                            mealPlan.recipes
+                              .find(
+                                (mealPlanItem) =>
+                                  mealPlanItem.slug === recipe.slug
+                              )
+                              ?.ref.delete();
+                            e.preventDefault();
+                          },
+                        }
+                  }
+                ></RecipeList>
               )}
             </div>
           );

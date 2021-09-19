@@ -20,6 +20,7 @@ import styled from "@emotion/styled";
 import { Darkmode } from "../../components/styles/Darkmode";
 import { Breakpoint } from "../../components/styles/Breakpoint";
 import { ImageContent } from "../../components/atoms/ImageContent";
+import { ExternalLink } from "../../components/atoms/ExternalLink";
 
 interface Props {
   recipe: Recipe;
@@ -95,18 +96,11 @@ export default function RecipeTemplate({ recipe }: Props) {
       >
         <Section>
           <Stack css={{ alignItems: `center` }}>
-            <a
-              href={recipe.url}
-              css={{
-                color: "#2259b5",
-                textDecoration: "none",
-                [Darkmode]: { color: "#56c7ff" },
-              }}
-            >
+            <ExternalLink href={recipe.url}>
               <h1 css={{ margin: "12px 24px", fontWeight: "bold" }}>
                 {recipe.name}
               </h1>
-            </a>
+            </ExternalLink>
             <LikeButton
               recipe={recipe}
               css={{ position: "absolute", top: 16, right: 16, fontSize: 24 }}

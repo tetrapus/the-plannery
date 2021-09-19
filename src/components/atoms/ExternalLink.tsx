@@ -1,3 +1,4 @@
+import { Darkmode } from "components/styles/Darkmode";
 import React from "react";
 
 export function ExternalLink(
@@ -8,10 +9,14 @@ export function ExternalLink(
 ) {
   return (
     <a
-      href="https://www.woolworths.com.au/"
       target="_blank"
       rel="noopener noreferrer"
-      css={{ fontWeight: "bold", color: "#007fed" }}
+      css={{
+        fontWeight: "bold",
+        color: "#2259b5",
+        textDecoration: "none",
+        [Darkmode]: { color: "#56c7ff" },
+      }}
       {...props}
     >
       {props.children}
