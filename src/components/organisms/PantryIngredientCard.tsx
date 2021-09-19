@@ -128,6 +128,7 @@ export function PantryIngredientCard({ ingredient, pantryItem }: Props) {
       status={`${displayPantryAmount ? `${displayPantryAmount.qty}/` : ""}${
         displayAmount?.qty || ""
       } ${displayUnit(displayAmount?.unit)}`}
+      pinned={!pantryItem?.ingredient.qty || !pantryItem?.ingredient.unit}
       done={!!complete}
       busy={busy}
       onClick={async () => {

@@ -81,6 +81,7 @@ export default function IngredientChecklist({
                 status={`${displayAmount?.qty || ""} ${displayUnit(
                   displayAmount?.unit
                 )}`}
+                pinned={ingredientsExpanded$.value}
                 done={
                   !!usedIngredients &&
                   usedIngredients.includes(ingredient.type.name)

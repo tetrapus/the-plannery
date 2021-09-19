@@ -8,6 +8,7 @@ import { Darkmode } from "../styles/Darkmode";
 interface Props {
   ingredient: Ingredient;
   status?: string;
+  pinned: boolean;
   action?: React.ReactElement;
   done: boolean;
   busy: boolean;
@@ -17,6 +18,7 @@ interface Props {
 export default function IngredientCard({
   ingredient,
   status,
+  pinned,
   action,
   done,
   busy,
@@ -24,12 +26,16 @@ export default function IngredientCard({
 }: Props) {
   return (
     <Stack
-      css={{
-        borderBottom: "1px solid #dedede",
-        [Darkmode]: {
-          borderBottom: "1px solid #444",
-        },
-      }}
+      css={
+        !pinned
+          ? {
+              borderBottom: "1px solid #dedede",
+              [Darkmode]: {
+                borderBottom: "1px solid #444",
+              },
+            }
+          : {}
+      }
     >
       <Flex
         css={{
