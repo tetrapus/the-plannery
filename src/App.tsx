@@ -111,7 +111,7 @@ function App() {
 
   const trash = [...(trashCollection || []), ...(trashBlob || [])];
 
-  const pantry = useFirestore(
+  const pantryCollection = useFirestore(
     household,
     (doc) => doc.ref.collection("pantry"),
     (snapshot) => ({
@@ -120,6 +120,25 @@ function App() {
       ),
     })
   );
+
+  const pantryBlob = useFirestoreDoc(
+    household,
+    (doc) => doc.ref.collection("blobs").doc("pantry"),
+    (snapshot) => ({
+      items: Object.values(
+        (snapshot.data() || {}) as {
+          [key: string]: { [key: string]: PantryItem };
+        }
+      )
+        .map((item) => Object.values(item))
+        .flat(1),
+    })
+  );
+
+  const pantry =
+    pantryCollection !== undefined && pantryBlob !== undefined
+      ? { items: [...pantryCollection.items, ...pantryBlob.items] }
+      : undefined;
 
   const mealPlan: MealPlan | undefined = useFirestore(
     household,

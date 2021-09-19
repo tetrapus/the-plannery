@@ -3,7 +3,7 @@ import { createContext } from "react";
 import Ingredient, { isSameIngredient } from "./ingredients";
 
 export interface PantryItem {
-  ref: firebase.firestore.DocumentReference;
+  ref?: firebase.firestore.DocumentReference;
   ingredient: Ingredient;
   by: string;
 }

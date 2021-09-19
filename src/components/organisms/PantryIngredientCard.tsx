@@ -8,6 +8,7 @@ import Ingredient, {
 import { PantryItem } from "../../data/pantry";
 import { AuthStateContext } from "../../data/auth-state";
 import IngredientCard from "../molecules/IngredientCard";
+import firebase from "firebase";
 
 interface Props {
   ingredient: Ingredient;
@@ -33,43 +34,91 @@ export function PantryIngredientCard({ ingredient, pantryItem }: Props) {
     if (!household?.ref || pantryItem === null) {
       return;
     }
-    if (pantryItem) {
-      if (complete) {
-        if (pantryItem.ingredient.qty) {
-          if (ingredient.qty && ingredient.qty < pantryItem.ingredient.qty) {
-            await pantryItem.ref.set({
-              ingredient: {
-                qty: pantryItem.ingredient.qty - ingredient.qty,
-                type: ingredient.type,
-                unit: ingredient.unit,
+    const updatePantryBlob = (ingredient: Ingredient) =>
+      household.ref
+        .collection("blobs")
+        .doc("pantry")
+        .set(
+          {
+            [ingredient.type.id]: {
+              [JSON.stringify(ingredient.unit)]: {
+                ingredient: {
+                  qty: ingredient.qty,
+                  type: ingredient.type,
+                  unit: ingredient.unit,
+                },
+                ...insertMeta,
               },
-              ...insertMeta,
-            });
+            },
+          },
+          { merge: true }
+        );
+    const deletePantryBlob = (ingredient: Ingredient) =>
+      household.ref
+        .collection("blobs")
+        .doc("pantry")
+        .set(
+          {
+            [ingredient.type.id]: {
+              [JSON.stringify(ingredient.unit)]:
+                firebase.firestore.FieldValue.delete(),
+            },
+          },
+          { merge: true }
+        );
+    if (pantryItem) {
+      if (pantryItem.ref) {
+        if (complete) {
+          if (pantryItem.ingredient.qty) {
+            if (ingredient.qty && ingredient.qty < pantryItem.ingredient.qty) {
+              await pantryItem.ref.set({
+                ingredient: {
+                  qty: pantryItem.ingredient.qty - ingredient.qty,
+                  type: ingredient.type,
+                  unit: ingredient.unit,
+                },
+                ...insertMeta,
+              });
+            } else {
+              await pantryItem.ref.delete();
+            }
           } else {
             await pantryItem.ref.delete();
           }
         } else {
-          await pantryItem.ref.delete();
+          await pantryItem.ref.set({
+            ingredient: {
+              qty: ingredient.qty,
+              type: ingredient.type,
+              unit: ingredient.unit,
+            },
+            ...insertMeta,
+          });
         }
       } else {
-        await pantryItem.ref.set({
-          ingredient: {
-            qty: ingredient.qty,
-            type: ingredient.type,
-            unit: ingredient.unit,
-          },
-          ...insertMeta,
-        });
+        if (complete) {
+          if (pantryItem.ingredient.qty) {
+            // If the item is already completed, deduct the ingredient amount from the pantry item
+            if (ingredient.qty && ingredient.qty < pantryItem.ingredient.qty) {
+              await updatePantryBlob({
+                ...ingredient,
+                qty: pantryItem.ingredient.qty - ingredient.qty,
+              });
+            } else {
+              // That means we delete it if the ingredient qty exceeds what we have in the pantry.
+              await deletePantryBlob(pantryItem.ingredient);
+            }
+          } else {
+            // If qty isn't specified, assume we don't have it anymore.
+            await deletePantryBlob(pantryItem.ingredient);
+          }
+        } else {
+          // If we haven't finished the pantry item, set the value to the ingredient amount.
+          await updatePantryBlob(ingredient);
+        }
       }
     } else {
-      await household.ref.collection("pantry").add({
-        ingredient: {
-          qty: ingredient.qty,
-          type: ingredient.type,
-          unit: ingredient.unit,
-        },
-        ...insertMeta,
-      });
+      await updatePantryBlob(ingredient);
     }
   };
 
@@ -90,7 +139,8 @@ export function PantryIngredientCard({ ingredient, pantryItem }: Props) {
       }}
       action={
         <>
-          {pantryItem && (ingredient.qty || ingredient.unit) ? (
+          {pantryItem &&
+          (pantryItem.ingredient.qty || pantryItem.ingredient.unit) ? (
             <FontAwesomeIcon
               icon={faThumbtack}
               css={{
@@ -105,10 +155,35 @@ export function PantryIngredientCard({ ingredient, pantryItem }: Props) {
                 e.stopPropagation();
                 setBusy(true);
                 try {
-                  await pantryItem?.ref.update({
-                    "ingredient.qty": null,
-                    "ingredient.unit": null,
-                  });
+                  if (pantryItem) {
+                    if (pantryItem.ref) {
+                      await pantryItem.ref.update({
+                        "ingredient.qty": null,
+                        "ingredient.unit": null,
+                      });
+                    } else {
+                      household?.ref
+                        .collection("blobs")
+                        .doc("pantry")
+                        .set(
+                          {
+                            [ingredient.type.id]: {
+                              [JSON.stringify(ingredient.unit)]:
+                                firebase.firestore.FieldValue.delete(),
+                              [JSON.stringify(null)]: {
+                                ingredient: {
+                                  ...ingredient,
+                                  qty: null,
+                                  unit: null,
+                                },
+                                ...insertMeta,
+                              },
+                            },
+                          },
+                          { merge: true }
+                        );
+                    }
+                  }
                 } catch {}
                 setBusy(false);
               }}

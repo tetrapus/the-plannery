@@ -226,7 +226,7 @@ export default function RecipeSearchSettingsSection({
               </h3> */ null}
               {sectionPreferences.map(
                 ({ id, preference, pinned, ref }, idx) => (
-                  <Flex css={{ alignItems: "center" }}>
+                  <Flex css={{ alignItems: "center" }} key={ref.id}>
                     {options?.find((option) => option.value === id)?.fullLabel}
                     <Select
                       css={{

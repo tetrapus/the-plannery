@@ -12,10 +12,10 @@ import { ShoppingWizard } from "./ShoppingWizard";
 import { Price } from "components/atoms/Price";
 import { Darkmode } from "components/styles/Darkmode";
 import { Breakpoint } from "components/styles/Breakpoint";
-import { TextButton } from "../../components/atoms/TextButton";
 import { convertIngredientToProduct, Product } from "data/product";
 import { AnimatedIconButton } from "components/atoms/AnimatedIconButton";
 import trolleyIcon from "animations/trolley.json";
+import { ExternalLink } from "../../components/atoms/ExternalLink";
 
 interface Props {
   ingredients: Ingredient[];
@@ -334,14 +334,12 @@ export function ShoppingListTemplate({ ingredients }: Props) {
                   }
                 )}
               </Stack>
-              <TextButton
+              <ExternalLink
                 css={{ margin: "8px auto" }}
-                onClick={() => {
-                  (window.location as any) = "https://woolworths.com.au/";
-                }}
+                href="https://woolworths.com.au/checkout"
               >
                 View Cart
-              </TextButton>
+              </ExternalLink>
             </Stack>
           );
         })}

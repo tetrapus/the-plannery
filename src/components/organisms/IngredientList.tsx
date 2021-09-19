@@ -30,13 +30,24 @@ export function IngredientList({ ingredients, sortKey, ...rest }: Props) {
           ingredient,
           inPantry: inPantry(ingredient, pantry),
         }))
+        .map((ingredient) => ({
+          ...ingredient,
+          isStaple:
+            ingredient.inPantry &&
+            !ingredient.inPantry.ingredient.qty &&
+            !ingredient.inPantry.ingredient.unit,
+        }))
         .sort((a, b) =>
-          enoughInPantry(a.ingredient, a.inPantry) ===
-          enoughInPantry(b.ingredient, b.inPantry)
-            ? sortKey
-              ? sortKey(a.ingredient) - sortKey(b.ingredient)
-              : a.ingredient.type.name.localeCompare(b.ingredient.type.name)
-            : enoughInPantry(a.ingredient, a.inPantry)
+          a.isStaple === b.isStaple
+            ? enoughInPantry(a.ingredient, a.inPantry) ===
+              enoughInPantry(b.ingredient, b.inPantry)
+              ? sortKey
+                ? sortKey(a.ingredient) - sortKey(b.ingredient)
+                : a.ingredient.type.name.localeCompare(b.ingredient.type.name)
+              : enoughInPantry(a.ingredient, a.inPantry)
+              ? 1
+              : -1
+            : a.isStaple
             ? 1
             : -1
         )
