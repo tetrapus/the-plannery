@@ -30,9 +30,14 @@ initFirebase();
 function App() {
   const systemDarkMode = window.matchMedia("(prefers-color-scheme: dark)");
   const [darkmode, setDarkMode] = useState(systemDarkMode.matches);
-  systemDarkMode.addEventListener("change", (event) => {
-    setDarkMode(event.matches);
-  });
+  useEffect(() => {
+    if (!systemDarkMode.addEventListener) {
+      return;
+    }
+    systemDarkMode.addEventListener("change", (event) => {
+      setDarkMode(event.matches);
+    });
+  }, [systemDarkMode, setDarkMode]);
 
   const currentUser = useSubscription<firebase.User | null>((setState) =>
     firebase.auth().onAuthStateChanged((user) => setState(user))

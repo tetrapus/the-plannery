@@ -26,6 +26,7 @@ export function TimerText({
           startTime: Date.now(),
         });
       }}
+      css={{ cursor: "pointer" }}
     >
       {text}
     </b>
