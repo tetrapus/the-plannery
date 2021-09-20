@@ -136,10 +136,18 @@ export function ShoppingListTemplate({ ingredients }: Props) {
         preferredProducts[ingredient.type.name]?.options || {}
       )[0];
 
+      const requiredQty = ingredient.qty
+        ? pantryItem
+          ? pantryItem.ingredient.qty
+            ? Math.max(ingredient.qty - pantryItem.ingredient.qty, 0)
+            : 0
+          : ingredient.qty || 0
+        : 0;
+
       let requiredAmount, ratio;
       if (ingredient && preferredProduct && productConversions) {
         ({ requiredAmount, ratio } = convertIngredientToProduct(
-          ingredient,
+          { ...ingredient, qty: requiredQty },
           preferredProduct,
           productConversions
         ));
