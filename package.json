@@ -28,6 +28,7 @@
     "react-firebaseui": "5.0.2",
     "react-lottie": "^1.2.3",
     "react-markdown": "^4.3.1",
+    "react-qr-barcode-scanner": "^1.0.6",
     "react-router-dom": "^5.2.0",
     "react-scripts": "3.4.3",
     "react-select": "^3.1.0",

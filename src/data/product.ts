@@ -1,7 +1,7 @@
 import firebase from "firebase";
 import Ingredient, { normaliseIngredient } from "./ingredients";
 
-export interface Product {
+export interface RichProduct {
   TileID: number;
   Stockcode: number;
   Barcode: string;
@@ -90,12 +90,46 @@ export interface Product {
   };
   HasProductSubs: boolean;
   IsSponsoredAd: boolean;
-  AdID: null;
-  AdIndex: null;
   IsMarketProduct: boolean;
   ThirdPartyProductInfo: null;
   MarketFeatures: null;
   MarketSpecifications: null;
+}
+
+export interface BaseProduct {
+  Unit: string;
+  MinimumQuantity: number;
+  SupplyLimit: number;
+  Stockcode: number;
+  PackageSize?: string;
+}
+export interface Product extends BaseProduct {
+  Barcode: string;
+  CupMeasure: string;
+  CupPrice: number;
+  CupString: string;
+  HasCupPrice: boolean;
+  IsAvailable: boolean;
+  IsForCollection: boolean;
+  IsForDelivery: boolean;
+  IsForExpress: boolean;
+  IsInStock: boolean;
+  IsInTrolley: boolean;
+  IsPmDelivery: boolean;
+  IsPurchasable: boolean;
+  IsRestrictedByDeliveryMethod: boolean;
+  LargeImageFile: string;
+  MediumImageFile: string;
+  MinimumQuantity: number;
+  Name: string;
+  PackageSize: string;
+  Price: number;
+  QuantityInTrolley: number;
+  SmallImageFile: string;
+  Stockcode: number;
+  SupplyLimit: number;
+  Unit: string;
+  UnitWeightInGrams: number;
 }
 
 export type TrolleyItem = Product & {
@@ -114,10 +148,10 @@ export type TrolleyItem = Product & {
   BundleProductQuantity: number;
 };
 
-export function normaliseProduct(product: Product, ingredient: Ingredient) {
+export function normaliseProduct(product: BaseProduct, ingredient: Ingredient) {
   const [qty, unit] =
     product.Unit === "Each"
-      ? product.PackageSize.match(/^(\d+)(.+)$/)?.slice(1, 3) || ["1", "each"]
+      ? product?.PackageSize?.match(/^(\d+)(.+)$/)?.slice(1, 3) || ["1", "each"]
       : ["1", product.Unit.toLowerCase()];
   return normaliseIngredient({
     ...ingredient,
@@ -147,7 +181,7 @@ export interface ProductConversions {
 
 export function convertIngredientToProduct(
   ingredient: Ingredient,
-  product: Product,
+  product: BaseProduct, //Product,
   conversions: ProductConversions
 ) {
   const normalisedIngredient = normaliseIngredient(ingredient);
@@ -179,4 +213,80 @@ export function convertIngredientToProduct(
   const requiredAmount = getDefaultQty(estimatedAmount);
 
   return { requiredAmount, ratio };
+}
+
+export function trimProduct(product: Product): Product {
+  const {
+    Stockcode,
+    Barcode,
+    CupPrice,
+    CupMeasure,
+    CupString,
+    HasCupPrice,
+    Price,
+    Name,
+    SmallImageFile,
+    MediumImageFile,
+    LargeImageFile,
+    QuantityInTrolley,
+    Unit,
+    MinimumQuantity,
+    IsInTrolley,
+    SupplyLimit,
+    IsInStock,
+    PackageSize,
+    IsPmDelivery,
+    IsForCollection,
+    IsForDelivery,
+    IsForExpress,
+    UnitWeightInGrams,
+
+    IsAvailable,
+    IsPurchasable,
+
+    IsRestrictedByDeliveryMethod,
+  } = product;
+  return {
+    Stockcode,
+    Barcode,
+    CupPrice,
+    CupMeasure,
+    CupString,
+    HasCupPrice,
+    Price,
+    Name,
+    SmallImageFile,
+    MediumImageFile,
+    LargeImageFile,
+    QuantityInTrolley,
+    Unit,
+    MinimumQuantity,
+    IsInTrolley,
+    SupplyLimit,
+    IsInStock,
+    PackageSize,
+    IsPmDelivery,
+    IsForCollection,
+    IsForDelivery,
+    IsForExpress,
+    UnitWeightInGrams,
+
+    IsAvailable,
+    IsPurchasable,
+
+    IsRestrictedByDeliveryMethod,
+  };
+}
+
+export function compact<T>(
+  obj: T
+): Partial<{ [Prop in keyof T]: Partial<T[Prop]> | T[Prop] }> {
+  return Object.fromEntries(
+    Object.entries(obj)
+      .filter(([key, value]) => value !== null)
+      .map(([key, value]) => [
+        key,
+        value instanceof Object ? compact(value) : value,
+      ])
+  ) as any;
 }

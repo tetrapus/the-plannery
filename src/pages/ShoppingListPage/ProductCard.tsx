@@ -11,12 +11,12 @@ import { useState } from "react";
 
 interface Props {
   product: Product;
-  ingredient: Ingredient;
-  trolley: TrolleyItem[];
-  selected: boolean;
+  ingredient?: Ingredient;
+  trolley?: TrolleyItem[];
+  selected?: boolean;
   defaultQuantity?: number;
   ratio?: number;
-  onAddToCart(quantity: number): Promise<void>;
+  onAddToCart?(quantity: number): Promise<void>;
 }
 
 export function ProductCard({
@@ -31,14 +31,14 @@ export function ProductCard({
   const [quantity, setQuantity] = useState<number | undefined>(defaultQuantity);
   useEffect(() => setQuantity(defaultQuantity), [defaultQuantity]);
 
-  const trolleyItem = trolley.find(
+  const trolleyItem = trolley?.find(
     (item) => item.Stockcode === product.Stockcode
   );
 
   const [loading, setLoading] = useState(false);
 
   const cartCallback = useCallback(async () => {
-    if (quantity === undefined) return;
+    if (quantity === undefined || onAddToCart === undefined) return;
     setLoading(true);
     await onAddToCart(quantity);
     setLoading(false);

@@ -1,4 +1,7 @@
 TODO:
+- product scanning
+- autopopulate pantry
+- pantry checkups
 - Recipe Suggestion
    - Pantry progress indicator
 - Meal planning

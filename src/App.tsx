@@ -181,7 +181,7 @@ function App() {
                   <AnimatedIconButton
                     onClick={() => setDarkMode(!darkmode)}
                     animation={darkmode ? sun : moon}
-                    css={{ marginLeft: "auto" }}
+                    css={{ marginLeft: "auto", marginTop: "auto" }}
                   />
                 </Stack>
               </Router>

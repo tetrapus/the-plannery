@@ -8,11 +8,11 @@ import { Darkmode } from "../styles/Darkmode";
 interface Props {
   ingredient: Ingredient;
   status?: string;
-  pinned: boolean;
+  pinned?: boolean;
   action?: React.ReactElement;
-  done: boolean;
-  busy: boolean;
-  onClick: (e: React.MouseEvent) => void;
+  done?: boolean;
+  busy?: boolean;
+  onClick?: (e: React.MouseEvent) => void;
 }
 
 export default function IngredientCard({

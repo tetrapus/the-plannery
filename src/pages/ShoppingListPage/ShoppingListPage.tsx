@@ -1,7 +1,4 @@
-import {
-  getIngredientsForMealPlan,
-  MealPlanContext,
-} from "../../data/meal-plan";
+import { MealPlanContext } from "../../data/meal-plan";
 import { ShoppingListTemplate } from "./ShoppingListTemplate";
 import React, { useContext } from "react";
 import { Spinner } from "../../components/atoms/Spinner";
@@ -18,7 +15,8 @@ export function ShoppingListPage() {
   if (!mealPlan || !recipes) return <Spinner />;
   return (
     <ShoppingListTemplate
-      ingredients={getIngredientsForMealPlan(recipes, mealPlan)}
+      recipes={recipes}
+      mealPlan={mealPlan}
     ></ShoppingListTemplate>
   );
 }

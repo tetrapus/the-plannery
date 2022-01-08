@@ -16,6 +16,9 @@ import { ErrorBanner } from "../../components/atoms/ErrorBanner";
 import { Darkmode } from "components/styles/Darkmode";
 import { AnimatedIconButton } from "components/atoms/AnimatedIconButton";
 import paperbag from "animations/paper-bag.json";
+import BarcodeScannerComponent from "react-qr-barcode-scanner";
+import { IconButton } from "../../components/atoms/IconButton";
+import { faBarcode } from "@fortawesome/free-solid-svg-icons";
 
 interface Props {
   selectedIngredient?: Ingredient;
@@ -25,6 +28,7 @@ interface Props {
 export function ShoppingWizard({ selectedIngredient, onSelection }: Props) {
   const [searchTerm, setSearchTerm] = useState("");
   const [loading, setLoading] = useState<boolean | "searchFailed">(false);
+  const [scanning, setScanning] = useState<boolean>(false);
   const [searchResults, setSearchResults] = useState<{ Products: Product[] }[]>(
     []
   );
@@ -199,6 +203,11 @@ export function ShoppingWizard({ selectedIngredient, onSelection }: Props) {
                 css={{ flexGrow: 1 }}
                 placeholder="Search Woolworths"
               ></TextInput>
+              <IconButton
+                icon={faBarcode}
+                onClick={() => setScanning(!scanning)}
+                css={{ height: "fit-content", margin: 4 }}
+              />
               <TextButton
                 onClick={() => setLoading(true)}
                 css={{ height: "fit-content", margin: 4 }}
@@ -207,6 +216,20 @@ export function ShoppingWizard({ selectedIngredient, onSelection }: Props) {
               </TextButton>
             </Flex>
           </form>
+          {scanning ? (
+            <BarcodeScannerComponent
+              width={400}
+              height={300}
+              onUpdate={(err, result) => {
+                if (result) {
+                  setSearchTerm(result.getText());
+                  setLoading(true);
+                  setScanning(false);
+                }
+              }}
+              facingMode="user"
+            />
+          ) : null}
           <Stack css={{ overflow: "scroll" }}>
             {loading === "searchFailed" ? (
               <ErrorBanner>

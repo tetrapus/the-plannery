@@ -1,11 +1,12 @@
 import firebase from "firebase";
 import { createContext } from "react";
-import Ingredient, { isSameIngredient } from "./ingredients";
+import Ingredient, { ExpiryDate, isSameIngredient } from "./ingredients";
 
 export interface PantryItem {
   ref?: firebase.firestore.DocumentReference;
   ingredient: Ingredient;
-  by: string;
+  expires?: ExpiryDate;
+  by?: string;
 }
 
 export interface Pantry {

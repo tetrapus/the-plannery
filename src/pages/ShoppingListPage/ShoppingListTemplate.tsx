@@ -3,7 +3,7 @@ import Ingredient, { isSameIngredient } from "../../data/ingredients";
 import { Stack } from "../../components/atoms/Stack";
 import { Flex } from "../../components/atoms/Flex";
 import { RichIngredientItem } from "./RichIngredientItem";
-import { PantryContext, PantryItem } from "data/pantry";
+import { inPantry, PantryContext, PantryItem } from "data/pantry";
 import {
   useHouseholdCollection,
   useHouseholdDocument,
@@ -12,13 +12,23 @@ import { ShoppingWizard } from "./ShoppingWizard";
 import { Price } from "components/atoms/Price";
 import { Darkmode } from "components/styles/Darkmode";
 import { Breakpoint } from "components/styles/Breakpoint";
-import { convertIngredientToProduct, Product } from "data/product";
+import {
+  convertIngredientToProduct,
+  Product,
+  ProductConversions,
+} from "data/product";
 import { AnimatedIconButton } from "components/atoms/AnimatedIconButton";
 import trolleyIcon from "animations/trolley.json";
 import { ExternalLink } from "../../components/atoms/ExternalLink";
+import { getIngredientsForMealPlan, MealPlan } from "data/meal-plan";
+import { Recipe } from "data/recipes";
+import { Card } from "components/atoms/Card";
+import { AuthStateContext } from "data/auth-state";
+import { useFirestoreDoc } from "init/firebase";
 
 interface Props {
-  ingredients: Ingredient[];
+  recipes: Recipe[];
+  mealPlan: MealPlan;
 }
 
 interface PantryIngredient {
@@ -31,10 +41,68 @@ interface PantryIngredient {
   ratio?: number;
 }
 
-export function ShoppingListTemplate({ ingredients }: Props) {
+interface OrderEntry {
+  OrderId: number;
+  CreatedDate: string;
+  OriginalOrderCreatedDate: string;
+  Total: number;
+  CurrentStatus: string;
+  DeliveryMethod: string;
+  ProjectedDeliveryTime: {
+    Status: string;
+    OriginalStartTime: string;
+    OriginalEndTime: string;
+    StartTime: string;
+    EndTime: string;
+    BufferType: string;
+  };
+  IsPfdOrder: boolean;
+  OrderType: string;
+  MarketOrders: never[];
+  IsMarketOnly: boolean;
+  IsPostPickPayOrder: boolean;
+  IsThirdPartyDelivery: boolean;
+}
+
+interface OrderedProduct {
+  StockCode: number;
+  Brand: string;
+  Name: string;
+  Variety: string;
+  Size: string;
+  Quantity: number;
+  Total: number;
+  TotalExcludingGst: number;
+  ListPrice: { Measure: string; Value: number };
+  SalePrice: { Measure: string; Value: number };
+  ComparativePrice: { Measure: string; Value: number };
+  AllowSubstitution: boolean;
+  LineNumber: number;
+  IsPurchasableWithRewardsCredits: boolean;
+  IsNew: boolean;
+  IsGiftable: boolean;
+  IsNotSelfServiceReturnable: boolean;
+}
+
+export function ShoppingListTemplate({ recipes, mealPlan }: Props) {
   const [selectedIngredient, setSelectedIngredient] = useState<Ingredient>();
   const [showWizard, setShowWizard] = useState<boolean>(false);
   const [trolley, setTrolley] = useState<any[]>([]);
+  const { household, insertMeta } = useContext(AuthStateContext);
+
+  const [selectedMeals] = useState<{
+    [slug: string]: number;
+  }>(Object.fromEntries(mealPlan.recipes.map((recipe) => [recipe.slug, 1])));
+
+  const ingredients = getIngredientsForMealPlan(recipes, {
+    recipes: mealPlan.recipes
+      .map((recipe) =>
+        Array.from(Array(selectedMeals[recipe.slug] || 1).keys()).map(
+          (_) => recipe
+        )
+      )
+      .flat(1),
+  });
 
   const preferredProductsCollection =
     useHouseholdCollection(
@@ -46,7 +114,7 @@ export function ShoppingListTemplate({ ingredients }: Props) {
             {
               ref: doc.ref,
               id: doc.id,
-              options: doc.data() as Product,
+              options: doc.data() as { [stockcode: number]: Product },
             },
           ])
         )
@@ -59,16 +127,17 @@ export function ShoppingListTemplate({ ingredients }: Props) {
         Object.fromEntries(
           Object.entries(snapshot.data() || {}).map(([id, data]) => [
             id,
-            { id: id, options: data as Product },
+            { id: id, options: data as { [stockcode: number]: Product } },
           ])
         )
     ) || {};
 
-  const preferredProducts: { [key: string]: { id: string; options: Product } } =
-    {
-      ...preferredProductsCollection,
-      ...preferredProductsDocument,
-    };
+  const preferredProducts: {
+    [key: string]: { id: string; options: { [stockcode: number]: Product } };
+  } = {
+    ...preferredProductsCollection,
+    ...preferredProductsDocument,
+  };
 
   const productConversionsCollection =
     useHouseholdCollection(
@@ -98,7 +167,7 @@ export function ShoppingListTemplate({ ingredients }: Props) {
         )
     ) || {};
 
-  const productConversions = {
+  const productConversions: ProductConversions = {
     ...productConversionsCollection,
     ...productConversionsBlob,
   };
@@ -231,6 +300,28 @@ export function ShoppingListTemplate({ ingredients }: Props) {
     return () => document.removeEventListener("keydown", listener);
   }, [ingredientLists, selectedIngredient]);
 
+  const [orders, setOrders] = useState<OrderEntry[]>([]);
+
+  const processedOrders =
+    useFirestoreDoc(
+      household,
+      (household) => household.ref.collection("blobs").doc("processedOrders"),
+      (snapshot) => Object.keys(snapshot.data()?.woolworths)
+    ) || [];
+
+  useEffect(() => {
+    (async () => {
+      if ((document as any).woolies) {
+        const woolies = (document as any).woolies;
+        const me = await woolies.bootstrap();
+        if (me.ShopperDetailsRequest) {
+          const orders = await woolies.getOrders(me.ShopperDetailsRequest.Id);
+          setOrders(orders.items);
+        }
+      }
+    })();
+  }, []);
+
   return (
     <Flex>
       <Stack
@@ -241,6 +332,53 @@ export function ShoppingListTemplate({ ingredients }: Props) {
           },
         }}
       >
+        {/*
+        <TextButton
+          onClick={() => {
+            console.log(preferredProductsDocument);
+            const newThing = Object.fromEntries(
+              Object.entries(preferredProductsDocument).map(([name, value]) => [
+                name,
+                Object.fromEntries(
+                  Object.entries(value.options).map(([stockcode, product]) => [
+                    stockcode,
+                    trimProduct(product),
+                  ])
+                ),
+              ])
+            );
+            household?.ref
+              .collection("blobs")
+              .doc("productPreferences")
+              .set(newThing);
+          }}
+        >
+          Compact Collection
+        </TextButton>
+        */}
+
+        {/* TODO
+        <Stack>
+          {mealPlan.recipes.map((planItem) => {
+            const recipe = recipes.find(
+              (recipe) => recipe.slug === planItem.slug
+            );
+            return (
+              <Flex
+                onClick={() =>
+                  setSelectedMeals({
+                    ...selectedMeals,
+                    [planItem.slug]: selectedMeals[planItem.slug] + 1,
+                  })
+                }
+              >
+                {recipe?.name}{" "}
+                {(recipe?.serves || 0) * selectedMeals[planItem.slug]}
+              </Flex>
+            );
+          })}
+        </Stack>
+        */}
         {ingredientLists.map(([title, ingredients]) => {
           if (!ingredients.length) return null;
           const sectionPrice = Object.entries(preferredProducts)
@@ -360,6 +498,149 @@ export function ShoppingListTemplate({ ingredients }: Props) {
           },
         }}
       >
+        {orders
+          .slice(0, 3)
+          .filter(
+            (order) => !processedOrders.includes(order.OrderId.toString())
+          )
+          .map((order) => (
+            <Card css={{ margin: 8, maxWidth: 400 }}>
+              <Flex>
+                <Flex css={{ padding: 8, flexGrow: 1 }}>
+                  <Stack>
+                    <ExternalLink
+                      href={`https://www.woolworths.com.au/shop/myaccount/myorders/${order.OrderId}`}
+                      css={{ flexGrow: 1 }}
+                    >
+                      <h3 css={{ margin: 0 }}>Order #{order.OrderId}</h3>
+                    </ExternalLink>
+                    <div>{new Date(order.CreatedDate).toDateString()} </div>
+                  </Stack>
+                  <Flex
+                    css={{
+                      alignSelf: "center",
+                      marginLeft: "auto",
+                      padding: 8,
+                    }}
+                  >
+                    <h3 css={{ margin: 0 }}>
+                      <Price amount={order.Total} />
+                    </h3>
+                  </Flex>
+                </Flex>
+                <Stack>
+                  <Flex
+                    css={{
+                      background: "darkgreen",
+                      color: "white",
+                      fontWeight: "bold",
+                      padding: 8,
+                      cursor: "pointer",
+                    }}
+                    onClick={async () => {
+                      if ((document as any).woolies) {
+                        const woolies = (document as any).woolies;
+                        const orderData = await woolies.getOrder(order.OrderId);
+                        const products: OrderedProduct[] =
+                          orderData.OrderProducts.map(
+                            (product: any) => product.Ordered
+                          );
+                        const mealPlanIngredients = Object.fromEntries(
+                          getIngredientsForMealPlan(recipes, mealPlan).map(
+                            (ingredient) => [ingredient.type.name, ingredient]
+                          )
+                        );
+                        const newIngredients = products
+                          .map((product) => ({
+                            product,
+                            preferred: Object.values(preferredProducts)
+                              .filter(
+                                ({ id, options }) =>
+                                  mealPlanIngredients[id] &&
+                                  options[product.StockCode] !== undefined
+                              )
+                              .map(({ id }) => mealPlanIngredients[id])[0],
+                          }))
+                          .filter(({ preferred }) => preferred)
+                          .map(({ product, preferred }) => ({
+                            product,
+                            preferred,
+                            conversion: convertIngredientToProduct(
+                              preferred,
+                              {
+                                Unit: product.ListPrice.Measure,
+                                MinimumQuantity: 0,
+                                Stockcode: product.StockCode,
+                                SupplyLimit: 1000000,
+                              },
+                              productConversions
+                            ),
+                          }))
+                          .filter(({ conversion }) => conversion.ratio)
+                          .map(({ product, preferred, conversion }) => ({
+                            ingredient: {
+                              ...preferred,
+                              qty: product.Quantity * conversion.ratio,
+                            },
+                            pantryItem: inPantry(preferred, pantry),
+                          }))
+                          .map(({ ingredient, pantryItem }) => ({
+                            ...ingredient,
+                            qty:
+                              ingredient.qty +
+                              ((pantryItem && pantryItem.ingredient.qty) || 0),
+                          }));
+                        const newBlob: {
+                          [key: string]: { [unit: string]: PantryItem };
+                        } = {};
+                        newIngredients.forEach((ingredient) => {
+                          if (!newBlob[ingredient.type.id]) {
+                            newBlob[ingredient.type.id] = {};
+                          }
+                          newBlob[ingredient.type.id][
+                            JSON.stringify(ingredient.unit)
+                          ] = { ingredient, ...insertMeta };
+                        });
+                        household?.ref
+                          .collection("blobs")
+                          .doc("pantry")
+                          .set(newBlob, { merge: true });
+                        household?.ref
+                          .collection("blobs")
+                          .doc("processedOrders")
+                          .set(
+                            { woolworths: { [order.OrderId]: insertMeta } },
+                            { merge: true }
+                          );
+                      }
+                    }}
+                  >
+                    Add to Pantry
+                  </Flex>
+                  <Flex
+                    css={{
+                      background: "#eee",
+                      padding: 8,
+                      cursor: "pointer",
+                      justifyContent: "center",
+                      color: "#222",
+                    }}
+                    onClick={() => {
+                      household?.ref
+                        .collection("blobs")
+                        .doc("processedOrders")
+                        .set(
+                          { woolworths: { [order.OrderId]: insertMeta } },
+                          { merge: true }
+                        );
+                    }}
+                  >
+                    Skip
+                  </Flex>
+                </Stack>
+              </Flex>
+            </Card>
+          ))}
         <ShoppingWizard
           selectedIngredient={selectedIngredient}
           onSelection={() => setShowWizard(false)}

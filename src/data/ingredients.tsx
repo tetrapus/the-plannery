@@ -1,10 +1,17 @@
 import React from "react";
 import { Recipe } from "./recipes";
+import firebase from "firebase";
 
 export interface IngredientType {
   id: string;
   name: string;
   imageUrl: string | null;
+  type?: "unknown" | "product";
+}
+
+export interface ExpiryDate {
+  timestamp: firebase.firestore.Timestamp;
+  granularity: "day" | "month" | "year";
 }
 
 export default interface Ingredient {
