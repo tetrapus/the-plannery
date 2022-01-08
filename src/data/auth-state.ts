@@ -13,7 +13,7 @@ export interface Household {
 
 interface AuthState {
   loading: boolean;
-  currentUser?: any;
+  currentUser?: firebase.User | null;
   household?: Household | null;
   insertMeta: { by?: string; created: firebase.firestore.FieldValue };
 }

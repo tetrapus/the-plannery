@@ -16,6 +16,7 @@ interface Props {
   selected?: boolean;
   defaultQuantity?: number;
   ratio?: number;
+  children?: React.ReactNode;
   onAddToCart?(quantity: number): Promise<void>;
 }
 
@@ -26,6 +27,7 @@ export function ProductCard({
   selected,
   ratio,
   defaultQuantity,
+  children,
   onAddToCart,
 }: Props) {
   const [quantity, setQuantity] = useState<number | undefined>(defaultQuantity);
@@ -103,10 +105,16 @@ export function ProductCard({
             {product.Name} {product.PackageSize}
           </div>
           <div css={{ fontSize: 12 }}>
-            <Price amount={product.Price * (quantity || 1)} />
-            <span css={{ color: "grey", marginLeft: 4 }}>
-              {product.CupString}
-            </span>
+            {children ? (
+              children
+            ) : (
+              <>
+                <Price amount={product.Price * (quantity || 1)} />
+                <span css={{ color: "grey", marginLeft: 4 }}>
+                  {product.CupString}
+                </span>
+              </>
+            )}
           </div>
         </Stack>
       </Flex>

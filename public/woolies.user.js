@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Woolies Plannery Integration
 // @namespace    http://joey.town/
-// @version      0.2
+// @version      0.3
 // @description  Shop for items from the Plannery on Woolies
 // @author       mayor@joey.town
 // @match        https://the-plannery.web.app/*
@@ -11,27 +11,20 @@
 // @connect      woolworths.com.au
 // ==/UserScript==
 
-(function () {
-  function wooliesApi(method, resource, body) {
-    const genRanHex = (size) =>
-      [...Array(size)]
-        .map(() => Math.floor(Math.random() * 16).toString(16))
-        .join("");
+/*jshint esversion: 6 */
+/*global GM_xmlhttpRequest*/
 
+(function () {
+  function genRanHex(size) {
+    return [...Array(size)]
+      .map(() => Math.floor(Math.random() * 16).toString(16))
+      .join("");
+  }
+
+  function request(params) {
     return new Promise((resolve, reject) => {
       GM_xmlhttpRequest({
-        url: `https://www.woolworths.com.au/apis/ui/${resource}`,
-        headers: {
-          accept: "application/json, text/plain, */*",
-          "accept-language": "en-GB,en-US;q=0.9,en;q=0.8",
-          "cache-control": "no-cache",
-          "content-type": "application/json",
-          "request-context":
-            "appId=cid-v1:099a45be-5030-453c-b870-6f6cb4dacdb8",
-          "request-id": `|${genRanHex(32)}.${genRanHex(16)}`,
-        },
-        data: body ? JSON.stringify(body) : "",
-        method: method,
+        ...params,
         onload: (response) => {
           console.log(response);
           try {
@@ -47,31 +40,34 @@
     });
   }
 
+  function wooliesApi(method, resource, body) {
+    return request({
+      url: `https://www.woolworths.com.au/apis/ui/${resource}`,
+      headers: {
+        accept: "application/json, text/plain, */*",
+        "accept-language": "en-GB,en-US;q=0.9,en;q=0.8",
+        "cache-control": "no-cache",
+        "content-type": "application/json",
+        "request-context": "appId=cid-v1:099a45be-5030-453c-b870-6f6cb4dacdb8",
+        "request-id": `|${genRanHex(32)}.${genRanHex(16)}`,
+      },
+      data: body ? JSON.stringify(body) : "",
+      method: method,
+    });
+  }
+
   function mobileApi(method, resource, body) {
-    return new Promise((resolve, reject) => {
-      GM_xmlhttpRequest({
-        url: `https://prod.mobile-api.woolworths.com.au/wow/v1/${resource}`,
-        headers: {
-          accept: "application/json, text/plain, */*",
-          "accept-language": "en-GB,en-US;q=0.9,en;q=0.8",
-          "cache-control": "no-cache",
-          "content-type": "application/json",
-          "x-api-key": "s7iXf5Rixn4XxFrsYh4HKkriVp8hlnec",
-        },
-        data: body ? JSON.stringify(body) : "",
-        method: method,
-        onload: (response) => {
-          console.log(response);
-          try {
-            resolve(JSON.parse(response.responseText || "null"));
-          } catch {
-            reject(response);
-          }
-        },
-        onerror: (response) => reject(response),
-        onabort: (response) => reject(response),
-        ontimeout: (response) => reject(response),
-      });
+    return request({
+      url: `https://prod.mobile-api.woolworths.com.au/wow/v1/${resource}`,
+      headers: {
+        accept: "application/json, text/plain, */*",
+        "accept-language": "en-GB,en-US;q=0.9,en;q=0.8",
+        "cache-control": "no-cache",
+        "content-type": "application/json",
+        "x-api-key": "s7iXf5Rixn4XxFrsYh4HKkriVp8hlnec",
+      },
+      data: body ? JSON.stringify(body) : "",
+      method: method,
     });
   }
 
@@ -86,31 +82,58 @@
     return mobileApi("GET", `orders/api/orders/${orderId}`);
   }
 
-  function bootstrap(method, resource, body) {
-    return new Promise((resolve, reject) => {
-      GM_xmlhttpRequest({
-        url: "https://www.woolworths.com.au/api/ui/v2/bootstrap",
-        headers: {
-          accept: "application/json, text/plain, */*",
-          "accept-language": "en-GB,en-US;q=0.9,en;q=0.8",
-          "cache-control": "no-cache",
-          pragma: "no-cache",
-          "content-type": "application/json",
-        },
-        data: null,
-        method: "GET",
-        onload: (response) => {
-          console.log(response);
-          try {
-            resolve(JSON.parse(response.responseText || "null"));
-          } catch {
-            reject(response);
-          }
-        },
-        onerror: (response) => reject(response),
-        onabort: (response) => reject(response),
-        ontimeout: (response) => reject(response),
-      });
+  function login(email, password) {
+    return request({
+      url: "https://www.woolworths.com.au/apis/ui/login/loginwithcredential",
+      headers: {
+        accept: "application/json, text/plain, */*",
+        "accept-language": "en-GB,en-US;q=0.9,en;q=0.8",
+        "cache-control": "no-cache",
+        "content-type": "application/json",
+        pragma: "no-cache",
+        "request-context": "appId=cid-v1:099a45be-5030-453c-b870-6f6cb4dacdb8",
+        "request-id": `|${genRanHex(32)}.${genRanHex(16)}`,
+      },
+      data: JSON.stringify({
+        Email: email,
+        Password: password,
+        RememberMe: false,
+        LinkToken: null,
+        UserIdFromAgent: null,
+      }),
+      method: "POST",
+    });
+  }
+
+  function bootstrap() {
+    return request({
+      url: "https://www.woolworths.com.au/api/ui/v2/bootstrap",
+      headers: {
+        accept: "application/json, text/plain, */*",
+        "accept-language": "en-GB,en-US;q=0.9,en;q=0.8",
+        "cache-control": "no-cache",
+        pragma: "no-cache",
+        "content-type": "application/json",
+      },
+      data: null,
+      method: "GET",
+    });
+  }
+
+  function otp(code) {
+    return request({
+      url: "https://www.woolworths.com.au/api/v3/ui/authentication/otp",
+      headers: {
+        accept: "application/json, text/plain, * /*",
+        "accept-language": "en-GB,en-US;q=0.9,en;q=0.8",
+        "cache-control": "no-cache",
+        "content-type": "application/json",
+        pragma: "no-cache",
+        "request-context": "appId=cid-v1:099a45be-5030-453c-b870-6f6cb4dacdb8",
+        "request-id": `|${genRanHex(32)}.${genRanHex(16)}`,
+      },
+      data: JSON.stringify({ OneTimePin: code, UpdatePrimaryContact: null }),
+      method: "POST",
     });
   }
 
@@ -164,6 +187,8 @@
       bootstrap,
       getOrders,
       getOrder,
+      login,
+      otp,
     };
   }
 

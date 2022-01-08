@@ -23,7 +23,7 @@ export function GetStartedTemplate() {
       .then((response) => setState({ invitations: response.docs }));
   }, [currentUser]);
 
-  if (household === undefined) {
+  if (household === undefined || !currentUser) {
     return <Spinner />;
   }
 

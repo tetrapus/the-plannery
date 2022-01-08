@@ -131,26 +131,28 @@ export function RichIngredientItem({
         <Stack css={{ fontSize: 12 }}>
           Used In
           <table css={{ color: "grey", width: "fit-content" }}>
-            {ingredient.usedIn?.map((recipe: Recipe) => {
-              const needed = recipe.ingredients.find(
-                (i) => i.type.name === ingredient.type.name
-              );
-              return (
-                <tr key={recipe.slug}>
-                  <td css={{ paddingRight: 8, minWidth: 32 }}>
-                    {needed ? <IngredientAmount ingredient={needed} /> : null}
-                  </td>
-                  <td css={{ fontStyle: "italic" }}>
-                    <Link
-                      to={`/recipes/${recipe.slug}`}
-                      onClick={(e) => e.stopPropagation()}
-                    >
-                      {recipe.name}
-                    </Link>
-                  </td>
-                </tr>
-              );
-            })}
+            <tbody>
+              {ingredient.usedIn?.map((recipe: Recipe) => {
+                const needed = recipe.ingredients.find(
+                  (i) => i.type.name === ingredient.type.name
+                );
+                return (
+                  <tr key={recipe.slug}>
+                    <td css={{ paddingRight: 8, minWidth: 32 }}>
+                      {needed ? <IngredientAmount ingredient={needed} /> : null}
+                    </td>
+                    <td css={{ fontStyle: "italic" }}>
+                      <Link
+                        to={`/recipes/${recipe.slug}`}
+                        onClick={(e) => e.stopPropagation()}
+                      >
+                        {recipe.name}
+                      </Link>
+                    </td>
+                  </tr>
+                );
+              })}
+            </tbody>
           </table>
         </Stack>
       </Stack>

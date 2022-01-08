@@ -5,16 +5,8 @@ import { Stack } from "../atoms/Stack";
 import { Breakpoint } from "../styles/Breakpoint";
 import { Darkmode } from "../styles/Darkmode";
 
-export interface User {
-  displayName: string;
-  email: string;
-  photoURL: string;
-  uid: string;
-  ref: firebase.firestore.DocumentReference;
-}
-
 interface Props {
-  user: User;
+  user: firebase.User;
   size: number;
 }
 

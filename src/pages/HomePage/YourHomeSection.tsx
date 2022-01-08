@@ -7,9 +7,11 @@ import {
 import { Flex } from "../../components/atoms/Flex";
 import { Stack } from "../../components/atoms/Stack";
 import { TextInput } from "../../components/atoms/TextInput";
-import { User, UserCard } from "../../components/molecules/UserCard";
+import { UserCard } from "../../components/molecules/UserCard";
 import { AnimatedIconButton } from "components/atoms/AnimatedIconButton";
 import invite from "animations/invite.json";
+
+type User = firebase.User & { ref: firebase.firestore.DocumentReference };
 
 export function YourHomeSection() {
   const { household } = useContext(AuthStateContext);
@@ -26,7 +28,7 @@ export function YourHomeSection() {
       <h2>Your Home</h2>
       <Stack>
         {users?.map((user) => (
-          <UserCard user={user} size={32} />
+          <UserCard user={user} size={32} key={user.email} />
         ))}
       </Stack>
       {household?.invitees.map((email) => (

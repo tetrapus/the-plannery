@@ -25,6 +25,7 @@ import { Recipe } from "data/recipes";
 import { Card } from "components/atoms/Card";
 import { AuthStateContext } from "data/auth-state";
 import { useFirestoreDoc } from "init/firebase";
+import { WoolworthsAccount } from "data/woolworths";
 
 interface Props {
   recipes: Recipe[];
@@ -309,18 +310,36 @@ export function ShoppingListTemplate({ recipes, mealPlan }: Props) {
       (snapshot) => Object.keys(snapshot.data()?.woolworths)
     ) || [];
 
+  const [wooliesAccount, setWooliesAccount] = useState<
+    WoolworthsAccount | undefined
+  >();
+
+  const bootstrap = async () => {
+    if ((document as any).woolies) {
+      const woolies = (document as any).woolies;
+      const me = await woolies.bootstrap();
+      setWooliesAccount(me);
+    }
+  };
+
+  useEffect(() => {
+    bootstrap();
+  }, []);
+
   useEffect(() => {
     (async () => {
       if ((document as any).woolies) {
         const woolies = (document as any).woolies;
-        const me = await woolies.bootstrap();
-        if (me.ShopperDetailsRequest) {
-          const orders = await woolies.getOrders(me.ShopperDetailsRequest.Id);
+
+        if (wooliesAccount?.ShopperDetailsRequest) {
+          const orders = await woolies.getOrders(
+            wooliesAccount.ShopperDetailsRequest.Id
+          );
           setOrders(orders.items);
         }
       }
     })();
-  }, []);
+  }, [wooliesAccount]);
 
   return (
     <Flex>
@@ -450,9 +469,11 @@ export function ShoppingListTemplate({ recipes, mealPlan }: Props) {
                     ratio,
                   }) => {
                     return (
-                      <div data-id={ingredient.type.id}>
+                      <div
+                        data-id={ingredient.type.id}
+                        key={ingredient.type.id}
+                      >
                         <RichIngredientItem
-                          key={ingredient.type.id}
                           ingredient={ingredient}
                           pantryItem={pantryItem}
                           trolley={trolley}
@@ -643,7 +664,9 @@ export function ShoppingListTemplate({ recipes, mealPlan }: Props) {
           ))}
         <ShoppingWizard
           selectedIngredient={selectedIngredient}
+          woolworthsAccount={wooliesAccount}
           onSelection={() => setShowWizard(false)}
+          onLogin={() => bootstrap()}
         />
       </Stack>
     </Flex>

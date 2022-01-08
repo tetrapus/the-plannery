@@ -196,6 +196,7 @@ export default function RecipeSearchSettingsSection({
                   borderBottom: "1px solid #444",
                 },
               }}
+              key={JSON.stringify(pinnedSection)}
             >
               {pinnedSection ? (
                 <h3
