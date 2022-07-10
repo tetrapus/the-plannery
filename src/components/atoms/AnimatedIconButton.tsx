@@ -33,6 +33,7 @@ export function AnimatedIconButton({
           filter: active
             ? "invert(0.8) hue-rotate(180deg)"
             : "invert(1)  hue-rotate(180deg) grayscale(1)",
+          boxShadow: "none",
         },
         ...(floating
           ? {

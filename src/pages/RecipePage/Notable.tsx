@@ -8,6 +8,8 @@ import edit from "animations/edit.json";
 import trash from "animations/trash.json";
 import { AuthStateContext } from "data/auth-state";
 import ReactTimeago from "react-timeago";
+import { Breakpoint } from "components/styles/Breakpoint";
+import { Darkmode } from "components/styles/Darkmode";
 
 interface Edit {
   value: string;
@@ -45,7 +47,7 @@ function Note({
 }) {
   return (
     <>
-      <div css={{ overflowWrap: "anywhere", marginBottom: 8 }}>
+      <div css={{ overflowWrap: "anywhere", margin: 8, marginBottom: 12 }}>
         {note.value}
       </div>
       <div
@@ -55,7 +57,7 @@ function Note({
           right: 0,
           fontSize: 11,
           color: "#888",
-          margin: "1px 2px",
+          margin: "2px 4px",
         }}
       >
         <ReactTimeago date={note.added.toDate()}></ReactTimeago>
@@ -88,9 +90,14 @@ function NoteContainer({
         borderRadius: 3,
         margin: 4,
         padding: 2,
-        marginLeft: "30%",
         position: "relative",
-        border: "1px solid white",
+        marginLeft: "30%",
+        [Breakpoint.TABLET]: {
+          marginLeft: 4,
+        },
+        [Darkmode]: {
+          background: "#333",
+        },
       }}
     >
       {user && user.photoURL && (
@@ -100,7 +107,7 @@ function NoteContainer({
             width: 24,
             height: 24,
             borderRadius: 12,
-            margin: 6,
+            margin: 8,
           }}
           alt=""
         />

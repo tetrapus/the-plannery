@@ -240,8 +240,14 @@
       const logo = document.createElement("img");
       logo.src = "https://the-plannery.web.app/logo.png";
       floater.appendChild(logo);
-      floater.style =
-        "height: 32px; width: 32px; position: fixed; bottom: 32px; right: 32px;";
+      floater.style = `
+        height: 32px;
+        width: 32px;
+        position: fixed;
+        bottom: 32px;
+        right: 32px;
+        z-index: 99999999;
+      `;
       floater.addEventListener("click", (e) => {
         const blackout = document.createElement("div");
         blackout.style = `
