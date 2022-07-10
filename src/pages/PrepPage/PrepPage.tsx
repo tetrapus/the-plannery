@@ -70,6 +70,7 @@ export function PrepPage() {
               <Stack css={{ gridArea: "3 / 2 / 4 / 3", marginTop: 8 }}>
                 {steps?.map((step, idx) => (
                   <RecipeStep
+                    recipeSlug={plan.slug}
                     step={step}
                     stepNumber={idx + 1}
                     ingredients={[]}

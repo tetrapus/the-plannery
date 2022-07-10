@@ -10,11 +10,13 @@ import { RecipeStep as Step, RecipeTimer } from "../../../data/recipes";
 import { Timer } from "./Timer";
 import { TimerText } from "./TimerText";
 import { ImageContent } from "../../../components/atoms/ImageContent";
+import { Notable } from "../Notable";
 
 interface Props {
   step: Step;
   stepNumber: number;
   ingredients: Ingredient[];
+  recipeSlug: string;
   state?: { state: "done" | "claimed"; by: string };
   users: any;
   [key: string]: any;
@@ -40,6 +42,7 @@ export function RecipeStep({
   ingredients,
   state,
   users,
+  recipeSlug,
   ...rest
 }: Props) {
   const [timers, setTimers] = useState<TimerState[]>(
@@ -54,8 +57,8 @@ export function RecipeStep({
       return (
         <>
           {fragments.map((value, idx) =>
-            value.split(/(\d+(?:-\d+)? minutes?)/).map((fragment) => {
-              if (fragment.match(/^(\d+(?:-\d+)? minutes?)$/)) {
+            value.split(/(\d+(?:[-–]\d+)? minutes?)/).map((fragment) => {
+              if (fragment.match(/^(\d+(?:[-–]\d+)? minutes?)$/)) {
                 return (
                   <TimerText
                     key={idx}
@@ -112,18 +115,20 @@ export function RecipeStep({
       >
         {stepNumber}
       </h1>
-      <div css={{ marginRight: "8px" }}>
-        {step.images.map((img) => (
-          <ImageContent
-            key={img}
-            src={img}
-            css={css`
-              width: 250px;
-            `}
-            alt=""
-          ></ImageContent>
-        ))}
-      </div>
+      {step.images.length ? (
+        <div css={{ marginRight: "8px" }}>
+          {step.images.map((img) => (
+            <ImageContent
+              key={img}
+              src={img}
+              css={css`
+                width: 250px;
+              `}
+              alt=""
+            ></ImageContent>
+          ))}
+        </div>
+      ) : null}
       <div
         css={css`
           padding: 16px 8px;
@@ -139,7 +144,15 @@ export function RecipeStep({
             {users[state.by].displayName}
           </Flex>
         ) : null}
-        <ReactMarkdown renderers={renderers}>{step.method}</ReactMarkdown>
+        <Notable
+          slug={recipeSlug}
+          field={["step", stepNumber.toString()]}
+          value={step.method}
+        >
+          {(value) => (
+            <ReactMarkdown renderers={renderers}>{value}</ReactMarkdown>
+          )}
+        </Notable>
         <Stack>
           {console.log("timers", timers)}
           {timers.map(({ timer, startTime }, idx) => (

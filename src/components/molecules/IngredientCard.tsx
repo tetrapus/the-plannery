@@ -1,7 +1,6 @@
 import React from "react";
 import Ingredient from "../../data/ingredients";
 import { Flex } from "../atoms/Flex";
-import { PlaceholderImage } from "../atoms/PlaceholderImage";
 import { Stack } from "../atoms/Stack";
 import { Darkmode } from "../styles/Darkmode";
 
@@ -66,9 +65,7 @@ export default function IngredientCard({
             alt={ingredient.type.name}
             onError={(e) => (e.currentTarget.style.display = "none")}
           ></img>
-        ) : (
-          <PlaceholderImage />
-        )}
+        ) : null}
 
         <Stack
           css={{

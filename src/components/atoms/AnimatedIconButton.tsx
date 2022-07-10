@@ -9,6 +9,7 @@ interface IconButtonProps {
   animation: any;
   autoplay?: boolean;
   active?: boolean;
+  floating?: boolean;
   [prop: string]: any;
 }
 
@@ -17,6 +18,7 @@ export function AnimatedIconButton({
   animation,
   autoplay = false,
   active = true,
+  floating = false,
   ...props
 }: IconButtonProps) {
   const [isPlaying, setIsPlaying] = useState(autoplay);
@@ -24,6 +26,7 @@ export function AnimatedIconButton({
   const icon = (
     <div
       css={{
+        display: "inline-block",
         pointerEvents: "none",
         filter: active ? "inherit" : "grayscale(1)",
         [Darkmode]: {
@@ -31,6 +34,13 @@ export function AnimatedIconButton({
             ? "invert(0.8) hue-rotate(180deg)"
             : "invert(1)  hue-rotate(180deg) grayscale(1)",
         },
+        ...(floating
+          ? {
+              background: "white",
+              borderRadius: iconSize / 2,
+              boxShadow: "2px 2px 8px 2px #c0c0c0",
+            }
+          : {}),
       }}
     >
       <Lottie
@@ -51,6 +61,7 @@ export function AnimatedIconButton({
   );
   return (
     <div
+      css={{ cursor: "pointer" }}
       {...props}
       onMouseEnter={() => {
         if (!isPlaying) {
