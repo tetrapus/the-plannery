@@ -298,6 +298,7 @@ export function ShoppingWizard({
                   animation={paperbag}
                   iconSize={128}
                   autoplay={true}
+                  css={{ cursor: "initial", margin: "auto" }}
                 />
                 <h2 css={{ margin: "8px 16px", textAlign: "center" }}>
                   Choose an ingredient to start shopping
