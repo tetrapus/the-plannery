@@ -248,6 +248,7 @@
         right: 32px;
         z-index: 99999999;
       `;
+      logo.style = `width: 100%; height: 100%`;
       floater.addEventListener("click", (e) => {
         const blackout = document.createElement("div");
         blackout.style = `

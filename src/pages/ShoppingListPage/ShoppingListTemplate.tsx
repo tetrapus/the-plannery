@@ -180,7 +180,6 @@ export function ShoppingListTemplate({ recipes, mealPlan }: Props) {
     }
     (document as any).woolies.getCart().then((trolley: any) => {
       setTrolley(trolley.AvailableItems);
-      console.log(trolley);
     });
   }, []);
 
@@ -471,7 +470,7 @@ export function ShoppingListTemplate({ recipes, mealPlan }: Props) {
                     return (
                       <div
                         data-id={ingredient.type.id}
-                        key={ingredient.type.id}
+                        key={`${ingredient.type.id}:${ingredient.unit}`}
                       >
                         <RichIngredientItem
                           ingredient={ingredient}
