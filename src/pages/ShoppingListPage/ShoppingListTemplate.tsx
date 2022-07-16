@@ -26,6 +26,7 @@ import { Card } from "components/atoms/Card";
 import { AuthStateContext } from "data/auth-state";
 import { useFirestoreDoc } from "init/firebase";
 import { WoolworthsAccount } from "data/woolworths";
+import firebase from "firebase";
 
 interface Props {
   recipes: Recipe[];
@@ -37,9 +38,11 @@ interface PantryIngredient {
   pantryItem?: PantryItem;
   complete: boolean;
   unlimited: boolean;
-  preferredProduct?: Product;
-  requiredAmount?: number;
-  ratio?: number;
+  products: {
+    product: Product;
+    requiredAmount?: number;
+    ratio?: number;
+  }[];
 }
 
 interface OrderEntry {
@@ -203,7 +206,7 @@ export function ShoppingListTemplate({ recipes, mealPlan }: Props) {
 
       const preferredProduct = Object.values(
         preferredProducts[ingredient.type.name]?.options || {}
-      )[0];
+      );
 
       const requiredQty = ingredient.qty
         ? pantryItem
@@ -213,22 +216,30 @@ export function ShoppingListTemplate({ recipes, mealPlan }: Props) {
           : ingredient.qty || 0
         : 0;
 
-      let requiredAmount, ratio;
-      if (ingredient && preferredProduct && productConversions) {
-        ({ requiredAmount, ratio } = convertIngredientToProduct(
-          { ...ingredient, qty: requiredQty },
-          preferredProduct,
-          productConversions
-        ));
-      }
       return {
         ingredient,
         pantryItem,
         complete,
         unlimited,
-        preferredProduct,
-        requiredAmount,
-        ratio,
+        products: preferredProduct
+          .map((product) => {
+            let requiredAmount, ratio;
+
+            if (ingredient && preferredProducts && productConversions) {
+              ({ requiredAmount, ratio } = convertIngredientToProduct(
+                { ...ingredient, qty: requiredQty },
+                product,
+                productConversions
+              ));
+            }
+
+            return { product, requiredAmount, ratio };
+          })
+          .sort(
+            (a, b) =>
+              a.product.Price * (a.requiredAmount || 1) -
+              b.product.Price * (b.requiredAmount || 1)
+          ),
       };
     }
   );
@@ -414,6 +425,7 @@ export function ShoppingListTemplate({ recipes, mealPlan }: Props) {
             )
             .flat(1)
             .reduce((a: number, b: number) => a + b, 0);
+          const selectedProduct = 0; // TODO
           return (
             <Stack css={{ marginBottom: 32 }} key={title}>
               <Flex
@@ -444,13 +456,17 @@ export function ShoppingListTemplate({ recipes, mealPlan }: Props) {
                       ingredients
                         .filter(
                           (ingredient) =>
-                            ingredient.ratio &&
-                            ingredient.preferredProduct &&
-                            ingredient.requiredAmount
+                            ingredient.products &&
+                            ingredient.products[selectedProduct] &&
+                            ingredient.products[selectedProduct].ratio &&
+                            ingredient.products[selectedProduct].product &&
+                            ingredient.products[selectedProduct].requiredAmount
                         )
                         .map((ingredient) => ({
-                          product: ingredient.preferredProduct as Product,
-                          quantity: ingredient.requiredAmount as number,
+                          product: ingredient?.products?.[selectedProduct]
+                            .product as Product,
+                          quantity: ingredient?.products?.[selectedProduct]
+                            .requiredAmount as number,
                         }))
                     );
                   }}
@@ -459,46 +475,47 @@ export function ShoppingListTemplate({ recipes, mealPlan }: Props) {
                 </AnimatedIconButton>
               </Flex>
               <Stack>
-                {ingredients.map(
-                  ({
-                    ingredient,
-                    pantryItem,
-                    preferredProduct,
-                    requiredAmount,
-                    ratio,
-                  }) => {
-                    return (
-                      <div
-                        data-id={ingredient.type.id}
-                        key={`${ingredient.type.id}:${ingredient.unit}`}
-                      >
-                        <RichIngredientItem
-                          ingredient={ingredient}
-                          pantryItem={pantryItem}
-                          trolley={trolley}
-                          conversions={productConversions}
-                          selected={
-                            selectedIngredient?.type.name ===
-                            ingredient.type.name
-                          }
-                          requiredAmount={requiredAmount}
-                          ratio={ratio}
-                          onSearch={() => {
-                            setSelectedIngredient(ingredient);
-                            setShowWizard(true);
-                          }}
-                          onAddToCart={async (quantity) => {
-                            if (!preferredProduct) return;
-                            await addProductsToTrolley([
-                              { product: preferredProduct, quantity },
-                            ]);
-                          }}
-                          product={preferredProduct}
-                        />
-                      </div>
-                    );
-                  }
-                )}
+                {ingredients.map(({ ingredient, pantryItem, products }) => {
+                  return (
+                    <div
+                      data-id={ingredient.type.id}
+                      key={`${ingredient.type.id}:${ingredient.unit}`}
+                    >
+                      <RichIngredientItem
+                        ingredient={ingredient}
+                        pantryItem={pantryItem}
+                        trolley={trolley}
+                        conversions={productConversions}
+                        selected={
+                          selectedIngredient?.type.name === ingredient.type.name
+                        }
+                        onSearch={() => {
+                          setSelectedIngredient(ingredient);
+                          setShowWizard(true);
+                        }}
+                        onAddToCart={async (product, quantity) => {
+                          if (!product) return;
+                          await addProductsToTrolley([{ product, quantity }]);
+                        }}
+                        onRemove={async (product) => {
+                          household?.ref
+                            .collection("blobs")
+                            .doc("productPreferences")
+                            .set(
+                              {
+                                [ingredient.type.name]: {
+                                  [product.Stockcode]:
+                                    firebase.firestore.FieldValue.delete(),
+                                },
+                              },
+                              { merge: true }
+                            );
+                        }}
+                        products={products}
+                      />
+                    </div>
+                  );
+                })}
               </Stack>
               <ExternalLink
                 css={{ margin: "8px auto" }}

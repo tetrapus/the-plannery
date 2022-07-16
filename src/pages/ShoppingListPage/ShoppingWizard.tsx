@@ -111,7 +111,7 @@ export function ShoppingWizard({
             [selectedProduct.Stockcode]: selectedProduct,
           },
         },
-        { mergeFields: [selectedIngredient.type.name] }
+        { merge: true }
       );
     if (conversion) {
       household?.ref
@@ -197,7 +197,7 @@ export function ShoppingWizard({
                     facingMode="user"
                   />
                 ) : null}
-                <Stack css={{ overflow: "scroll" }}>
+                <Stack css={{ overflow: "auto" }}>
                   {loading === "searchFailed" ? (
                     <ErrorBanner>
                       Couldn't load search results. Make sure you are logged in

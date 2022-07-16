@@ -1,7 +1,7 @@
 import { Flex } from "components/atoms/Flex";
 import { PlaceholderImage } from "components/atoms/PlaceholderImage";
 import { Stack } from "components/atoms/Stack";
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { Recipe } from "data/recipes";
 import Ingredient from "data/ingredients";
 import { PantryItem } from "data/pantry";
@@ -12,18 +12,18 @@ import { Grid } from "../../components/atoms/Grid";
 import { Product, ProductConversions, TrolleyItem } from "data/product";
 import { IngredientAmount } from "../../data/ingredients";
 import { Link } from "react-router-dom";
+import { LinkButton } from "components/atoms/LinkButton";
 
 interface Props {
   ingredient: Ingredient;
   onSearch: () => void;
   pantryItem?: PantryItem;
   selected: boolean;
-  product?: Product;
+  products: { product: Product; requiredAmount?: number; ratio?: number }[];
   trolley: TrolleyItem[];
   conversions: ProductConversions;
-  requiredAmount?: number;
-  ratio?: number;
-  onAddToCart: (quantity: number) => Promise<void>;
+  onAddToCart: (product: Product, quantity: number) => Promise<void>;
+  onRemove(product: Product): Promise<void>;
 }
 
 export function RichIngredientItem({
@@ -31,24 +31,24 @@ export function RichIngredientItem({
   onSearch,
   pantryItem,
   selected,
-  product,
+  products,
   trolley,
   conversions,
-  requiredAmount,
-  ratio,
   onAddToCart,
+  onRemove,
 }: Props) {
+  const [showAlternatives, setShowAlternatives] = useState<boolean>(false);
   useEffect(() => {
     const listener = (event: KeyboardEvent) => {
       if (selected && event.key === "Enter") {
-        if (!product) {
+        if (!products.length) {
           onSearch();
         }
       }
     };
     document.addEventListener("keydown", listener);
     return () => document.removeEventListener("keydown", listener);
-  }, [product, onSearch, selected]);
+  }, [products, onSearch, selected]);
 
   const neededQty = (ingredient.qty || 0) - (pantryItem?.ingredient.qty || 0);
 
@@ -170,16 +170,38 @@ export function RichIngredientItem({
           gridArea: "Product",
         }}
       >
-        {product && conversions ? (
-          <ProductCard
-            product={product}
-            ingredient={{ ...ingredient, qty: neededQty }}
-            trolley={trolley}
-            selected={selected}
-            ratio={ratio}
-            defaultQuantity={requiredAmount}
-            onAddToCart={onAddToCart}
-          />
+        {conversions && products.length ? (
+          showAlternatives || products.length === 1 ? (
+            products.map(({ product, ratio, requiredAmount }) => (
+              <ProductCard
+                product={product}
+                ingredient={{ ...ingredient, qty: neededQty }}
+                trolley={trolley}
+                selected={selected}
+                ratio={ratio}
+                defaultQuantity={requiredAmount}
+                onAddToCart={async (qty) => await onAddToCart(product, qty)}
+                onRemove={async () => await onRemove(product)}
+              />
+            ))
+          ) : (
+            <>
+              <ProductCard
+                product={products[0].product}
+                ingredient={{ ...ingredient, qty: neededQty }}
+                trolley={trolley}
+                selected={selected}
+                ratio={products[0].ratio}
+                defaultQuantity={products[0].requiredAmount}
+                onAddToCart={async (qty) =>
+                  await onAddToCart(products[0].product, qty)
+                }
+              />
+              <LinkButton onClick={() => setShowAlternatives(true)}>
+                {products.length === 2 ? "See Alternative" : "See Alternatives"}
+              </LinkButton>
+            </>
+          )
         ) : null}
       </Stack>
     </Grid>

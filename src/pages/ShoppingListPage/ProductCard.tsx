@@ -1,3 +1,4 @@
+import { AnimatedIconButton } from "components/atoms/AnimatedIconButton";
 import { Card } from "components/atoms/Card";
 import { Flex } from "components/atoms/Flex";
 import { Price } from "components/atoms/Price";
@@ -9,6 +10,8 @@ import { Product, TrolleyItem } from "data/product";
 import React, { ChangeEvent, useCallback, useEffect, useRef } from "react";
 import { useState } from "react";
 
+import cross from "animations/cross.json";
+
 interface Props {
   product: Product;
   ingredient?: Ingredient;
@@ -18,6 +21,7 @@ interface Props {
   ratio?: number;
   children?: React.ReactNode;
   onAddToCart?(quantity: number): Promise<void>;
+  onRemove?(): Promise<void>;
 }
 
 export function ProductCard({
@@ -29,6 +33,7 @@ export function ProductCard({
   defaultQuantity,
   children,
   onAddToCart,
+  onRemove,
 }: Props) {
   const [quantity, setQuantity] = useState<number | undefined>(defaultQuantity);
   useEffect(() => setQuantity(defaultQuantity), [defaultQuantity]);
@@ -79,6 +84,10 @@ export function ProductCard({
             : "none",
         background: "white",
         opacity: loading ? 0.5 : 1,
+        position: "relative",
+        ":hover .CloseButton": {
+          display: "initial",
+        },
       }}
       onClick={(e) => e.stopPropagation()}
     >
@@ -152,6 +161,14 @@ export function ProductCard({
           </div>
         ) : null}
       </Stack>
+      <AnimatedIconButton
+        animation={cross}
+        iconSize={16}
+        floating
+        css={{ position: "absolute", top: -8, right: -8, display: "none" }}
+        className="CloseButton"
+        onClick={onRemove}
+      ></AnimatedIconButton>
     </Card>
   );
 }

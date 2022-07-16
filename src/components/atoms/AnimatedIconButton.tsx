@@ -38,7 +38,8 @@ export function AnimatedIconButton({
         ...(floating
           ? {
               background: "white",
-              borderRadius: iconSize / 2,
+              borderRadius: iconSize / 2 + 2,
+              padding: "1px 2px 3px 2px",
               boxShadow: "2px 2px 8px 2px #c0c0c0",
             }
           : {}),
