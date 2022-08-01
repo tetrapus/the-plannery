@@ -9,6 +9,7 @@ export interface Household {
   invitees: string[];
   searchPreferencesSet?: boolean;
   planId?: number;
+  openAiApiKey?: string;
 }
 
 interface AuthState {

@@ -1,4 +1,3 @@
-import React from "react";
 import { Recipe } from "./recipes";
 import firebase from "firebase";
 
@@ -172,9 +171,7 @@ export const displayUnit = (a?: string) => (a && a !== "unit" ? a : "");
 
 export function IngredientAmount({ ingredient }: { ingredient: Ingredient }) {
   const displayIngredient = denormaliseIngredient(ingredient);
-  return (
-    <>
-      {displayIngredient?.qty || ""} {displayUnit(displayIngredient?.unit)}
-    </>
-  );
+  return `${displayIngredient?.qty || ""} ${displayUnit(
+    displayIngredient?.unit
+  )}`;
 }

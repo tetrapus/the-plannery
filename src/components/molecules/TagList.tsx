@@ -8,7 +8,7 @@ interface Props {
 
 export function TagList({ items }: Props) {
   return (
-    <Flex css={{ flexWrap: "wrap" }}>
+    <Flex css={{ flexWrap: "wrap", margin: "auto" }}>
       {items.map((item) => (
         <Tag key={item}>{item}</Tag>
       ))}

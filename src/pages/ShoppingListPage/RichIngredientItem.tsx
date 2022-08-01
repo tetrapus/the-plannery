@@ -118,10 +118,10 @@ export function RichIngredientItem({
             <span css={{ color: "grey" }}>
               {pantryItem && pantryItem.ingredient.qty ? (
                 <>
-                  <IngredientAmount ingredient={pantryItem.ingredient} /> /{" "}
+                  {IngredientAmount({ ingredient: pantryItem.ingredient })} /{" "}
                 </>
               ) : null}
-              <IngredientAmount ingredient={ingredient} />{" "}
+              {IngredientAmount({ ingredient })}{" "}
             </span>
             <span css={{ textTransform: "capitalize" }}>
               {ingredient.type.name}
@@ -139,7 +139,7 @@ export function RichIngredientItem({
                 return (
                   <tr key={recipe.slug}>
                     <td css={{ paddingRight: 8, minWidth: 32 }}>
-                      {needed ? <IngredientAmount ingredient={needed} /> : null}
+                      {needed ? IngredientAmount({ ingredient: needed }) : null}
                     </td>
                     <td css={{ fontStyle: "italic" }}>
                       <Link
