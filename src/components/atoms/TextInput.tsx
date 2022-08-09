@@ -5,7 +5,6 @@ import { Field } from "formik";
 const style = `
 margin: 8px 4px;
 height: 24px;
-border-radius: 0;
 border: none;
 border-bottom: 1px solid #aaa;
 padding: 4px 8px;

@@ -350,7 +350,7 @@ export default function RecipeTemplate({ recipe }: Props) {
             },
             minHeight: "100vh",
             boxShadow: "gray 1px 1px 4px",
-            borderRadius: 2,
+            borderRadius: 8,
             [Darkmode]: {
               backgroundColor: "black",
               boxShadow: "black 1px 1px 4px",

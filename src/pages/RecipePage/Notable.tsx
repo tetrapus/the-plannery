@@ -87,7 +87,7 @@ function NoteContainer({
     <Flex
       css={{
         background: "#eee",
-        borderRadius: 3,
+        borderRadius: 8,
         margin: 4,
         padding: 2,
         position: "relative",
@@ -131,11 +131,7 @@ export function Notable({ slug, field, value, children }: NotableProps) {
   const [editedValue, setEditedValue] = useState<Edit | undefined>(undefined);
   const [currentNote, setCurrentNote] = useState<Note | undefined>();
 
-  if (!context) {
-    throw Error("Notable loaded with no context");
-  }
-
-  if (!currentUser) {
+  if (!context || !currentUser) {
     return <>{children(value)}</>;
   }
 

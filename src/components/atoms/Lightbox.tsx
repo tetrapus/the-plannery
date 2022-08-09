@@ -32,6 +32,7 @@ export function Lightbox(props: Props) {
                 maxWidth: "90vw",
                 maxHeight: "90vh",
                 objectFit: "scale-down",
+                borderRadius: 8,
               }}
             ></img>
           </TransformComponent>

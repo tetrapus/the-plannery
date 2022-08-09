@@ -245,6 +245,7 @@ export function MealPlanSection({ mealPlan, recipes }: Props) {
                     },
                     padding: "0 16px 24px 16px",
                     alignItems: "center",
+                    borderRadius: 8,
                   }}
                 >
                   <h3>Get started on your next meal plan</h3>

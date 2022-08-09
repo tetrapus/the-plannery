@@ -20,6 +20,7 @@ export function PrepPage() {
   const recipes = useSubscription<Recipe[]>((setState) =>
     RecipesCollection.subscribe((value) => setState(getRecipes(value)))
   );
+
   return (
     <Card css={{ maxWidth: 800, margin: "auto", marginTop: 8 }}>
       {mealPlan && recipes ? (

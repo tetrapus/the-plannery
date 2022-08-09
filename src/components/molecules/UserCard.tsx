@@ -1,5 +1,5 @@
 import firebase from "firebase";
-import React from "react";
+import React, { useState } from "react";
 import { Flex } from "../atoms/Flex";
 import { Stack } from "../atoms/Stack";
 import { Breakpoint } from "../styles/Breakpoint";
@@ -11,18 +11,22 @@ interface Props {
 }
 
 export function UserCard({ user, size }: Props) {
+  const [errorState, setErrorState] = useState<boolean>(false);
   return (
     <Flex css={{ alignItems: "center" }}>
-      <img
-        src={user?.photoURL || "#"}
-        css={{
-          width: size,
-          height: size,
-          borderRadius: 3,
-          marginRight: size / 8,
-        }}
-        alt="Profile"
-      />
+      {!errorState ? (
+        <img
+          src={user?.photoURL || "#"}
+          css={{
+            width: size,
+            height: size,
+            borderRadius: 8,
+            marginRight: size / 8,
+          }}
+          alt=""
+          onError={(e) => setErrorState(true)}
+        />
+      ) : null}
       <Stack
         css={{ margin: size / 8, [Breakpoint.TABLET]: { display: "none" } }}
       >

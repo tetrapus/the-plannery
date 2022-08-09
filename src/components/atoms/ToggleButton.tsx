@@ -12,7 +12,7 @@ export function ToggleButton({ children, value, onChange, ...rest }: Props) {
   return (
     <div
       css={{
-        borderRadius: 4,
+        borderRadius: 8,
         padding: "4px 8px",
         fontSize: 16,
         background: value ? "black" : "#aaa",

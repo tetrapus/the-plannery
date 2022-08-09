@@ -99,7 +99,7 @@ export function ProductCard({
       >
         <img
           src={product.SmallImageFile}
-          css={{ height: 64, margin: 4, borderRadius: 3 }}
+          css={{ height: 64, margin: 4, borderRadius: 8 }}
           alt=""
         />
 
@@ -128,7 +128,16 @@ export function ProductCard({
         </Stack>
       </Flex>
       {/* TODO: Merge into TextInput */}
-      <Stack>
+      <Stack
+        css={{
+          borderTopRightRadius: 8,
+          borderBottomRightRadius: 8,
+          background: "#f0f0f0",
+          [Darkmode]: {
+            background: "#111",
+          },
+        }}
+      >
         <QuantityInput
           value={quantity || ""}
           inputRef={input}
@@ -148,13 +157,9 @@ export function ProductCard({
         {ratio && quantity ? (
           <div
             css={{
-              background: "#dedede",
               textAlign: "center",
               fontSize: 14,
               padding: 4,
-              [Darkmode]: {
-                background: "#333",
-              },
             }}
           >
             ≈ {ratio * quantity} {displayUnit(ingredient?.unit)}

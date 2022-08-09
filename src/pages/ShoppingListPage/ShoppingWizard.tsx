@@ -1,4 +1,3 @@
-import { css } from "@emotion/core";
 import { Flex } from "components/atoms/Flex";
 import { Spinner } from "components/atoms/Spinner";
 import { Stack } from "components/atoms/Stack";
@@ -21,6 +20,7 @@ import { IconButton } from "../../components/atoms/IconButton";
 import { faBarcode } from "@fortawesome/free-solid-svg-icons";
 import { WoolworthsAccount } from "data/woolworths";
 import { Form, Formik } from "formik";
+import { Breakpoint } from "components/styles/Breakpoint";
 
 interface Props {
   selectedIngredient?: Ingredient;
@@ -133,20 +133,23 @@ export function ShoppingWizard({
 
   return (
     <Stack
-      css={css({
+      css={{
         width: 400,
         height: "100vh",
         position: "sticky",
         top: 0,
         zIndex: 2,
         border: "1px solid #dedede",
-        borderRight: "none",
         background: "white",
+        borderRadius: 8,
         [Darkmode]: {
           borderColor: "black",
           background: "black",
         },
-      })}
+        [Breakpoint.MOBILE]: {
+          width: "initial",
+        },
+      }}
     >
       {(document as any).woolies ? (
         woolworthsAccount ? (
@@ -311,6 +314,7 @@ export function ShoppingWizard({
                 animation={paperbag}
                 iconSize={128}
                 autoplay={true}
+                css={{ margin: "auto" }}
               />
               {otpRequired ? (
                 <>
@@ -367,7 +371,7 @@ export function ShoppingWizard({
                     }}
                   >
                     <Form>
-                      <Stack>
+                      <Stack css={{ margin: 16 }}>
                         <TextField
                           name="email"
                           placeholder="Woolworths Email Address"
@@ -377,7 +381,9 @@ export function ShoppingWizard({
                           placeholder="Woolworths Password"
                           type="password"
                         />
-                        <TextButton type="submit">Log In</TextButton>
+                        <TextButton type="submit" css={{ margin: "auto" }}>
+                          Log In
+                        </TextButton>
                       </Stack>
                     </Form>
                   </Formik>

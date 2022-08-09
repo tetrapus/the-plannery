@@ -529,9 +529,11 @@ export function ShoppingListTemplate({ recipes, mealPlan }: Props) {
       </Stack>
       <Stack
         css={{
+          marginRight: 8,
           [Breakpoint.MOBILE]: {
             display: showWizard ? "inherit" : "none",
             width: "100%",
+            marginRight: 0,
           },
         }}
       >
@@ -573,6 +575,7 @@ export function ShoppingListTemplate({ recipes, mealPlan }: Props) {
                       fontWeight: "bold",
                       padding: 8,
                       cursor: "pointer",
+                      borderTopRightRadius: 8,
                     }}
                     onClick={async () => {
                       if ((document as any).woolies) {
@@ -661,6 +664,7 @@ export function ShoppingListTemplate({ recipes, mealPlan }: Props) {
                       cursor: "pointer",
                       justifyContent: "center",
                       color: "#222",
+                      borderBottomRightRadius: 8,
                     }}
                     onClick={() => {
                       household?.ref

@@ -42,7 +42,7 @@ export default function IngredientCard({
           alignItems: "center",
           margin: 4,
           padding: 4,
-          borderRadius: 3,
+          borderRadius: 8,
           position: "relative",
           height: "100%",
           borderBottom: done ? "none" : "1px solid #dedede",

@@ -17,11 +17,10 @@ export function QuantityInput({
       css={{
         borderBottom: "1px solid #dedede",
         fontSize: 24,
-        background: "#f0f0f0",
         flexGrow: 1,
         ":focus-within": { borderBottom: "1px solid #55050b" },
         [Darkmode]: {
-          background: "black",
+          borderBottom: "1px solid #333",
         },
       }}
     >
@@ -34,8 +33,11 @@ export function QuantityInput({
           borderBottom: "none !important",
           fontSize: 24,
           textAlign: "center",
-          background: "#f0f0f0",
+          background: "transparent",
           width: "100%",
+          [Darkmode]: {
+            background: "transparent",
+          },
         }}
         onFocus={(event) => event.target.select()}
       ></TextInput>
