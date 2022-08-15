@@ -151,34 +151,35 @@ export function MealPlanSection({ mealPlan, recipes }: Props) {
 
   return (
     <>
-      <Flex css={{ width: "100%" }}>
-        <h1
-          css={{
-            marginLeft: 8,
-            flexGrow: 1,
-            display: "flex",
-            alignItems: "center",
-          }}
-        >
-          Your meal plan
-          {!mode ? (
+      <Flex
+        css={{
+          marginLeft: 8,
+          flexGrow: 1,
+          display: "flex",
+          alignItems: "center",
+        }}
+      >
+        <h1 css={{ marginRight: "auto" }}>Your meal plan</h1>
+        {!mode ? (
+          <>
             <AnimatedIconButton
               animation={reorder}
               iconSize={40}
+              css={{ marginLeft: "auto" }}
               onClick={() => setMode("reorder")}
             />
-          ) : null}
-          {mealPlan.recipes && (
-            <Link to="/prep">
-              <AnimatedIconButton animation={prepare} iconSize={40} />
-            </Link>
-          )}
-        </h1>
+            {mealPlan.recipes && (
+              <Link to="/prep">
+                <AnimatedIconButton animation={prepare} iconSize={40} />
+              </Link>
+            )}
+          </>
+        ) : null}
         {!mode ? (
           <>
             {showNewPlanButton ? (
               <TextButton
-                css={{ margin: "auto", marginRight: 8 }}
+                css={{ marginRight: 8 }}
                 onClick={() => {
                   household?.ref.set(
                     { planId: (household?.planId || 0) + 1 },

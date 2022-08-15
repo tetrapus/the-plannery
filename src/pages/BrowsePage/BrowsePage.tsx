@@ -18,7 +18,6 @@ export function BrowsePage() {
         <Stack
           css={{
             maxWidth: 800,
-            placeItems: "flex-start",
             [Breakpoint.DESKTOP]: {
               marginLeft: "auto",
             },

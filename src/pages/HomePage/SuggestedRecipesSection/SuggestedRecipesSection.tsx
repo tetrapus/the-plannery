@@ -18,6 +18,7 @@ import { TextButton } from "components/atoms/TextButton";
 import { MealPlanContext } from "../../../data/meal-plan";
 import { Breakpoint } from "components/styles/Breakpoint";
 import { AnimatedIconButton } from "components/atoms/AnimatedIconButton";
+import heart from "animations/heart.json";
 import rules from "animations/rules.json";
 
 interface Props {
@@ -26,6 +27,7 @@ interface Props {
 
 export default function SuggestedRecipesSection({ recipes }: Props) {
   const showFilters$ = useStateObject<boolean>(true);
+  const showLiked$ = useStateObject<boolean>(false);
   const preferences = useHouseholdCollection(
     (doc) => doc.collection("searchPreferences"),
     (snapshot) =>
@@ -98,8 +100,12 @@ export default function SuggestedRecipesSection({ recipes }: Props) {
 
   const [limit, setLimit] = useState<number>(12);
 
+  const recipeList = recipes?.filter(
+    ({ slug }) => !showLiked$.value || likes.find((like) => like.slug === slug)
+  );
+
   const suggestedRecipes = getSuggestedRecipes(
-    recipes,
+    recipeList,
     preferences,
     {
       likes,
@@ -118,12 +124,28 @@ export default function SuggestedRecipesSection({ recipes }: Props) {
 
   return (
     <Stack>
-      <h1 css={{ marginLeft: 8, display: "flex" }}>
+      <h1 css={{ marginLeft: 8, display: "flex", alignItems: "center" }}>
         Suggested for you
         <AnimatedIconButton
+          animation={heart}
+          iconSize={40}
+          css={{
+            marginLeft: "auto",
+            opacity: showLiked$.value ? 1 : 0.5,
+            ":hover": { opacity: 1 },
+          }}
+          active={showLiked$.value}
+          onClick={() => {
+            showLiked$.set((state) => !state);
+          }}
+        />
+        <AnimatedIconButton
           animation={rules}
-          css={{ marginLeft: "auto" }}
-          active={!showFilters$.value}
+          css={{
+            opacity: showFilters$.value ? 1 : 0.5,
+            ":hover": { opacity: 1 },
+          }}
+          active={showFilters$.value}
           onClick={() => {
             showFilters$.set((state) => !state);
           }}

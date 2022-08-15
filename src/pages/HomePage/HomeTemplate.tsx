@@ -40,7 +40,6 @@ export default function HomeTemplate() {
       </Stack>
       <Stack
         css={{
-          placeItems: "flex-start",
           margin: "0 auto",
           gridColumn: "2 / 3",
           [Breakpoint.TABLET]: {
