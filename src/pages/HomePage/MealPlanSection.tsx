@@ -10,8 +10,6 @@ import { MealPlan, MealPlanItem } from "../../data/meal-plan";
 import { PantryContext } from "../../data/pantry";
 import { getRecipe, Recipe } from "../../data/recipes";
 import { RecipeList } from "../../components/organisms/RecipeList";
-import { isSameIngredient } from "../../data/ingredients";
-import { db } from "../../init/firebase";
 import { Spinner } from "../../components/atoms/Spinner";
 import { TextButton } from "components/atoms/TextButton";
 import { Flex } from "components/atoms/Flex";
@@ -23,13 +21,14 @@ import prepare from "animations/prepare.json";
 import { AnimatedIconButton } from "../../components/atoms/AnimatedIconButton";
 import firebase from "firebase";
 import { Link } from "react-router-dom";
+import { markRecipeComplete } from "../../data/markRecipeComplete";
 
 interface Props {
   mealPlan: MealPlan;
   recipes?: Recipe[];
 }
 
-function assertNever(): never {
+export function assertNever(): never {
   throw new Error();
 }
 
@@ -45,75 +44,6 @@ export function MealPlanSection({ mealPlan, recipes }: Props) {
   if (!recipes) {
     return <Spinner />;
   }
-
-  const onClose = (recipe: Recipe) => {
-    if (!pantry) {
-      return;
-    }
-
-    const pantryItems = recipe.ingredients.map((ingredient) => {
-      const pantryItem = pantry.items.find((item) =>
-        isSameIngredient(item.ingredient, ingredient)
-      );
-      return { ingredient, pantryItem };
-    });
-    const pantryCollectionItems = pantryItems.filter(
-      ({ pantryItem }) => pantryItem && pantryItem.ref
-    );
-    const pantryBlobItems = pantryItems.filter(
-      ({ pantryItem }) => !pantryItem || !pantryItem.ref
-    );
-
-    const batch = db.batch();
-    if (pantryCollectionItems.length) {
-      pantryCollectionItems.forEach(({ ingredient, pantryItem }) => {
-        if (!pantryItem?.ref) {
-          assertNever();
-        }
-        if (pantryItem && pantryItem.ingredient.qty && ingredient.qty) {
-          if (pantryItem.ingredient.qty > ingredient.qty) {
-            batch.set(pantryItem.ref, {
-              ingredient: {
-                ...pantryItem.ingredient,
-                qty: pantryItem.ingredient.qty - ingredient.qty,
-              },
-              ...insertMeta,
-            });
-          } else {
-            batch.delete(pantryItem.ref);
-          }
-        }
-      });
-    }
-
-    if (pantryBlobItems.length && household) {
-      const blobDelta = {} as { [key: string]: { [key: string]: any } };
-      pantryBlobItems.forEach(({ ingredient, pantryItem }) => {
-        if (pantryItem && pantryItem.ingredient.qty && ingredient.qty) {
-          if (!blobDelta[ingredient.type.id]) {
-            blobDelta[ingredient.type.id] = {};
-          }
-          if (pantryItem.ingredient.qty > ingredient.qty) {
-            blobDelta[ingredient.type.id][JSON.stringify(ingredient.unit)] = {
-              ingredient: {
-                ...pantryItem.ingredient,
-                qty: pantryItem.ingredient.qty - ingredient.qty,
-              },
-              ...insertMeta,
-            };
-          } else {
-            blobDelta[ingredient.type.id][JSON.stringify(ingredient.unit)] =
-              firebase.firestore.FieldValue.delete();
-          }
-        }
-      });
-      batch.set(household.ref.collection("blobs").doc("pantry"), blobDelta, {
-        merge: true,
-      });
-    }
-
-    batch.commit();
-  };
 
   const showNewPlanButton = mealPlan.recipes.every(
     (recipe) => (recipe.planId || null) === (household?.planId || null)
@@ -154,7 +84,6 @@ export function MealPlanSection({ mealPlan, recipes }: Props) {
       <Flex
         css={{
           marginLeft: 8,
-          flexGrow: 1,
           display: "flex",
           alignItems: "center",
         }}
@@ -338,16 +267,14 @@ export function MealPlanSection({ mealPlan, recipes }: Props) {
                       : {
                           icon: faCheck,
                           onClick: (recipe) => (e) => {
-                            household?.ref
-                              .collection("history")
-                              .add({ ...insertMeta, slug: recipe.slug });
-                            onClose(recipe);
-                            mealPlan.recipes
-                              .find(
-                                (mealPlanItem) =>
-                                  mealPlanItem.slug === recipe.slug
-                              )
-                              ?.ref.delete();
+                            markRecipeComplete({
+                              recipe,
+                              pantry,
+                              household,
+                              insertMeta,
+                              mealPlan,
+                            });
+
                             e.preventDefault();
                           },
                         }
