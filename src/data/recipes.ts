@@ -20,6 +20,31 @@ export interface RecipeStep {
 
 type Difficulty = "Easy" | "Moderate" | "Hard" | "Expert";
 
+export interface Preference {
+  id: string;
+  type:
+    | "ingredient"
+    | "tag"
+    | "equipment"
+    | "liked"
+    | "trash"
+    | "recent"
+    // | "pantry";
+    | "ready-to-cook" // replace with remaining cost & cost
+    | "fast"
+    | "easy";
+  // moods
+  preference: "exclude" | "reduce" | "prefer" | "require";
+  pinned?: boolean;
+  ref: firebase.firestore.DocumentReference;
+}
+
+export interface RecommendReason {
+  type: Preference["type"];
+  value: string;
+  effect: number;
+}
+
 export interface Recipe {
   name: string;
   subtitle: string;
@@ -34,6 +59,7 @@ export interface Recipe {
   serves: number;
   prepTime?: number;
   difficulty?: Difficulty;
+  recommendReasons?: RecommendReason[];
 }
 
 export const RecipesCollection = ExternalCollectionFactory<any[] | undefined>(
@@ -89,30 +115,14 @@ const getWeek = function (date: Date) {
   return Math.ceil(dayOfYear / 7);
 };
 
-export interface Preference {
-  id: string;
-  type:
-    | "ingredient"
-    | "tag"
-    | "equipment"
-    | "liked"
-    | "trash"
-    | "recent"
-    // | "pantry";
-    | "ready-to-cook" // replace with remaining cost & cost
-    | "fast"
-    | "easy";
-  // moods
-  preference: "exclude" | "reduce" | "prefer" | "require";
-  pinned?: boolean;
-  ref: firebase.firestore.DocumentReference;
-}
-
 interface PreferenceProcessor {
   match: (values: Set<Preference["id"]>, recipe: Recipe) => number;
 }
 
-function partitionBy<T extends { [key: string]: any }>(arr: T[], key: string) {
+export function partitionBy<T extends { [key: string]: any }>(
+  arr: T[],
+  key: string
+) {
   return arr.reduce(
     (acc: { [key: string]: T[] }, value: T) => ({
       ...acc,
@@ -152,8 +162,6 @@ export function getSuggestedRecipes(
   let weightedRecipes = recipes.map((recipe) => ({
     recipe,
     roll: random(),
-    score: 0,
-    reasons: [],
   }));
 
   const processors: { [key: string]: PreferenceProcessor } = {
@@ -236,7 +244,23 @@ export function getSuggestedRecipes(
         if (score === null) {
           return undefined;
         }
-        return { ...r, score: r.score + score };
+
+        return {
+          ...r,
+          recipe: {
+            ...r.recipe,
+            recommendReasons: [
+              ...(r.recipe.recommendReasons || []),
+              ...Array.from(values)
+                .map((value) => ({
+                  type,
+                  value,
+                  effect: score,
+                }))
+                .filter((reason) => reason.effect),
+            ],
+          },
+        };
       });
       weightedRecipes = processedRecipes.filter(
         (recipe) => recipe !== undefined
@@ -244,25 +268,26 @@ export function getSuggestedRecipes(
     }
   }
 
-  const maxScore = Math.max(...weightedRecipes.map((r) => r.score));
-  const minScore = Math.min(...weightedRecipes.map((r) => r.score));
-
-  const scoredRecipes = weightedRecipes.map(
-    ({ recipe, score, roll, reasons }) => {
-      return {
-        recipe,
-        score: roll + 0.4 * (score / (maxScore - minScore || 1)),
-        reasons,
-      };
-    }
+  const scores = weightedRecipes.map(
+    (r) =>
+      r.recipe.recommendReasons
+        ?.map((reason) => reason.effect)
+        .reduce((a, b) => a + b, 0) || 0
   );
+
+  const maxScore = Math.max(...scores);
+  const minScore = Math.min(...scores);
+
+  const scoredRecipes = weightedRecipes.map(({ recipe, roll }, idx) => {
+    return {
+      recipe,
+      score: roll + 0.4 * (scores[idx] / (maxScore - minScore || 1)),
+    };
+  });
   return scoredRecipes
     .sort((a, b) => b.score - a.score)
     .slice(0, limit)
-    .map(({ recipe, reasons }) => ({
-      recipe,
-      reasons,
-    }));
+    .map(({ recipe }) => recipe);
 }
 
 export function getRecipe(recipes: Recipe[] | undefined, slug: string) {
@@ -274,7 +299,10 @@ export function getRecipe(recipes: Recipe[] | undefined, slug: string) {
 
 function isValidRecipe(recipe: any) {
   return (
-    recipe.ingredients.length && recipe.steps.length && recipe.yields.length
+    recipe.ingredients.length &&
+    recipe.steps.length &&
+    recipe.yields.length &&
+    recipe.yields.find((yields: any) => yields.yields === 4)
   );
 }
 

@@ -175,3 +175,12 @@ export function IngredientAmount({ ingredient }: { ingredient: Ingredient }) {
     displayIngredient?.unit
   )}`;
 }
+
+export function getAllIngredients(recipes: Recipe[]) {
+  return Object.fromEntries(
+    (recipes || [])
+      .map((recipe) => recipe.ingredients)
+      .flat()
+      .map((ingredient) => [ingredient.type.id, ingredient])
+  );
+}

@@ -114,9 +114,9 @@ export default function SuggestedRecipesSection({ recipes }: Props) {
       history: history?.history || [],
     },
     limit
-  )?.filter(
-    ({ recipe }) => !mealPlan?.recipes.find((r) => r.slug === recipe.slug)
-  );
+  )?.filter((recipe) => !mealPlan?.recipes.find((r) => r.slug === recipe.slug));
+
+  console.log(suggestedRecipes);
 
   if (!mealPlan) {
     return null;
@@ -160,7 +160,7 @@ export default function SuggestedRecipesSection({ recipes }: Props) {
         </>
       ) : null}
       <RecipeList
-        recipes={(suggestedRecipes || []).map((r) => r.recipe)}
+        recipes={suggestedRecipes || []}
         select={{
           icon: faPlus,
           onClick: (recipe) => (e) => {

@@ -19,6 +19,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { AuthStateContext } from "data/auth-state";
 import { useStateObject } from "util/use-state-object";
 import { Darkmode } from "../../../components/styles/Darkmode";
+import { getAllIngredients } from "data/ingredients";
 
 interface Props {
   recipes: Recipe[];
@@ -72,14 +73,7 @@ export default function RecipeSearchSettingsSection({
           label: <>Easy</>,
           fullLabel: <>Easy</>,
         },
-        ...Object.values(
-          Object.fromEntries(
-            (recipes || [])
-              .map((recipe) => recipe.ingredients)
-              .flat()
-              .map((ingredient) => [ingredient.type.id, ingredient])
-          )
-        ).map((ingredient) => ({
+        ...Object.values(getAllIngredients(recipes)).map((ingredient) => ({
           value: ingredient.type.id,
           type: "ingredient",
           label: <>{ingredient.type.name}</>,

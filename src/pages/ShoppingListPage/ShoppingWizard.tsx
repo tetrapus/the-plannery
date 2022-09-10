@@ -5,7 +5,12 @@ import { TextField, TextInput } from "components/atoms/TextInput";
 import { QuantityInput } from "components/molecules/QuantityInput";
 import { AuthStateContext } from "data/auth-state";
 import Ingredient, { normaliseIngredient } from "data/ingredients";
-import { isConvertible, normaliseProduct, Product } from "data/product";
+import {
+  isConvertible,
+  normaliseProduct,
+  Product,
+  trimProduct,
+} from "data/product";
 import React, { ChangeEvent, useContext, useEffect, useState } from "react";
 import { ProductOption } from "./ProductOption";
 import { LinkButton } from "../../components/atoms/LinkButton";
@@ -108,7 +113,7 @@ export function ShoppingWizard({
       .set(
         {
           [selectedIngredient.type.name]: {
-            [selectedProduct.Stockcode]: selectedProduct,
+            [selectedProduct.Stockcode]: trimProduct(selectedProduct),
           },
         },
         { merge: true }

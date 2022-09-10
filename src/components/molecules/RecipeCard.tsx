@@ -2,12 +2,19 @@ import { css } from "@emotion/core";
 import { IconProp } from "@fortawesome/fontawesome-svg-core";
 import { Button } from "components/atoms/Button";
 import { IconButton } from "components/atoms/IconButton";
+import { Tooltip } from "components/atoms/Tooltip";
 import { Darkmode } from "components/styles/Darkmode";
-import React, { useContext, useRef, useState } from "react";
+import { IngredientAmount } from "data/ingredients";
+import React, { ReactNode, useContext, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import { LikesContext } from "../../data/likes";
-import { inPantry, PantryContext } from "../../data/pantry";
-import { Recipe } from "../../data/recipes";
+import { inPantry, Pantry, PantryContext } from "../../data/pantry";
+import {
+  partitionBy,
+  Preference,
+  Recipe,
+  RecommendReason,
+} from "../../data/recipes";
 import { CardStyle } from "../atoms/Card";
 import { Flex } from "../atoms/Flex";
 import { Stack } from "../atoms/Stack";
@@ -164,25 +171,7 @@ export function RecipeCard({ recipe, dismiss, select, ...rest }: Props) {
             onError={(e) => (e.currentTarget.style.display = "none")}
             alt={recipe.name}
           />
-          <div
-            css={{
-              color: "white",
-              position: "absolute",
-              top: 0,
-              left: 0,
-              background: {
-                Easy: "#4fb55d",
-                Moderate: "#007fed",
-                Hard: "#363f4d",
-                Expert: "#000",
-              }[recipe.difficulty || "Expert"],
-              fontSize: 10,
-              padding: "2px 4px",
-              borderBottomRightRadius: 2,
-            }}
-          >
-            {recipe.difficulty}
-          </div>
+          <RecipeDifficultyTag recipe={recipe} />
           <div
             css={{
               minWidth: 150,
@@ -228,101 +217,34 @@ export function RecipeCard({ recipe, dismiss, select, ...rest }: Props) {
                   ? touchOffset.value
                   : 0,
             }}
-            /*
-            onTouchStart={(event) => {
-              if (window.innerWidth > 480) {
-                setTouchOffset({ origin: event.touches[0].clientX, value: 0 });
-                console.log(touchOffset);
-              }
-            }}
-            onTouchMove={(event) => {
-              if (!touchOffset) {
-                return;
-              }
-              console.log(touchOffset);
-              let value = event.touches[0].clientX - touchOffset.origin;
-              if ((!select && value < 0) || (!dismiss && value > 0)) {
-                value = 0;
-              }
-
-              setTouchOffset({
-                ...touchOffset,
-                value: Math.max(value, -150),
-              });
-            }}
-            onTouchEnd={(e) => {
-              if (!touchOffset) {
-                return;
-              }
-              if (touchOffset.value < 0.85 * -150 && select) {
-                console.log("selected");
-                select.onClick(recipe)(e);
-              } else if (
-                touchOffset.value > (ref.current?.offsetWidth || 0) * 0.5 &&
-                dismiss
-              ) {
-                console.log("dismissed");
-
-                dismiss.onClick(recipe)(e);
-              }
-              setTouchOffset(undefined);
-              console.log(touchOffset);
-            }}
-            */
           >
             <Stack
               css={{
-                padding: "12px 4px",
-                margin: "12px auto",
                 alignItems: "center",
                 textAlign: "center",
                 fontSize: 24,
                 flexGrow: 1,
                 [Breakpoint.MOBILE]: {
-                  padding: "8px 2px",
                   margin: "auto",
                   fontSize: 16,
                 },
               }}
             >
-              <div css={{ fontSize: "1.25em", fontWeight: "bold" }}>
-                {recipe.name}
-              </div>
-              <div css={{ fontSize: "1em" }}>{recipe.subtitle}</div>
-              <div
+              <Stack
                 css={{
-                  color: "grey",
-                  fontStyle: "italic",
-                  position: "absolute",
-                  bottom: 8,
-                  right: 8,
-                  fontSize: 14,
-                  [Breakpoint.MOBILE]: {
-                    position: "initial",
-                    marginTop: "auto",
-                  },
+                  padding: 12,
+                  margin: "auto",
+                  [Breakpoint.MOBILE]: { padding: "8px 2px" },
                 }}
               >
-                {recipe.prepTime}m &middot; {recipe.serves} serves{" "}
-                {pantry ? (
-                  <>
-                    {" "}
-                    &middot;{" "}
-                    {pantryIngredients === recipe.ingredients.length ? (
-                      <>Ready to cook</>
-                    ) : (
-                      <>
-                        {
-                          recipe.ingredients.filter((ingredient) =>
-                            inPantry(ingredient, pantry)
-                          ).length
-                        }
-                        /{recipe.ingredients.length} items
-                      </>
-                    )}
-                  </>
-                ) : null}
-              </div>
+                <div css={{ fontSize: "1.2em" }}>{recipe.name}</div>
+                <div css={{ fontSize: "1em", fontWeight: "lighter" }}>
+                  {recipe.subtitle}
+                </div>
+              </Stack>
+              <Flex css={{ marginTop: "auto", marginBottom: 8 }}>
+                <RecipeDetails {...{ recipe, pantry, pantryIngredients }} />
+              </Flex>
             </Stack>
           </Stack>
           <div
@@ -330,10 +252,180 @@ export function RecipeCard({ recipe, dismiss, select, ...rest }: Props) {
               [Breakpoint.MOBILE]: { width: "100%" },
             }}
           >
-            <RecipeActions recipe={recipe} dismiss={dismiss} select={select} />
+            <RecipeActions {...{ recipe, dismiss, select }} />
           </div>
         </Flex>
       </Link>
     </Flex>
+  );
+}
+
+function RecipeDetails({
+  recipe,
+  pantry,
+  pantryIngredients,
+}: {
+  recipe: Recipe;
+  pantry: Pantry | undefined;
+  pantryIngredients: number;
+}) {
+  const reasonProcessors: {
+    [key in Preference["type"]]: (reason: RecommendReason) => ReactNode;
+  } = {
+    ingredient: (reason) => {
+      const ingredient = recipe.ingredients.find(
+        (ingredient) => ingredient.type.id === reason.value
+      );
+      if (!ingredient || !ingredient.type.imageUrl) {
+        return null;
+      }
+      return (
+        <Tooltip
+          text={`${IngredientAmount({ ingredient })} ${ingredient.type.name}`}
+        >
+          <img
+            src={ingredient.type.imageUrl}
+            alt=""
+            width={24}
+            height={24}
+            css={{
+              "&:not(:first-child)": {
+                marginLeft: 4,
+              },
+              "&:not(:hover)": {
+                opacity: 0.8,
+              },
+            }}
+          ></img>
+        </Tooltip>
+      );
+    },
+    recent: () => "Recently cooked",
+    trash: () => "In trash",
+    tag: (reason) => `#${reason.value}`,
+    equipment: (reason) => reason.value,
+    easy: () => null,
+    fast: () => null,
+    liked: () => null,
+    "ready-to-cook": () => null,
+  };
+
+  const positives = [<>{recipe.prepTime}m</>];
+  const negatives = [];
+  if (pantry) {
+    positives.push(
+      pantryIngredients === recipe.ingredients.length ? (
+        <>Ready to cook</>
+      ) : (
+        <>
+          {
+            recipe.ingredients.filter((ingredient) =>
+              inPantry(ingredient, pantry)
+            ).length
+          }
+          /{recipe.ingredients.length} items
+        </>
+      )
+    );
+  }
+
+  if (recipe.recommendReasons) {
+    const pluses = recipe.recommendReasons.filter(
+      (reason) => reason.effect > 0
+    );
+    const minuses = recipe.recommendReasons.filter(
+      (reason) => reason.effect < 0
+    );
+    const plusesList = partitionBy(pluses, "type");
+    const minusesList = partitionBy(minuses, "type");
+    positives.push(
+      ...Object.values(plusesList)
+        .map((reasons) =>
+          reasons
+            .map((reason) => reasonProcessors[reason.type](reason))
+            .filter((x) => x)
+        )
+        .filter((x) => x.length)
+        .map((x) => <>{x}</>)
+    );
+    negatives.push(
+      ...Object.values(minusesList)
+        .map((reasons) =>
+          reasons
+            .map((reason) => reasonProcessors[reason.type](reason))
+            .filter((x) => x)
+        )
+        .filter((x) => x.length)
+        .map((x) => <>{x}</>)
+    );
+  }
+
+  return (
+    <Flex
+      css={{
+        color: "grey",
+        marginLeft: 8,
+        marginRight: 8,
+        flexWrap: "wrap",
+        justifyContent: "center",
+        fontSize: 14,
+        alignItems: "center",
+        [Breakpoint.MOBILE]: {
+          position: "initial",
+        },
+      }}
+    >
+      {positives.map((elem) => (
+        <Flex
+          css={{
+            alignItems: "center",
+            "&:not(:first-child):before": {
+              content: '"·"',
+              margin: 4,
+            },
+          }}
+        >
+          {elem}
+        </Flex>
+      ))}
+      {negatives.map((elem) => (
+        <Flex
+          css={{
+            color: "red",
+            alignItems: "center",
+            "&:not(:first-child):before": {
+              content: '"×"',
+              margin: 4,
+            },
+          }}
+        >
+          {elem}
+        </Flex>
+      ))}
+    </Flex>
+  );
+}
+
+function RecipeDifficultyTag({ recipe }: { recipe: Recipe }) {
+  return (
+    <div
+      css={{
+        color: "white",
+        position: "absolute",
+        top: 4,
+        left: 4,
+        background: {
+          Easy: "#4fb55d",
+          Moderate: "#007fed",
+          Hard: "#363f4d",
+          Expert: "#000",
+        }[recipe.difficulty || "Expert"],
+        fontSize: 10,
+        padding: "2px 4px",
+        borderRadius: 4,
+      }}
+    >
+      {recipe.difficulty}
+    </div>
   );
 }
