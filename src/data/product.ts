@@ -278,7 +278,7 @@ export function trimProduct(product: Product): Product {
   };
 }
 
-export function compact<T>(
+export function compact<T extends object>(
   obj: T
 ): Partial<{ [Prop in keyof T]: Partial<T[Prop]> | T[Prop] }> {
   return Object.fromEntries(

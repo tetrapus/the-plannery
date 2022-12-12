@@ -51,33 +51,50 @@ export function RecipeStep({
   console.log(timers);
 
   const renderers = {
-    text: ({ value }: { value: string }) => {
-      const fragments = value.split(/(then|\.)/i);
+    p: ({ children }: { children: React.ReactNode[] }) => {
+      const fragments = children
+        ?.map((value) => {
+          if (value && typeof value === "string") {
+            return value.split(/(then|\.)/i);
+          } else {
+            return value;
+          }
+        })
+        .flat();
 
       return (
         <>
-          {fragments.map((value, idx) =>
-            value.split(/(\d+(?:[-–]\d+)? minutes?)/).map((fragment) => {
-              if (fragment.match(/^(\d+(?:[-–]\d+)? minutes?)$/)) {
-                return (
-                  <TimerText
-                    key={idx}
-                    text={fragment}
-                    context={value}
-                    onTimerCreate={(timer) => {
-                      const alarmElem = new Audio();
-                      alarmElem.play();
-                      const alarmId = setTimeout(() => {
-                        soundAlarm(alarmElem);
-                      }, timer.timer.duration * 1000);
-                      setTimers([...timers, { ...timer, alarmId, alarmElem }]);
-                    }}
-                  />
-                );
-              }
-              return <Fragment key={idx}>{fragment}</Fragment>;
-            })
-          )}
+          {fragments.map((value, idx) => {
+            if (value && typeof value === "string") {
+              return value
+                .split(/(\d+(?:[-–]\d+)? minutes?)/)
+                .map((fragment) => {
+                  if (fragment.match(/^(\d+(?:[-–]\d+)? minutes?)$/)) {
+                    return (
+                      <TimerText
+                        key={idx}
+                        text={fragment}
+                        context={value}
+                        onTimerCreate={(timer) => {
+                          const alarmElem = new Audio();
+                          alarmElem.play();
+                          const alarmId = setTimeout(() => {
+                            soundAlarm(alarmElem);
+                          }, timer.timer.duration * 1000);
+                          setTimers([
+                            ...timers,
+                            { ...timer, alarmId, alarmElem },
+                          ]);
+                        }}
+                      />
+                    );
+                  }
+                  return <Fragment key={idx}>{fragment}</Fragment>;
+                });
+            } else {
+              return value;
+            }
+          })}
         </>
       );
     },
@@ -148,7 +165,7 @@ export function RecipeStep({
           value={step.method}
         >
           {(value) => (
-            <ReactMarkdown renderers={renderers}>{value}</ReactMarkdown>
+            <ReactMarkdown components={renderers}>{value}</ReactMarkdown>
           )}
         </Notable>
         <Stack>

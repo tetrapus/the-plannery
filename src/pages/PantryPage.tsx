@@ -14,7 +14,7 @@ import BarcodeScannerComponent from "react-qr-barcode-scanner";
 import { useSubscription } from "util/use-subscription";
 import { playSound } from "../util/play-sound";
 import { ProductCard } from "./ShoppingListPage/ProductCard";
-import styled from "@emotion/styled";
+import styled, { CSSObject } from "@emotion/styled";
 import { useFirestoreDoc } from "init/firebase";
 import firebase from "firebase";
 
@@ -67,11 +67,11 @@ function Month({
         background: "white",
         border: "1px solid transparent",
         margin: "8px 4px",
-        ...(selected
+        ...((selected
           ? { background: "black", color: "white" }
           : current
           ? { border: "1px solid black" }
-          : {}),
+          : {}) as CSSObject),
       }}
       onClick={onClick}
     >
