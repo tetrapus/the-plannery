@@ -36,7 +36,7 @@ export const NotableContext = React.createContext<NoteState | undefined>(
   undefined
 );
 
-function Note({
+function NoteContent({
   note,
   editing,
   onDelete,
@@ -196,7 +196,7 @@ export function Notable({ slug, field, value, children }: NotableProps) {
           key={idx}
           user={context?.users?.find((user) => user.uid === note.author)}
         >
-          <Note
+          <NoteContent
             note={note}
             editing={editing}
             onDelete={() =>

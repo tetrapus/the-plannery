@@ -55,7 +55,9 @@ export function useFirestoreDoc<S, T>(
   useEffect(() => {
     console.log("Snapshot updated:", state);
   }, [state]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   const collection = useCallback(collectionFn, []);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   const transformer = useCallback(transformerFn, []);
   useEffect(() => {
     if (!rootDoc) {
@@ -83,7 +85,9 @@ export function useFirestore<S, T>(
   useEffect(() => {
     console.log("Snapshot updated:", state);
   }, [state]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   const collection = useCallback(collectionFn, []);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   const transformer = useCallback(transformerFn, []);
   useEffect(() => {
     if (!rootDoc) {

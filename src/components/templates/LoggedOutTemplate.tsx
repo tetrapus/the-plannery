@@ -3,9 +3,24 @@ import React from "react";
 import { StyledFirebaseAuth } from "react-firebaseui";
 import { Stack } from "../atoms/Stack";
 
+function iOS() {
+  return (
+    [
+      "iPad Simulator",
+      "iPhone Simulator",
+      "iPod Simulator",
+      "iPad",
+      "iPhone",
+      "iPod",
+    ].includes(navigator.platform) ||
+    // iPad on iOS 13 detection
+    (navigator.userAgent.includes("Mac") && "ontouchend" in document)
+  );
+}
+
 // Configure FirebaseUI.
 const uiConfig = {
-  signInFlow: "redirect",
+  signInFlow: iOS() ? "popup" : "redirect",
   callbacks: {
     // Avoid redirects after sign-in.
     signInSuccessWithAuthResult: () => false,
