@@ -26,7 +26,9 @@ export function UserCard({ user, size }: Props) {
           alt=""
           onError={(e) => setErrorState(true)}
         />
-      ) : null}
+      ) : (
+        <div css={{ width: size, height: size, marginRight: size / 8 }}></div>
+      )}
       <Stack
         css={{ margin: size / 8, [Breakpoint.TABLET]: { display: "none" } }}
       >

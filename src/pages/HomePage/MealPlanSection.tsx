@@ -151,9 +151,6 @@ export function MealPlanSection({ mealPlan, recipes }: Props) {
                   css={{
                     position: "absolute",
                     transform: "translateY(-36px)",
-                    [Breakpoint.TABLET]: {
-                      transform: "translateY(-22px)",
-                    },
                     display: "inline-block",
                     padding: "2px 4px",
                     background: "#f5f5f5",

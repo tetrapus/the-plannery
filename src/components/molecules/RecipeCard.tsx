@@ -237,8 +237,8 @@ export function RecipeCard({ recipe, dismiss, select, ...rest }: Props) {
                   [Breakpoint.MOBILE]: { padding: "8px 2px" },
                 }}
               >
-                <div css={{ fontSize: "1.2em" }}>{recipe.name}</div>
-                <div css={{ fontSize: "1em", fontWeight: "lighter" }}>
+                <div css={{ fontSize: "1em" }}>{recipe.name}</div>
+                <div css={{ fontSize: "0.8em", fontWeight: "lighter" }}>
                   {recipe.subtitle}
                 </div>
               </Stack>
