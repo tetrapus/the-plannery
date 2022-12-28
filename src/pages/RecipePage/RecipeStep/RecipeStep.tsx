@@ -63,7 +63,7 @@ export function RecipeStep({
         .flat();
 
       return (
-        <>
+        <p>
           {fragments.map((value, idx) => {
             if (value && typeof value === "string") {
               return value
@@ -95,7 +95,7 @@ export function RecipeStep({
               return value;
             }
           })}
-        </>
+        </p>
       );
     },
   };
