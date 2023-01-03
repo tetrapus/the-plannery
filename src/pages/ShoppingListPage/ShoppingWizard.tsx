@@ -181,11 +181,11 @@ export function ShoppingWizard({
                     <IconButton
                       icon={faBarcode}
                       onClick={() => setScanning(!scanning)}
-                      css={{ height: "fit-content", margin: 4 }}
+                      css={{ margin: 4 }}
                     />
                     <TextButton
                       onClick={() => setLoading(true)}
-                      css={{ height: "fit-content", margin: 4 }}
+                      css={{ margin: 4 }}
                     >
                       Search
                     </TextButton>
