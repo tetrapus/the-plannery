@@ -1,16 +1,12 @@
-import React from "react";
-import { useLocation, useParams } from "react-router-dom";
-import RecipeTemplate from "./RecipeTemplate";
-import { NotFoundTemplate } from "../../components/templates/NotFoundTemplate";
-import {
-  getRecipe,
-  getRecipes,
-  Recipe,
-  RecipesCollection,
-} from "../../data/recipes";
-import { Spinner } from "../../components/atoms/Spinner";
-import { useSubscription } from "../../util/use-subscription";
+import { Spinner } from "components/atoms/Spinner";
+import { NotFoundTemplate } from "components/templates/NotFoundTemplate";
+import { AuthStateContext } from "data/auth-state";
 import Ingredient from "data/ingredients";
+import { getRecipe, getRecipes, Recipe, RecipesCollection } from "data/recipes";
+import React, { useContext } from "react";
+import { useLocation, useParams } from "react-router-dom";
+import { useSubscription } from "util/use-subscription";
+import RecipeTemplate from "./RecipeTemplate";
 
 interface Props {}
 
@@ -43,6 +39,8 @@ export function RecipePage(props: Props) {
   const recipes = useSubscription<Recipe[]>((setState) =>
     RecipesCollection.subscribe((value) => setState(getRecipes(value)))
   );
+  const { household } = useContext(AuthStateContext);
+
   let recipe: Recipe | null | undefined;
   if (slug === "new") {
     if (recipes) {
@@ -72,6 +70,7 @@ export function RecipePage(props: Props) {
           .map((person) => person.name)
           .join(", ");
         recipe = {
+          collectionId: household ? `household-${household?.id}` : "anonymous",
           name: value.name,
           subtitle: `By ${author}`,
           description: value.description,

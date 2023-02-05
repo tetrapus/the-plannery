@@ -46,6 +46,7 @@ export interface RecommendReason {
 }
 
 export interface Recipe {
+  collectionId: string;
   name: string;
   subtitle: string;
   description: string;
@@ -83,6 +84,7 @@ export function getRecipes(recipes: any[] | undefined): Recipe[] | undefined {
 
     const prepTime = item.prepTime && item.prepTime.match(/PT(\d+)M/);
     return {
+      collectionId: "hello-fresh",
       name: item.name,
       subtitle: item.headline,
       description: item.descriptionMarkdown,
