@@ -1,36 +1,26 @@
 import { faPlus, faTrashAlt } from "@fortawesome/free-solid-svg-icons";
-import React, { useContext, useEffect, useState } from "react";
-import { Stack } from "../../../components/atoms/Stack";
-import { RecipeList } from "../../../components/organisms/RecipeList";
-import { LikesContext } from "../../../data/likes";
-import {
-  deletePantryItem,
-  PantryContext,
-  updatePantryItem,
-} from "../../../data/pantry";
-import { getSuggestedRecipes, Preference, Recipe } from "../../../data/recipes";
-import { TrashContext } from "../../../data/trash";
-import { useStateObject } from "../../../util/use-state-object";
-import {
-  AuthStateContext,
-  useHouseholdCollection,
-} from "../../../data/auth-state";
-import RecipeSearchSettingsSection from "./RecipeSearchSettingsSection";
-import { RecipeHistory, HistoryItem } from "data/recipe-history";
-import { db } from "init/firebase";
-import { TextButton } from "components/atoms/TextButton";
-import {
-  getIngredientsForMealPlan,
-  MealPlanContext,
-} from "../../../data/meal-plan";
-import { Breakpoint } from "components/styles/Breakpoint";
-import { AnimatedIconButton } from "components/atoms/AnimatedIconButton";
 import heart from "animations/heart.json";
 import rules from "animations/rules.json";
-import { IngredientAmount, isSameIngredient } from "data/ingredients";
+import { AnimatedIconButton } from "components/atoms/AnimatedIconButton";
 import { Flex } from "components/atoms/Flex";
-import IngredientCard from "components/molecules/IngredientCard";
 import { IconButton } from "components/atoms/IconButton";
+import { Stack } from "components/atoms/Stack";
+import { TextButton } from "components/atoms/TextButton";
+import { IngredientCard } from "components/molecules/IngredientCard";
+import { RecipeList } from "components/organisms/RecipeList";
+import { Breakpoint } from "components/styles/Breakpoint";
+import { AuthStateContext, useHouseholdCollection } from "data/auth-state";
+import { IngredientAmount, isSameIngredient } from "data/ingredients";
+import { LikesContext } from "data/likes";
+import { getIngredientsForMealPlan, MealPlanContext } from "data/meal-plan";
+import { deletePantryItem, PantryContext, updatePantryItem } from "data/pantry";
+import { HistoryItem, RecipeHistory } from "data/recipe-history";
+import { getSuggestedRecipes, Preference, Recipe } from "data/recipes";
+import { TrashContext } from "data/trash";
+import { db } from "init/firebase";
+import React, { useContext, useEffect, useState } from "react";
+import { useStateObject } from "util/use-state-object";
+import RecipeSearchSettingsSection from "./RecipeSearchSettingsSection";
 
 interface Props {
   recipes: Recipe[];

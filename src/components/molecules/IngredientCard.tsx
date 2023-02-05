@@ -15,7 +15,7 @@ interface Props {
   onClick?: (e: React.MouseEvent) => void;
 }
 
-export default function IngredientCard({
+export function IngredientCard({
   ingredient,
   status,
   pinned,

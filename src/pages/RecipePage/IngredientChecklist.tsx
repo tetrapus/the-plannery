@@ -1,18 +1,18 @@
-import { faChevronUp, faChevronDown } from "@fortawesome/free-solid-svg-icons";
-import React, { useContext } from "react";
-import { Flex } from "../../components/atoms/Flex";
-import { IconButton } from "../../components/atoms/IconButton";
-import IngredientCard from "../../components/molecules/IngredientCard";
-import { AuthStateContext } from "../../data/auth-state";
+import { faChevronDown, faChevronUp } from "@fortawesome/free-solid-svg-icons";
+import { Flex } from "components/atoms/Flex";
+import { IconButton } from "components/atoms/IconButton";
+import { IngredientCard } from "components/molecules/IngredientCard";
+import { Darkmode } from "components/styles/Darkmode";
+import { AuthStateContext } from "data/auth-state";
 import Ingredient, {
   denormaliseIngredient,
   displayUnit,
-} from "../../data/ingredients";
-import { Recipe } from "../../data/recipes";
-import { Session } from "../../data/session";
-import { useFirestore } from "../../init/firebase";
-import { useStateObject } from "../../util/use-state-object";
-import { Darkmode } from "../../components/styles/Darkmode";
+} from "data/ingredients";
+import { Recipe } from "data/recipes";
+import { Session } from "data/session";
+import { useFirestore } from "init/firebase";
+import React, { useContext } from "react";
+import { useStateObject } from "util/use-state-object";
 
 interface Props {
   recipe: Recipe;

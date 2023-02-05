@@ -1,18 +1,14 @@
 import { faSearch, faThumbtack } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import React, { useContext, useState } from "react";
+import { AuthStateContext } from "data/auth-state";
 import Ingredient, {
   denormaliseIngredient,
   displayUnit,
-} from "../../data/ingredients";
-import {
-  deletePantryItem,
-  PantryItem,
-  updatePantryItem,
-} from "../../data/pantry";
-import { AuthStateContext } from "../../data/auth-state";
-import IngredientCard from "../molecules/IngredientCard";
+} from "data/ingredients";
+import { deletePantryItem, PantryItem, updatePantryItem } from "data/pantry";
 import firebase from "firebase";
+import React, { useContext, useState } from "react";
+import { IngredientCard } from "../molecules/IngredientCard";
 
 interface Props {
   ingredient: Ingredient;
