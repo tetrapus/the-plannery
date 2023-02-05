@@ -1,4 +1,4 @@
-import { faPlus, faTrash, faTrashAlt } from "@fortawesome/free-solid-svg-icons";
+import { faPlus, faTrashAlt } from "@fortawesome/free-solid-svg-icons";
 import React, { useContext, useEffect, useState } from "react";
 import { Stack } from "../../../components/atoms/Stack";
 import { RecipeList } from "../../../components/organisms/RecipeList";
@@ -30,7 +30,6 @@ import rules from "animations/rules.json";
 import { IngredientAmount, isSameIngredient } from "data/ingredients";
 import { Flex } from "components/atoms/Flex";
 import IngredientCard from "components/molecules/IngredientCard";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { IconButton } from "components/atoms/IconButton";
 
 interface Props {
