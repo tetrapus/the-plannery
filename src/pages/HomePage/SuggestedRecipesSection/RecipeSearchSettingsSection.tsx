@@ -20,6 +20,7 @@ import { AuthStateContext } from "data/auth-state";
 import { useStateObject } from "util/use-state-object";
 import { Darkmode } from "../../../components/styles/Darkmode";
 import { getAllIngredients } from "data/ingredients";
+import { Breakpoint } from "components/styles/Breakpoint";
 
 interface Props {
   recipes: Recipe[];
@@ -173,59 +174,52 @@ export default function RecipeSearchSettingsSection({
         }}
         value={null}
       ></Select>
-      <Stack css={{ marginBottom: 16 }}>
+      <Stack>
+        <h3
+          css={{ marginLeft: 8 }}
+          onClick={() => showSavedPreferences.set((v) => !v)}
+        >
+          Your Preferences{" "}
+          <IconButton
+            icon={showSavedPreferences.value ? faChevronDown : faChevronRight}
+            css={{ fontSize: 18 }}
+          />
+        </h3>
         {[true, false].map((pinnedSection) => {
           const sectionPreferences = preferences.filter(
             ({ pinned }) =>
               pinnedSection === !!pinned &&
               (pinnedSection && showSavedPreferences.value ? true : !pinned)
           );
+          if (!sectionPreferences.length) {
+            return null;
+          }
           return (
             <Stack
               css={{
-                borderBottom: "1px solid #dedede",
-                marginBottom: 4,
-                paddingBottom: 4,
+                borderLeft: "1px solid #dedede",
+                marginLeft: 32,
+                paddingLeft: 16,
+                marginBottom: 8,
                 [Darkmode]: {
                   borderBottom: "1px solid #444",
+                },
+                [Breakpoint.MOBILE]: {
+                  marginLeft: 8,
+                  paddingLeft: 8,
+                  borderLeft: "none",
                 },
               }}
               key={JSON.stringify(pinnedSection)}
             >
-              {pinnedSection ? (
-                <h3
-                  css={{ marginLeft: 8 }}
-                  onClick={() => showSavedPreferences.set((v) => !v)}
-                >
-                  Your Preferences{" "}
-                  <IconButton
-                    icon={
-                      showSavedPreferences.value
-                        ? faChevronDown
-                        : faChevronRight
-                    }
-                    css={{ fontSize: 18 }}
-                  />
-                </h3>
-              ) : /* <h3>
-
-              Options
-              <IconButton
-                icon={
-                  showSavedPreferences.value
-                    ? faChevronDown
-                    : faChevronRight
-                }
-                css={{ fontSize: 18 }}
-              />
-              </h3> */ null}
               {sectionPreferences.map(
                 ({ id, preference, pinned, ref }, idx) => (
-                  <Flex css={{ alignItems: "center" }} key={ref.id}>
+                  <Flex css={{ alignItems: "center" }} key={ref?.id}>
                     {options?.find((option) => option.value === id)?.fullLabel}
                     <Select
                       css={{
-                        width: 150,
+                        width: 100,
+                        fontSize: 14,
                         marginLeft: "auto",
                         color: "black",
                         [Darkmode]: {
@@ -233,10 +227,21 @@ export default function RecipeSearchSettingsSection({
                           zIndex: sectionPreferences.length - idx,
                         },
                       }}
+                      styles={{
+                        control: (baseStyles, state) => ({
+                          ...baseStyles,
+                          background: "none",
+                          minHeight: "initial",
+                        }),
+                        indicatorsContainer: (baseStyles, state) => ({
+                          ...baseStyles,
+                          display: "none",
+                        }),
+                      }}
                       options={filterOptions}
                       isSearchable={false}
                       onChange={(option: any) => {
-                        ref.update({ preference: option.value });
+                        ref?.update({ preference: option.value });
                       }}
                       value={filterOptions.find(
                         (opt) => opt.value === preference
@@ -246,9 +251,9 @@ export default function RecipeSearchSettingsSection({
                       icon={faThumbtack}
                       color={pinned ? "black" : undefined}
                       css={{ height: 24 }}
-                      onClick={() => ref.update({ pinned: !pinned })}
+                      onClick={() => ref?.update({ pinned: !pinned })}
                     />
-                    <IconButton icon={faTimes} onClick={() => ref.delete()} />
+                    <IconButton icon={faTimes} onClick={() => ref?.delete()} />
                   </Flex>
                 )
               )}

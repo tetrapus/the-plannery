@@ -36,7 +36,7 @@ export interface Preference {
   // moods
   preference: "exclude" | "reduce" | "prefer" | "require";
   pinned?: boolean;
-  ref: firebase.firestore.DocumentReference;
+  ref?: firebase.firestore.DocumentReference;
 }
 
 export interface RecommendReason {
@@ -200,14 +200,12 @@ export function getSuggestedRecipes(
     },
     "ready-to-cook": {
       match: (values: Set<Preference["id"]>, recipe: Recipe) =>
-        recipe.ingredients.every((ingredient) => {
+        recipe.ingredients.filter((ingredient) => {
           const pantryItem = sources.pantry.find(
             (item) => item.ingredient.type.id === ingredient.type.id
           );
           return enoughInPantry(ingredient, pantryItem);
-        })
-          ? 1
-          : 0,
+        }).length / recipe.ingredients.length,
     },
     easy: {
       match: (values: Set<Preference["id"]>, recipe: Recipe) =>

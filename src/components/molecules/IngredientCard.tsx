@@ -11,6 +11,7 @@ interface Props {
   action?: React.ReactElement;
   done?: boolean;
   busy?: boolean;
+  compact?: boolean;
   onClick?: (e: React.MouseEvent) => void;
 }
 
@@ -49,6 +50,7 @@ export default function IngredientCard({
           borderRight: done ? "none" : "1px solid #dedede",
           background: done ? "inherit" : "white",
           opacity: busy ? 0.5 : 1,
+          cursor: onClick ? "pointer" : "initial",
           [Darkmode]: {
             background: done ? "inherit" : "#444",
             borderBottom: done ? "none" : "1px solid #000",
@@ -61,7 +63,7 @@ export default function IngredientCard({
         {ingredient.type.imageUrl ? (
           <img
             src={ingredient.type.imageUrl}
-            css={{ height: 48, width: 48 }}
+            css={{ height: 42, width: 42 }}
             alt={ingredient.type.name}
             onError={(e) => (e.currentTarget.style.display = "none")}
           ></img>
@@ -71,11 +73,10 @@ export default function IngredientCard({
           css={{
             alignItems: "flex-start",
             paddingLeft: 8,
+            fontSize: 14,
           }}
         >
-          <div
-            css={{ color: "#666", fontSize: 14, [Darkmode]: { color: "#aaa" } }}
-          >
+          <div css={{ color: "#666", [Darkmode]: { color: "#aaa" } }}>
             {status}
           </div>
           <div>{ingredient.type.name}</div>

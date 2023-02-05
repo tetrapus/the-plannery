@@ -5,7 +5,11 @@ import Ingredient, {
   denormaliseIngredient,
   displayUnit,
 } from "../../data/ingredients";
-import { PantryItem } from "../../data/pantry";
+import {
+  deletePantryItem,
+  PantryItem,
+  updatePantryItem,
+} from "../../data/pantry";
 import { AuthStateContext } from "../../data/auth-state";
 import IngredientCard from "../molecules/IngredientCard";
 import firebase from "firebase";
@@ -34,91 +38,41 @@ export function PantryIngredientCard({ ingredient, pantryItem }: Props) {
     if (!household?.ref || pantryItem === null) {
       return;
     }
-    const updatePantryBlob = (ingredient: Ingredient) =>
-      household.ref
-        .collection("blobs")
-        .doc("pantry")
-        .set(
-          {
-            [ingredient.type.id]: {
-              [JSON.stringify(ingredient.unit)]: {
-                ingredient: {
-                  qty: ingredient.qty,
-                  type: ingredient.type,
-                  unit: ingredient.unit,
-                },
-                ...insertMeta,
-              },
-            },
-          },
-          { merge: true }
-        );
-    const deletePantryBlob = (ingredient: Ingredient) =>
-      household.ref
-        .collection("blobs")
-        .doc("pantry")
-        .set(
-          {
-            [ingredient.type.id]: {
-              [JSON.stringify(ingredient.unit)]:
-                firebase.firestore.FieldValue.delete(),
-            },
-          },
-          { merge: true }
-        );
+
     if (pantryItem) {
-      if (pantryItem.ref) {
-        if (complete) {
-          if (pantryItem.ingredient.qty) {
-            if (ingredient.qty && ingredient.qty < pantryItem.ingredient.qty) {
-              await pantryItem.ref.set({
+      if (complete) {
+        if (pantryItem.ingredient.qty) {
+          // If the item is already completed, deduct the ingredient amount from the pantry item
+          if (ingredient.qty && ingredient.qty < pantryItem.ingredient.qty) {
+            await updatePantryItem(
+              household,
+              {
+                ...pantryItem,
                 ingredient: {
+                  ...ingredient,
                   qty: pantryItem.ingredient.qty - ingredient.qty,
-                  type: ingredient.type,
-                  unit: ingredient.unit,
                 },
-                ...insertMeta,
-              });
-            } else {
-              await pantryItem.ref.delete();
-            }
+              },
+              insertMeta
+            );
           } else {
-            await pantryItem.ref.delete();
+            // That means we delete it if the ingredient qty exceeds what we have in the pantry.
+            await deletePantryItem(household, pantryItem);
           }
         } else {
-          await pantryItem.ref.set({
-            ingredient: {
-              qty: ingredient.qty,
-              type: ingredient.type,
-              unit: ingredient.unit,
-            },
-            ...insertMeta,
-          });
+          // If qty isn't specified, assume we don't have it anymore.
+          await deletePantryItem(household, pantryItem);
         }
       } else {
-        if (complete) {
-          if (pantryItem.ingredient.qty) {
-            // If the item is already completed, deduct the ingredient amount from the pantry item
-            if (ingredient.qty && ingredient.qty < pantryItem.ingredient.qty) {
-              await updatePantryBlob({
-                ...ingredient,
-                qty: pantryItem.ingredient.qty - ingredient.qty,
-              });
-            } else {
-              // That means we delete it if the ingredient qty exceeds what we have in the pantry.
-              await deletePantryBlob(pantryItem.ingredient);
-            }
-          } else {
-            // If qty isn't specified, assume we don't have it anymore.
-            await deletePantryBlob(pantryItem.ingredient);
-          }
-        } else {
-          // If we haven't finished the pantry item, set the value to the ingredient amount.
-          await updatePantryBlob(ingredient);
-        }
+        // If we haven't finished the pantry item, set the value to the ingredient amount.
+        await updatePantryItem(
+          household,
+          { ...pantryItem, ingredient },
+          insertMeta
+        );
       }
     } else {
-      await updatePantryBlob(ingredient);
+      await updatePantryItem(household, { ingredient }, insertMeta);
     }
   };
 

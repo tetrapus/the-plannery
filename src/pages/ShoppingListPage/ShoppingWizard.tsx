@@ -170,7 +170,12 @@ export function ShoppingWizard({
                 >
                   {selectedIngredient.type.name}
                 </h2>
-                <form onSubmit={(e) => e.preventDefault()}>
+                <form
+                  onSubmit={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                  }}
+                >
                   <Flex>
                     <TextInput
                       value={searchTerm}
