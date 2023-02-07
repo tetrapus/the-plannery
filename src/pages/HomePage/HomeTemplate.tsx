@@ -7,7 +7,6 @@ import { Spinner } from "../../components/atoms/Spinner";
 import { Breakpoint } from "../../components/styles/Breakpoint";
 import { MealPlanSection } from "./MealPlanSection";
 import { ShoppingListSection } from "../../components/organisms/ShoppingListSection";
-import { YourHomeSection } from "./YourHomeSection";
 import { useSubscription } from "../../util/use-subscription";
 import { NowCookingSection } from "./NowCookingSection";
 import PantrySection from "./PantrySection";
@@ -26,24 +25,16 @@ export default function HomeTemplate() {
   return (
     <Grid
       css={{
-        gridTemplateColumns: "1fr minmax(100px, 800px) 1fr",
+        gridTemplateColumns: "minmax(100px, 800px) 1fr",
+        margin: "auto",
       }}
     >
       <Stack
         css={{
-          margin: "0 16px",
-          gridColumn: "1 / 2",
-          [Breakpoint.LAPTOP]: { display: "none" },
-        }}
-      >
-        <YourHomeSection />
-      </Stack>
-      <Stack
-        css={{
           margin: "0 auto",
-          gridColumn: "2 / 3",
+          gridColumn: "1 / 2",
           [Breakpoint.TABLET]: {
-            gridColumn: "1 / 4",
+            gridColumn: "1 / 3",
             margin: 0,
           },
         }}
@@ -78,7 +69,7 @@ export default function HomeTemplate() {
       <Stack
         css={{
           marginLeft: 16,
-          gridColumn: "3 / 4",
+          gridColumn: "2 / 3",
           [Breakpoint.LAPTOP]: { display: "none" },
         }}
       >

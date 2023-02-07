@@ -24,8 +24,7 @@ export function YourHomeSection() {
   const [email, setEmail] = useState("");
   const isEmailValid = email.match(".+@.+");
   return (
-    <>
-      <h2>Your Home</h2>
+    <Stack css={{ margin: "0 8px" }}>
       <Stack>
         {users?.map((user) => (
           <UserCard user={user} size={32} key={user.email} />
@@ -55,6 +54,6 @@ export function YourHomeSection() {
           }}
         />
       </Flex>
-    </>
+    </Stack>
   );
 }

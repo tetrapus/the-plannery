@@ -2,7 +2,6 @@ import firebase from "firebase";
 import React, { useState } from "react";
 import { Flex } from "../atoms/Flex";
 import { Stack } from "../atoms/Stack";
-import { Breakpoint } from "../styles/Breakpoint";
 import { Darkmode } from "../styles/Darkmode";
 
 interface Props {
@@ -11,27 +10,10 @@ interface Props {
 }
 
 export function UserCard({ user, size }: Props) {
-  const [errorState, setErrorState] = useState<boolean>(false);
   return (
     <Flex css={{ alignItems: "center" }}>
-      {!errorState ? (
-        <img
-          src={user?.photoURL || "#"}
-          css={{
-            width: size,
-            height: size,
-            borderRadius: 8,
-            marginRight: size / 8,
-          }}
-          alt=""
-          onError={(e) => setErrorState(true)}
-        />
-      ) : (
-        <div css={{ width: size, height: size, marginRight: size / 8 }}></div>
-      )}
-      <Stack
-        css={{ margin: size / 8, [Breakpoint.TABLET]: { display: "none" } }}
-      >
+      <UserAvatar user={user} size={size} />
+      <Stack css={{ margin: size / 8, marginLeft: size / 4 }}>
         <div>{user?.displayName}</div>
         <div
           css={{
@@ -44,5 +26,29 @@ export function UserCard({ user, size }: Props) {
         </div>
       </Stack>
     </Flex>
+  );
+}
+
+export function UserAvatar({
+  user,
+  size,
+}: {
+  user: firebase.User;
+  size: number;
+}) {
+  const [errorState, setErrorState] = useState<boolean>(false);
+  return !errorState ? (
+    <img
+      src={user?.photoURL || "#"}
+      css={{
+        width: size,
+        height: size,
+        borderRadius: 8,
+      }}
+      alt=""
+      onError={(e) => setErrorState(true)}
+    />
+  ) : (
+    <div css={{ width: size, height: size }}></div>
   );
 }
