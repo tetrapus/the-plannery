@@ -41,43 +41,43 @@ export default function RecipeSearchSettingsSection({
         {
           value: "Liked recipes",
           type: "liked",
-          label: <>Liked recipes</>,
+          label: "Liked recipes",
           fullLabel: <>Liked recipes</>,
         },
         {
           value: "Disliked recipes",
           type: "disliked",
-          label: <>Disliked recipes</>,
+          label: "Disliked recipes",
           fullLabel: <>Disliked recipes</>,
         },
         {
           value: "Recently cooked",
           type: "recent",
-          label: <>Recently cooked</>,
+          label: "Recently cooked",
           fullLabel: <>Recently cooked</>,
         },
         {
           value: "Ready to cook",
           type: "ready-to-cook",
-          label: <>Ready to cook</>,
+          label: "Ready to cook",
           fullLabel: <>Ready to cook</>,
         },
         {
           value: "Fast",
           type: "fast",
-          label: <>Fast</>,
+          label: "Fast",
           fullLabel: <>Fast</>,
         },
         {
           value: "Easy",
           type: "easy",
-          label: <>Easy</>,
+          label: "Easy",
           fullLabel: <>Easy</>,
         },
         ...Object.values(getAllIngredients(recipes)).map((ingredient) => ({
           value: ingredient.type.id,
           type: "ingredient",
-          label: <>{ingredient.type.name}</>,
+          label: ingredient.type.name,
           fullLabel: (
             <Flex css={{ alignItems: "center" }}>
               {ingredient.type.imageUrl ? (
@@ -96,7 +96,7 @@ export default function RecipeSearchSettingsSection({
         ).map((tag) => ({
           value: tag,
           type: "tag",
-          label: <>#{tag}</>,
+          label: `#${tag}`,
           fullLabel: <>#{tag}</>,
         })),
         ...Array.from(
@@ -104,7 +104,7 @@ export default function RecipeSearchSettingsSection({
         ).map((equipment) => ({
           value: equipment,
           type: "equipment",
-          label: <>Requires: {equipment}</>,
+          label: `Requires: ${equipment}`,
           fullLabel: <>Requires: {equipment}</>,
         })),
       ]);
@@ -231,7 +231,8 @@ export default function RecipeSearchSettingsSection({
                         control: (baseStyles, state) => ({
                           ...baseStyles,
                           background: "none",
-                          minHeight: "initial",
+                          minHeight: 28,
+                          borderColor: "transparent",
                         }),
                         indicatorsContainer: (baseStyles, state) => ({
                           ...baseStyles,
