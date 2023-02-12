@@ -26,20 +26,17 @@ export function IngredientCard({
 }: Props) {
   return (
     <Stack
-      css={
-        !pinned
-          ? {
-              borderBottom: "1px solid #dedede",
-              [Darkmode]: {
-                borderBottom: "1px solid #444",
-              },
-            }
-          : {}
-      }
+      css={{
+        borderBottom: "1px solid #dedede",
+        [Darkmode]: {
+          borderBottom: "1px solid #444",
+        },
+        borderBottomStyle: pinned ? "dashed" : "solid",
+      }}
     >
       <Flex
         css={{
-          width: 160,
+          width: 175,
           alignItems: "center",
           margin: 4,
           padding: 4,
@@ -63,7 +60,7 @@ export function IngredientCard({
         {ingredient.type.imageUrl ? (
           <img
             src={ingredient.type.imageUrl}
-            css={{ height: 42, width: 42 }}
+            css={true ? { height: 24, width: 24 } : { height: 42, width: 42 }}
             alt={ingredient.type.name}
             onError={(e) => (e.currentTarget.style.display = "none")}
           ></img>
@@ -74,12 +71,26 @@ export function IngredientCard({
             alignItems: "flex-start",
             paddingLeft: 8,
             fontSize: 14,
+            display: true ? "block" : "flex",
           }}
         >
-          <div css={{ color: "#666", [Darkmode]: { color: "#aaa" } }}>
-            {status}
+          <div
+            css={{
+              color: "#666",
+              [Darkmode]: { color: "#aaa" },
+              display: true ? "inline" : "block",
+            }}
+          >
+            {status}{" "}
           </div>
-          <div>{ingredient.type.name}</div>
+          <div
+            css={{
+              display: true ? "inline" : "block",
+              color: pinned ? "#666" : "black",
+            }}
+          >
+            {ingredient.type.name}
+          </div>
         </Stack>
         {action}
       </Flex>

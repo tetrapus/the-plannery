@@ -42,6 +42,7 @@ export default function IngredientsSection({ recipe, session }: Props) {
       <Flex css={{ alignItems: "center" }}>
         <IngredientList
           ingredients={recipe.ingredients}
+          expanded={true}
           sortKey={(ingredient: Ingredient) =>
             recipe.steps
               .map((step) => step.method)

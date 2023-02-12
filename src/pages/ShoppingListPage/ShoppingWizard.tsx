@@ -1,8 +1,17 @@
+import { faBarcode } from "@fortawesome/free-solid-svg-icons";
+import paperbag from "animations/paper-bag.json";
+import { AnimatedIconButton } from "components/atoms/AnimatedIconButton";
+import { ErrorBanner } from "components/atoms/ErrorBanner";
+import { ExternalLink } from "components/atoms/ExternalLink";
 import { Flex } from "components/atoms/Flex";
+import { IconButton } from "components/atoms/IconButton";
+import { LinkButton } from "components/atoms/LinkButton";
 import { Spinner } from "components/atoms/Spinner";
 import { Stack } from "components/atoms/Stack";
+import { TextButton } from "components/atoms/TextButton";
 import { TextField, TextInput } from "components/atoms/TextInput";
 import { QuantityInput } from "components/molecules/QuantityInput";
+import { SidePanel } from "components/molecules/SidePanel";
 import { AuthStateContext } from "data/auth-state";
 import Ingredient, { normaliseIngredient } from "data/ingredients";
 import {
@@ -11,21 +20,11 @@ import {
   Product,
   trimProduct,
 } from "data/product";
-import React, { ChangeEvent, useContext, useEffect, useState } from "react";
-import { ProductOption } from "./ProductOption";
-import { LinkButton } from "../../components/atoms/LinkButton";
-import { TextButton } from "../../components/atoms/TextButton";
-import { ExternalLink } from "../../components/atoms/ExternalLink";
-import { ErrorBanner } from "../../components/atoms/ErrorBanner";
-import { Darkmode } from "components/styles/Darkmode";
-import { AnimatedIconButton } from "components/atoms/AnimatedIconButton";
-import paperbag from "animations/paper-bag.json";
-import BarcodeScannerComponent from "react-qr-barcode-scanner";
-import { IconButton } from "../../components/atoms/IconButton";
-import { faBarcode } from "@fortawesome/free-solid-svg-icons";
 import { WoolworthsAccount } from "data/woolworths";
 import { Form, Formik } from "formik";
-import { Breakpoint } from "components/styles/Breakpoint";
+import React, { ChangeEvent, useContext, useEffect, useState } from "react";
+import BarcodeScannerComponent from "react-qr-barcode-scanner";
+import { ProductOption } from "./ProductOption";
 
 interface Props {
   selectedIngredient?: Ingredient;
@@ -137,25 +136,7 @@ export function ShoppingWizard({
   };
 
   return (
-    <Stack
-      css={{
-        width: 400,
-        height: "100vh",
-        position: "sticky",
-        top: 0,
-        zIndex: 2,
-        border: "1px solid #dedede",
-        background: "white",
-        borderRadius: 8,
-        [Darkmode]: {
-          borderColor: "black",
-          background: "black",
-        },
-        [Breakpoint.MOBILE]: {
-          width: "initial",
-        },
-      }}
-    >
+    <SidePanel>
       {(document as any).woolies ? (
         woolworthsAccount ? (
           woolworthsAccount.ShopperDetailsRequest ? (
@@ -438,6 +419,6 @@ export function ShoppingWizard({
           <div>3. Refresh the page.</div>
         </Stack>
       )}
-    </Stack>
+    </SidePanel>
   );
 }

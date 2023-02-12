@@ -72,13 +72,25 @@ export function PantryIngredientCard({ ingredient, pantryItem }: Props) {
     }
   };
 
+  if (
+    !complete &&
+    (!pantryItem?.ingredient.qty || !pantryItem?.ingredient.unit)
+  ) {
+    console.log(ingredient, pantryItem);
+  }
+
   return (
     <IngredientCard
       ingredient={ingredient}
       status={`${displayPantryAmount ? `${displayPantryAmount.qty}/` : ""}${
         displayAmount?.qty || ""
       } ${displayUnit(displayAmount?.unit)}`}
-      pinned={!pantryItem?.ingredient.qty || !pantryItem?.ingredient.unit}
+      pinned={
+        !!(
+          pantryItem &&
+          (!pantryItem?.ingredient.qty || !pantryItem?.ingredient.unit)
+        )
+      }
       done={!!complete}
       busy={busy}
       onClick={async () => {

@@ -4,24 +4,25 @@ import {
   faPlus,
   faTimes,
 } from "@fortawesome/free-solid-svg-icons";
-import React, { useContext, useState } from "react";
-import { AuthStateContext } from "../../data/auth-state";
-import { MealPlan, MealPlanItem } from "../../data/meal-plan";
-import { PantryContext } from "../../data/pantry";
-import { getRecipe, Recipe } from "../../data/recipes";
-import { RecipeList } from "../../components/organisms/RecipeList";
-import { Spinner } from "../../components/atoms/Spinner";
-import { TextButton } from "components/atoms/TextButton";
-import { Flex } from "components/atoms/Flex";
-import { Darkmode } from "components/styles/Darkmode";
-import { Stack } from "components/atoms/Stack";
-import { Breakpoint } from "../../components/styles/Breakpoint";
-import reorder from "animations/reorder.json";
 import prepare from "animations/prepare.json";
-import { AnimatedIconButton } from "../../components/atoms/AnimatedIconButton";
+import reorder from "animations/reorder.json";
+import { AnimatedIconButton } from "components/atoms/AnimatedIconButton";
+import { Flex } from "components/atoms/Flex";
+import { Spinner } from "components/atoms/Spinner";
+import { Stack } from "components/atoms/Stack";
+import { TextButton } from "components/atoms/TextButton";
+import { RecipeList } from "components/organisms/RecipeList";
+import { ShoppingListSection } from "components/organisms/ShoppingListSection";
+import { Breakpoint } from "components/styles/Breakpoint";
+import { Darkmode } from "components/styles/Darkmode";
+import { AuthStateContext } from "data/auth-state";
+import { markRecipeComplete } from "data/markRecipeComplete";
+import { MealPlan, MealPlanItem } from "data/meal-plan";
+import { PantryContext } from "data/pantry";
+import { getRecipe, Recipe } from "data/recipes";
 import firebase from "firebase";
+import React, { useContext, useState } from "react";
 import { Link } from "react-router-dom";
-import { markRecipeComplete } from "../../data/markRecipeComplete";
 
 interface Props {
   mealPlan: MealPlan;
@@ -130,7 +131,10 @@ export function MealPlanSection({ mealPlan, recipes }: Props) {
         )}
       </Flex>
       <Stack>
-        {Object.entries(sections).map(([plan, planRecipes]) => {
+        {Object.entries(sections).map(([plan, planRecipes], idx) => {
+          const sectionRecipes = planRecipes
+            .map((mealPlanItem) => getRecipe(recipes, mealPlanItem.slug))
+            .filter((x): x is Recipe => x !== undefined);
           return (
             <div
               key={plan}
@@ -194,11 +198,7 @@ export function MealPlanSection({ mealPlan, recipes }: Props) {
                 </Stack>
               ) : (
                 <RecipeList
-                  recipes={planRecipes
-                    .map((mealPlanItem) =>
-                      getRecipe(recipes, mealPlanItem.slug)
-                    )
-                    .filter((x): x is Recipe => x !== undefined)}
+                  recipes={sectionRecipes}
                   dismiss={
                     mode === "reorder"
                       ? plan === "Queued Recipes"
@@ -278,6 +278,13 @@ export function MealPlanSection({ mealPlan, recipes }: Props) {
                   }
                 ></RecipeList>
               )}
+              <ShoppingListSection
+                mealPlan={{ recipes: planRecipes }}
+                recipes={recipes}
+                exclusions={{
+                  recipes: Object.values(sections).slice(0, idx).flat(),
+                }}
+              />
             </div>
           );
         })}

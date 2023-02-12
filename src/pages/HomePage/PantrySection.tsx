@@ -1,7 +1,7 @@
-import { Stack } from "components/atoms/Stack";
+import { SidePanel } from "components/molecules/SidePanel";
+import { IngredientList } from "components/organisms/IngredientList";
+import Ingredient from "data/ingredients";
 import React from "react";
-import { IngredientList } from "../../components/organisms/IngredientList";
-import Ingredient from "../../data/ingredients";
 
 interface Props {
   pantry?: Ingredient[];
@@ -9,9 +9,11 @@ interface Props {
 
 export default function PantrySection({ pantry }: Props) {
   return (
-    <Stack css={{ maxWidth: 352 }}>
-      <h2>Pantry</h2>
+    <SidePanel
+      css={{ maxWidth: 382, zIndex: 0, height: "unset", minHeight: "100vh" }}
+    >
+      <h2 css={{ marginLeft: 16 }}>Pantry</h2>
       <IngredientList ingredients={pantry} />
-    </Stack>
+    </SidePanel>
   );
 }

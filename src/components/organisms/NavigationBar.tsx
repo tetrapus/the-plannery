@@ -88,7 +88,14 @@ export default function NavigationBar() {
           alt="The Plannery Wordmark"
         />
       </Link>
-      <Flex css={{ position: "absolute", right: 8, top: 8, minWidth: 48 }}>
+      <Flex
+        css={{
+          position: "absolute",
+          right: 8,
+          top: 8,
+          minWidth: 48,
+        }}
+      >
         {currentUser ? <UserMenu currentUser={currentUser} /> : null}
       </Flex>
     </Grid>
