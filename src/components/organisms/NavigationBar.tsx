@@ -118,11 +118,13 @@ function UserMenu({ currentUser }: { currentUser: firebase.User }) {
               borderBottom: "1px solid transparent",
             }
           : {}),
-        [Breakpoint.MOBILE]: {
-          margin: 0,
-          width: "calc(100vw - 16px)",
-          height: "calc(100vh - 16px)",
-        },
+        [Breakpoint.MOBILE]: collapsed
+          ? {}
+          : {
+              margin: 0,
+              width: "calc(100vw - 16px)",
+              height: "calc(100vh - 16px)",
+            },
       }}
     >
       <Flex

@@ -87,6 +87,9 @@ export function IngredientCard({
             css={{
               display: true ? "inline" : "block",
               color: pinned ? "#666" : "black",
+              [Darkmode]: {
+                color: pinned ? "#aaa" : "white",
+              },
             }}
           >
             {ingredient.type.name}
