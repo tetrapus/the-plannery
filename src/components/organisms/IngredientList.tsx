@@ -117,7 +117,7 @@ export function IngredientList({
           setShowStaples(!showStaples);
         }}
       >
-        {showStaples ? (
+        {showStaples && staples.length ? (
           <>Pantry Staples ({staples.length})</>
         ) : (
           <Flex css={{ alignItems: "center", flexWrap: "wrap", gap: 8 }}>
