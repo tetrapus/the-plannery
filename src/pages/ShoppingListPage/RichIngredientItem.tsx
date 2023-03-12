@@ -3,7 +3,7 @@ import { PlaceholderImage } from "components/atoms/PlaceholderImage";
 import { Stack } from "components/atoms/Stack";
 import React, { useEffect, useState } from "react";
 import { Recipe } from "data/recipes";
-import Ingredient from "data/ingredients";
+import Ingredient, { getOptimisedImg } from "data/ingredients";
 import { PantryItem } from "data/pantry";
 import { Breakpoint } from "components/styles/Breakpoint";
 import { ProductCard } from "./ProductCard";
@@ -83,7 +83,7 @@ export function RichIngredientItem({
     >
       {ingredient.type.imageUrl ? (
         <img
-          src={ingredient.type.imageUrl}
+          src={getOptimisedImg(ingredient.type.imageUrl, 128, 128)}
           css={{
             gridArea: "Image",
             height: 128,

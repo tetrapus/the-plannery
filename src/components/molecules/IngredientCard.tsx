@@ -1,5 +1,5 @@
 import React from "react";
-import Ingredient from "../../data/ingredients";
+import Ingredient, { getOptimisedImg } from "../../data/ingredients";
 import { Flex } from "../atoms/Flex";
 import { Stack } from "../atoms/Stack";
 import { Darkmode } from "../styles/Darkmode";
@@ -59,8 +59,8 @@ export function IngredientCard({
       >
         {ingredient.type.imageUrl ? (
           <img
-            src={ingredient.type.imageUrl}
-            css={true ? { height: 24, width: 24 } : { height: 42, width: 42 }}
+            src={getOptimisedImg(ingredient.type.imageUrl, 24, 24)}
+            css={{ height: 24, width: 24 }}
             alt={ingredient.type.name}
             onError={(e) => (e.currentTarget.style.display = "none")}
           ></img>

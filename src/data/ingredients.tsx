@@ -184,3 +184,13 @@ export function getAllIngredients(recipes: Recipe[]) {
       .map((ingredient) => [ingredient.type.id, ingredient])
   );
 }
+
+export function getOptimisedImg(src: string, w?: number, h?: number) {
+  if (w) {
+    src = src.replace(/\{w\}/g, w.toString());
+  }
+  if (h) {
+    src = src.replace(/\{h\}/g, h.toString());
+  }
+  return src;
+}

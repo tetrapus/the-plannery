@@ -4,7 +4,7 @@ import { Button } from "components/atoms/Button";
 import { IconButton } from "components/atoms/IconButton";
 import { Tooltip } from "components/atoms/Tooltip";
 import { Darkmode } from "components/styles/Darkmode";
-import { IngredientAmount } from "data/ingredients";
+import { getOptimisedImg, IngredientAmount } from "data/ingredients";
 import React, { ReactNode, useContext, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import { LikesContext } from "../../data/likes";
@@ -284,7 +284,7 @@ function RecipeDetails({
           text={`${IngredientAmount({ ingredient })} ${ingredient.type.name}`}
         >
           <img
-            src={ingredient.type.imageUrl}
+            src={getOptimisedImg(ingredient.type.imageUrl, 24, 24)}
             alt=""
             width={24}
             height={24}

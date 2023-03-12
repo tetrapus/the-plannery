@@ -19,7 +19,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { AuthStateContext } from "data/auth-state";
 import { useStateObject } from "util/use-state-object";
 import { Darkmode } from "../../../components/styles/Darkmode";
-import { getAllIngredients } from "data/ingredients";
+import { getAllIngredients, getOptimisedImg } from "data/ingredients";
 import { Breakpoint } from "components/styles/Breakpoint";
 
 interface Props {
@@ -82,7 +82,7 @@ export default function RecipeSearchSettingsSection({
             <Flex css={{ alignItems: "center" }}>
               {ingredient.type.imageUrl ? (
                 <img
-                  src={ingredient.type.imageUrl}
+                  src={getOptimisedImg(ingredient.type.imageUrl, 24, 24)}
                   css={{ height: 24, marginRight: 8 }}
                   alt=""
                 />

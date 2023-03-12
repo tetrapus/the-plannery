@@ -2,6 +2,7 @@ import { LinkButton } from "components/atoms/LinkButton";
 import { Stack } from "components/atoms/Stack";
 import { Tooltip } from "components/atoms/Tooltip";
 import Ingredient, {
+  getOptimisedImg,
   IngredientAmount,
   isSameIngredient,
 } from "data/ingredients";
@@ -130,7 +131,11 @@ export function IngredientList({
                   })} ${staple.ingredient.type.name}`}
                 >
                   <img
-                    src={staple.ingredient.type.imageUrl || "#"}
+                    src={getOptimisedImg(
+                      staple.ingredient.type.imageUrl || "#",
+                      24,
+                      24
+                    )}
                     alt=""
                     width={24}
                     height={24}
