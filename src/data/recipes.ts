@@ -91,7 +91,7 @@ export function getRecipes(recipes: any[] | undefined): Recipe[] | undefined {
       slug: item.slug,
       url: `https://www.hellofresh.com.au/recipes/${item.slug}-${item.id}`,
       imageUrl: item.imagePath
-        ? `https://img.hellofresh.com/hellofresh_s3${item.imagePath}`
+        ? `https://img.hellofresh.com/w_{w},q_auto,f_auto,c_limit,fl_lossy/hellofresh_s3${item.imagePath}`
         : "https://source.unsplash.com/featured/?ingredients",
       ingredients: getIngredients(yields.ingredients, item.ingredients),
       serves: yields.yields,
@@ -321,7 +321,7 @@ function getRecipeStep(step: any): RecipeStep {
     method: step.instructionsMarkdown,
     images: (step.images || []).map(
       (stepImage: any) =>
-        `https://img.hellofresh.com/hellofresh_s3${stepImage.path}`
+        `https://img.hellofresh.com/w_{w},q_auto,f_auto,c_limit,fl_lossy/hellofresh_s3${stepImage.path}`
     ),
     ingredients: step.ingredients,
     timers: step.timers

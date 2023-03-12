@@ -112,62 +112,66 @@ export function IngredientList({
           );
         })}
       </Flex>
-      <LinkButton
-        css={{ fontSize: 14, padding: 8, alignSelf: "flex-start" }}
-        onClick={(e) => {
-          setShowStaples(!showStaples);
-        }}
-      >
-        {showStaples && staples.length ? (
-          <>Pantry Staples ({staples.length})</>
-        ) : (
-          <Flex css={{ alignItems: "center", flexWrap: "wrap", gap: 8 }}>
-            <div>+ {staples.length} pantry staples </div>
-            <Flex css={{ flexWrap: "wrap" }}>
-              {staples.map((staple) => (
-                <Tooltip
-                  text={`${IngredientAmount({
-                    ingredient: staple.ingredient,
-                  })} ${staple.ingredient.type.name}`}
-                >
-                  <img
-                    src={getOptimisedImg(
-                      staple.ingredient.type.imageUrl || "#",
-                      24,
-                      24
-                    )}
-                    alt=""
-                    width={24}
-                    height={24}
-                    css={{
-                      "&:not(:hover)": {
-                        opacity: 0.8,
-                      },
-                    }}
-                  ></img>
-                </Tooltip>
-              ))}
+      {staples.length > 0 ? (
+        <>
+          <LinkButton
+            css={{ fontSize: 14, padding: 8, alignSelf: "flex-start" }}
+            onClick={(e) => {
+              setShowStaples(!showStaples);
+            }}
+          >
+            {showStaples ? (
+              <>Pantry Staples ({staples.length})</>
+            ) : (
+              <Flex css={{ alignItems: "center", flexWrap: "wrap", gap: 8 }}>
+                <div>+ {staples.length} pantry staples </div>
+                <Flex css={{ flexWrap: "wrap" }}>
+                  {staples.map((staple) => (
+                    <Tooltip
+                      text={`${IngredientAmount({
+                        ingredient: staple.ingredient,
+                      })} ${staple.ingredient.type.name}`}
+                    >
+                      <img
+                        src={getOptimisedImg(
+                          staple.ingredient.type.imageUrl || "#",
+                          24,
+                          24
+                        )}
+                        alt=""
+                        width={24}
+                        height={24}
+                        css={{
+                          "&:not(:hover)": {
+                            opacity: 0.8,
+                          },
+                        }}
+                      ></img>
+                    </Tooltip>
+                  ))}
+                </Flex>
+              </Flex>
+            )}
+          </LinkButton>
+          {showStaples ? (
+            <Flex
+              css={{
+                flexWrap: "wrap",
+              }}
+              {...rest}
+            >
+              {staples.map(({ ingredient, inPantry }) => {
+                return (
+                  <PantryIngredientCard
+                    key={JSON.stringify(ingredient)}
+                    ingredient={ingredient}
+                    pantryItem={inPantry}
+                  ></PantryIngredientCard>
+                );
+              })}
             </Flex>
-          </Flex>
-        )}
-      </LinkButton>
-      {showStaples ? (
-        <Flex
-          css={{
-            flexWrap: "wrap",
-          }}
-          {...rest}
-        >
-          {staples.map(({ ingredient, inPantry }) => {
-            return (
-              <PantryIngredientCard
-                key={JSON.stringify(ingredient)}
-                ingredient={ingredient}
-                pantryItem={inPantry}
-              ></PantryIngredientCard>
-            );
-          })}
-        </Flex>
+          ) : null}
+        </>
       ) : null}
     </Stack>
   );

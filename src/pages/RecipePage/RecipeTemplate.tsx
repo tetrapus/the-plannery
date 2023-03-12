@@ -96,6 +96,7 @@ export default function RecipeTemplate({ recipe }: Props) {
       <div>
         <ImageContent
           src={recipe.imageUrl}
+          width={window.innerWidth}
           css={{
             width: "100%",
             minHeight: "50vh",

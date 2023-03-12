@@ -147,7 +147,7 @@ export function RecipeCard({ recipe, dismiss, select, ...rest }: Props) {
           })}
         >
           <img
-            src={recipe.imageUrl}
+            src={getOptimisedImg(recipe.imageUrl, 300)}
             css={{
               width: 150,
               height: "100%",

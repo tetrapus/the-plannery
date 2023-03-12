@@ -138,6 +138,7 @@ export function RecipeStep({
             <ImageContent
               key={img}
               src={img}
+              width={250}
               css={{ width: 250, borderRadius: 8 }}
               alt=""
             ></ImageContent>
