@@ -1,42 +1,44 @@
-import React, { useContext, useEffect, useState } from "react";
-import ReactMarkdown from "react-markdown";
-import { TagList } from "../../components/molecules/TagList";
-import { Stack } from "../../components/atoms/Stack";
-import { RecipeStep } from "./RecipeStep/RecipeStep";
-import { Recipe } from "../../data/recipes";
-import Ingredient from "../../data/ingredients";
+import styled from "@emotion/styled";
+import { faPlayCircle, faStopCircle } from "@fortawesome/free-solid-svg-icons";
+import { ExternalLink } from "components/atoms/ExternalLink";
+import { Flex } from "components/atoms/Flex";
+import { IconButton } from "components/atoms/IconButton";
+import { ImageContent } from "components/atoms/ImageContent";
+import { Stack } from "components/atoms/Stack";
+import { TextButton } from "components/atoms/TextButton";
+import { LikeButton } from "components/molecules/LikeButton";
+import { TagList } from "components/molecules/TagList";
+import { Breakpoint } from "components/styles/Breakpoint";
+import { Darkmode } from "components/styles/Darkmode";
 import {
   AuthStateContext,
   useHouseholdCollection,
   useHouseholdDocument,
-} from "../../data/auth-state";
-import { LikeButton } from "../../components/molecules/LikeButton";
-import { faPlayCircle, faStopCircle } from "@fortawesome/free-solid-svg-icons";
+} from "data/auth-state";
+import Ingredient from "data/ingredients";
+import { Recipe } from "data/recipes";
+import { Session } from "data/session";
 import firebase from "firebase";
-import { Flex } from "../../components/atoms/Flex";
-import { IconButton } from "../../components/atoms/IconButton";
-import { Session } from "../../data/session";
+import React, { useContext, useEffect, useState } from "react";
+import ReactMarkdown from "react-markdown";
 import IngredientsSection from "./IngredientsSection";
-import styled from "@emotion/styled";
-import { Darkmode } from "../../components/styles/Darkmode";
-import { Breakpoint } from "../../components/styles/Breakpoint";
-import { ImageContent } from "../../components/atoms/ImageContent";
-import { ExternalLink } from "../../components/atoms/ExternalLink";
-import { Notable, NotableContext } from "./Notable";
 import { MealPlanControls } from "./MealPlanControls";
-import { Remixer } from "./Remixer";
+import { Notable, NotableContext } from "./Notable";
 import { RecipeEdits } from "./RecipeEdits";
+import { RecipeStep } from "./RecipeStep/RecipeStep";
+import { Remixer } from "./Remixer";
 
 interface Props {
   recipe: Recipe;
+  isDraft: boolean;
 }
 
 const Section = styled.div`
   padding: 12px;
 `;
 
-export default function RecipeTemplate({ recipe }: Props) {
-  const { household, insertMeta } = useContext(AuthStateContext);
+export default function RecipeTemplate({ recipe, isDraft = false }: Props) {
+  const { household, currentUser, insertMeta } = useContext(AuthStateContext);
   const [session, setSession] = useState<Session | undefined>();
   const users = useHouseholdCollection(
     (household) => household.collection("users"),
@@ -91,6 +93,28 @@ export default function RecipeTemplate({ recipe }: Props) {
     recipe.subtitle = autoEdits.subtitle;
   }
 
+  const onSave = async () => {
+    if (!currentUser?.uid) {
+      return;
+    }
+    const path = `collections/${currentUser.uid}/saved.json`;
+    // check if saved.json exists in firebase storage
+    const savedRef = firebase.storage().ref(path);
+    const savedSnapshot = await savedRef.getDownloadURL().catch(() => null);
+    if (savedSnapshot) {
+      // if it does, download it
+      const savedResponse = await fetch(savedSnapshot);
+      const saved = await savedResponse.json();
+      // add the recipe to it
+      saved[recipe.slug] = recipe;
+      // upload it again
+      await savedRef.putString(JSON.stringify(saved));
+    } else {
+      // if it doesn't, create it
+      await savedRef.putString(JSON.stringify({ [recipe.slug]: recipe }));
+    }
+  };
+
   return (
     <NotableContext.Provider value={notableContext}>
       <div>
@@ -132,7 +156,7 @@ export default function RecipeTemplate({ recipe }: Props) {
         >
           <Section>
             <Stack css={{ alignItems: `center` }}>
-              <ExternalLink href={recipe.url}>
+              <ExternalLink href={recipe.sourceUrl}>
                 <h1 css={{ margin: "12px 24px", fontWeight: "bold" }}>
                   {recipe.name}
                 </h1>
@@ -165,12 +189,12 @@ export default function RecipeTemplate({ recipe }: Props) {
           <Notable slug={recipe.slug} field={["ingredients"]} value={""}>
             {() => <IngredientsSection recipe={recipe} session={session} />}
           </Notable>
-          {recipe.utensils.length ? (
+          {recipe.utensils && recipe.utensils.length ? (
             <Notable slug={recipe.slug} field={["utensils"]} value={""}>
               {() => (
                 <Section>
                   <h2>Utensils</h2>
-                  <TagList items={recipe.utensils}></TagList>
+                  <TagList items={recipe.utensils || []}></TagList>
                 </Section>
               )}
             </Notable>
@@ -200,7 +224,7 @@ export default function RecipeTemplate({ recipe }: Props) {
                   step={step}
                   stepNumber={idx + 1}
                   users={users}
-                  ingredients={step.ingredients
+                  ingredients={(step.ingredients || [])
                     .map((ingredient) =>
                       recipe.ingredients.find(
                         (recipeIngredient) =>
@@ -237,6 +261,26 @@ export default function RecipeTemplate({ recipe }: Props) {
           </Section>
         </div>
       </div>
+      {isDraft ? (
+        <div
+          css={{
+            position: "fixed",
+            bottom: 16,
+            left: "50vw",
+            transform: "translateX(-50%)",
+          }}
+        >
+          <TextButton
+            onClick={async (e) => {
+              e.currentTarget.classList.add("busy");
+              await onSave();
+              e.currentTarget.classList.remove("busy");
+            }}
+          >
+            Save Recipe
+          </TextButton>
+        </div>
+      ) : null}
     </NotableContext.Provider>
   );
 }

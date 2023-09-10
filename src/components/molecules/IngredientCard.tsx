@@ -24,6 +24,24 @@ export function IngredientCard({
   busy,
   onClick,
 }: Props) {
+  const fullName = ingredient.type.name;
+  let note,
+    name = fullName;
+  // If the full name ends in parentheses, move that to the note
+  const match = fullName.match(/^(.*?)\s*\((.*?)\)\s*$/);
+  if (match) {
+    note = match[2];
+    name = match[1];
+  }
+  // If the name has a comma, move everything after the first comma to the note AFTER the first "and"
+  const match2 =
+    name.match(/^(.*?and.*?)\s*,\s*(.*?)\s*$/) ||
+    name.match(/^(.*?),\s*(.*?)\s*$/);
+  if (match2) {
+    note = match2[2];
+    name = match2[1];
+  }
+
   return (
     <Stack
       css={{
@@ -70,29 +88,40 @@ export function IngredientCard({
           css={{
             alignItems: "flex-start",
             paddingLeft: 8,
-            fontSize: 14,
-            display: true ? "block" : "flex",
+            fontSize: 12,
+            display: "flex",
           }}
         >
+          <div>
+            <span
+              css={{
+                color: "#666",
+                [Darkmode]: { color: "#aaa" },
+                display: true ? "inline" : "block",
+              }}
+            >
+              {status}{" "}
+            </span>
+            <span
+              css={{
+                display: true ? "inline" : "block",
+                color: pinned ? "#666" : "black",
+                [Darkmode]: {
+                  color: pinned ? "#aaa" : "white",
+                },
+              }}
+            >
+              {name}
+            </span>
+          </div>
           <div
             css={{
               color: "#666",
               [Darkmode]: { color: "#aaa" },
-              display: true ? "inline" : "block",
+              fontStyle: "italic",
             }}
           >
-            {status}{" "}
-          </div>
-          <div
-            css={{
-              display: true ? "inline" : "block",
-              color: pinned ? "#666" : "black",
-              [Darkmode]: {
-                color: pinned ? "#aaa" : "white",
-              },
-            }}
-          >
-            {ingredient.type.name}
+            {note}
           </div>
         </Stack>
         {action}

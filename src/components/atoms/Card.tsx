@@ -4,11 +4,11 @@ import { Darkmode } from "../styles/Darkmode";
 
 export const CardStyle = css({
   borderRadius: 8,
-  boxShadow: "grey 1px 1px 3px",
+  boxShadow: "none",
+  border: "1px solid #eee",
   background: "white",
   [Darkmode]: {
     background: "black",
-    boxShadow: "none",
     border: "1px solid #333",
   },
 });

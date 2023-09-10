@@ -1,16 +1,16 @@
 import { css } from "@emotion/core";
+import { Flex } from "components/atoms/Flex";
+import { ImageContent } from "components/atoms/ImageContent";
+import { Stack } from "components/atoms/Stack";
+import { IngredientList } from "components/organisms/IngredientList";
+import { Breakpoint } from "components/styles/Breakpoint";
+import Ingredient from "data/ingredients";
+import { RecipeTimer, RecipeStep as Step } from "data/recipes";
 import React, { Fragment, useState } from "react";
 import ReactMarkdown from "react-markdown";
-import Ingredient from "data/ingredients";
-import { Flex } from "../../../components/atoms/Flex";
-import { IngredientList } from "../../../components/organisms/IngredientList";
-import { Breakpoint } from "../../../components/styles/Breakpoint";
-import { Stack } from "../../../components/atoms/Stack";
-import { RecipeStep as Step, RecipeTimer } from "../../../data/recipes";
+import { Notable } from "../Notable";
 import { Timer } from "./Timer";
 import { TimerText } from "./TimerText";
-import { ImageContent } from "../../../components/atoms/ImageContent";
-import { Notable } from "../Notable";
 
 interface Props {
   step: Step;
@@ -46,9 +46,8 @@ export function RecipeStep({
   ...rest
 }: Props) {
   const [timers, setTimers] = useState<TimerState[]>(
-    step.timers.map((timer) => ({ timer }))
+    (step.timers || []).map((timer) => ({ timer }))
   );
-  console.log(timers);
 
   const renderers = {
     p: ({ children }: { children: React.ReactNode[] }) => {
@@ -132,7 +131,7 @@ export function RecipeStep({
       >
         {stepNumber}
       </h1>
-      {step.images.length ? (
+      {step.images?.length ? (
         <div css={{ marginRight: "8px" }}>
           {step.images.map((img) => (
             <ImageContent
@@ -170,7 +169,6 @@ export function RecipeStep({
           )}
         </Notable>
         <Stack>
-          {console.log("timers", timers)}
           {timers.map(({ timer, startTime }, idx) => (
             <Timer
               key={idx}

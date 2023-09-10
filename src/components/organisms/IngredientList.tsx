@@ -7,7 +7,7 @@ import Ingredient, {
   isSameIngredient,
 } from "data/ingredients";
 import { enoughInPantry, inPantry, PantryContext } from "data/pantry";
-import React, { useContext, useState } from "react";
+import React, { useContext, useMemo, useState } from "react";
 import { Flex } from "../atoms/Flex";
 import { Spinner } from "../atoms/Spinner";
 import { PantryIngredientCard } from "./PantryIngredientCard";
@@ -30,69 +30,99 @@ export function IngredientList({
   const originalPantry = useContext(PantryContext);
   const [showStaples, setShowStaples] = useState<boolean>(!!expanded);
 
+  const pantry = useMemo(() => {
+    return {
+      ...originalPantry,
+      items:
+        originalPantry?.items
+          .map((item) => {
+            const matchingExclusion = exclusions?.find((ingredient) =>
+              isSameIngredient(item.ingredient, ingredient)
+            );
+            if (
+              !matchingExclusion ||
+              !matchingExclusion.qty ||
+              !item.ingredient.qty
+            ) {
+              return item;
+            }
+            return {
+              ...item,
+              ingredient: {
+                ...item.ingredient,
+                qty: Math.max(item.ingredient.qty - matchingExclusion.qty, 0),
+              },
+            };
+          })
+          .filter((x) => x.ingredient.qty !== 0) || [],
+    };
+  }, [exclusions, originalPantry]);
+
+  const sortedIngredients = useMemo(
+    () =>
+      (ingredients || [])
+        .map((ingredient) => ({
+          ingredient,
+          inPantry: inPantry(ingredient, pantry),
+        }))
+        .map((ingredient) => ({
+          ...ingredient,
+          isStaple: !!(
+            ingredient.inPantry &&
+            !ingredient.inPantry.ingredient.qty &&
+            !ingredient.inPantry.ingredient.unit
+          ),
+          enoughInPantry: enoughInPantry(
+            ingredient.ingredient,
+            ingredient.inPantry
+          ),
+        }))
+        .sort((a, b) =>
+          a.isStaple === b.isStaple
+            ? a.enoughInPantry === b.enoughInPantry
+              ? sortKey
+                ? sortKey(a.ingredient) - sortKey(b.ingredient)
+                : a.ingredient.type.name.localeCompare(b.ingredient.type.name)
+              : a.enoughInPantry
+              ? 1
+              : -1
+            : a.isStaple
+            ? 1
+            : -1
+        ),
+    [ingredients, pantry, sortKey]
+  );
+
+  const prioritisedIngredients = useMemo(
+    () => sortedIngredients.filter((x) => !x.isStaple),
+    [sortedIngredients]
+  );
+  const staples = useMemo(() => {
+    const s: typeof sortedIngredients = [];
+    const normaliseName = (name: string) => name.replace(/ \(.*\)/g, "");
+    sortedIngredients
+      .filter((x) => x.isStaple)
+      .forEach((x) => {
+        // consider ingredients such as "water" and "water (for the rice)" to be the same staple
+        const normalisedStapleName = normaliseName(x.ingredient.type.name);
+        if (
+          !(x.ingredient.qty && x.ingredient.unit) &&
+          s.find(
+            (staple) =>
+              normalisedStapleName ===
+              normaliseName(staple.ingredient.type.name)
+          )
+        ) {
+          return;
+        }
+        s.push(x);
+      });
+    return s;
+  }, [sortedIngredients]);
+
   if (ingredients === undefined) {
     return <Spinner />;
   }
-
-  const pantry = {
-    ...originalPantry,
-    items:
-      originalPantry?.items
-        .map((item) => {
-          const matchingExclusion = exclusions?.find((ingredient) =>
-            isSameIngredient(item.ingredient, ingredient)
-          );
-          if (
-            !matchingExclusion ||
-            !matchingExclusion.qty ||
-            !item.ingredient.qty
-          ) {
-            return item;
-          }
-          return {
-            ...item,
-            ingredient: {
-              ...item.ingredient,
-              qty: Math.max(item.ingredient.qty - matchingExclusion.qty, 0),
-            },
-          };
-        })
-        .filter((x) => x.ingredient.qty !== 0) || [],
-  };
-
-  const sortedIngredients = ingredients
-    .map((ingredient) => ({
-      ingredient,
-      inPantry: inPantry(ingredient, pantry),
-    }))
-    .map((ingredient) => ({
-      ...ingredient,
-      isStaple: !!(
-        ingredient.inPantry &&
-        !ingredient.inPantry.ingredient.qty &&
-        !ingredient.inPantry.ingredient.unit
-      ),
-      enoughInPantry: enoughInPantry(
-        ingredient.ingredient,
-        ingredient.inPantry
-      ),
-    }))
-    .sort((a, b) =>
-      a.isStaple === b.isStaple
-        ? a.enoughInPantry === b.enoughInPantry
-          ? sortKey
-            ? sortKey(a.ingredient) - sortKey(b.ingredient)
-            : a.ingredient.type.name.localeCompare(b.ingredient.type.name)
-          : a.enoughInPantry
-          ? 1
-          : -1
-        : a.isStaple
-        ? 1
-        : -1
-    );
-
-  const prioritisedIngredients = sortedIngredients.filter((x) => !x.isStaple);
-  const staples = sortedIngredients.filter((x) => x.isStaple);
 
   return (
     <Stack>

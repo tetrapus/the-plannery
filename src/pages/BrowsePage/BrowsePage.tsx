@@ -1,16 +1,13 @@
-import React from "react";
-import { Stack } from "../../components/atoms/Stack";
-import { Flex } from "../../components/atoms/Flex";
-import { getRecipes, Recipe, RecipesCollection } from "../../data/recipes";
-import { Spinner } from "../../components/atoms/Spinner";
-import { Breakpoint } from "../../components/styles/Breakpoint";
-import { useSubscription } from "../../util/use-subscription";
+import { Flex } from "components/atoms/Flex";
+import { Spinner } from "components/atoms/Spinner";
+import { Stack } from "components/atoms/Stack";
+import { Breakpoint } from "components/styles/Breakpoint";
+import { useRecipes } from "data/recipes";
 import SuggestedRecipesSection from "pages/HomePage/SuggestedRecipesSection/SuggestedRecipesSection";
+import React from "react";
 
 export function BrowsePage() {
-  const recipes = useSubscription<Recipe[]>((setState) =>
-    RecipesCollection.subscribe((value) => setState(getRecipes(value)))
-  );
+  const recipes = useRecipes();
 
   return (
     <Flex css={{ margin: "auto" }}>

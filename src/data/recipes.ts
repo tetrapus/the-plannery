@@ -6,6 +6,8 @@ import { Like } from "./likes";
 import { enoughInPantry, PantryItem } from "./pantry";
 import { HistoryItem } from "./recipe-history";
 import { Trash } from "./trash";
+import { useContext, useEffect, useState } from "react";
+import { AuthStateContext } from "./auth-state";
 
 export interface RecipeTimer {
   name: string;
@@ -13,9 +15,9 @@ export interface RecipeTimer {
 }
 export interface RecipeStep {
   method: string;
-  images: string[];
-  ingredients: string[];
-  timers: RecipeTimer[];
+  images?: string[];
+  ingredients?: string[];
+  timers?: RecipeTimer[];
 }
 
 type Difficulty = "Easy" | "Moderate" | "Hard" | "Expert";
@@ -48,25 +50,63 @@ export interface RecommendReason {
 export interface Recipe {
   collectionId: string;
   name: string;
-  subtitle: string;
+  author?: string;
+  subtitle?: string;
   description: string;
   slug: string;
-  url: string;
-  imageUrl: string;
+  sourceUrl?: string;
+  imageUrl?: string;
   ingredients: Ingredient[];
   steps: RecipeStep[];
-  utensils: string[];
+  utensils?: string[];
   tags: string[];
   serves: number;
   prepTime?: number;
   difficulty?: Difficulty;
+  // todo: deleteme
   recommendReasons?: RecommendReason[];
 }
 
-export const RecipesCollection = ExternalCollectionFactory<any[] | undefined>(
-  "https://firebasestorage.googleapis.com/v0/b/the-plannery.appspot.com/o/recipe-data.json?alt=media&token=a1514430-d46e-4e82-9112-765f243ed627",
-  undefined
-);
+export function useRecipes() {
+  const { currentUser } = useContext(AuthStateContext);
+  const [recipes, setRecipes] = useState<Recipe[] | undefined>(undefined);
+  const uid = currentUser?.uid;
+  useEffect(() => {
+    if (!uid) {
+      return;
+    }
+    (async () => {
+      const paths = [
+        `collections/default/hf.json`,
+        `collections/${uid}/saved.json`,
+      ];
+
+      for (const path of paths) {
+        const url = await firebase.storage().ref(path).getDownloadURL();
+
+        const cache = await caches.open("recipe-cache");
+        // fixme: cache less aggressively for the dynamic collection
+        const cachedResponse = await cache.match(url);
+        let response;
+        if (!cachedResponse) {
+          response = await fetch(url);
+          await cache.put(url, response);
+          response = await cache.match(url);
+        } else {
+          response = cachedResponse;
+        }
+
+        const result = await response?.json();
+
+        setRecipes((recipes) => [
+          ...(recipes || []),
+          ...((Object.values(result) as Recipe[]) || []),
+        ]);
+      }
+    })();
+  }, [uid]);
+  return recipes;
+}
 
 export function getRecipes(recipes: any[] | undefined): Recipe[] | undefined {
   if (recipes === undefined) {
@@ -84,7 +124,7 @@ export function getRecipes(recipes: any[] | undefined): Recipe[] | undefined {
 
     const prepTime = item.prepTime && item.prepTime.match(/PT(\d+)M/);
     return {
-      collectionId: "hello-fresh",
+      collectionId: "hf",
       name: item.name,
       subtitle: item.headline,
       description: item.descriptionMarkdown,
@@ -92,7 +132,7 @@ export function getRecipes(recipes: any[] | undefined): Recipe[] | undefined {
       url: `https://www.hellofresh.com.au/recipes/${item.slug}-${item.id}`,
       imageUrl: item.imagePath
         ? `https://img.hellofresh.com/w_{w},q_auto,f_auto,c_limit,fl_lossy/hellofresh_s3${item.imagePath}`
-        : "https://source.unsplash.com/featured/?ingredients",
+        : undefined,
       ingredients: getIngredients(yields.ingredients, item.ingredients),
       serves: yields.yields,
       steps: item.steps.map(getRecipeStep),
@@ -179,7 +219,7 @@ export function getSuggestedRecipes(
     },
     equipment: {
       match: (values: Set<Preference["id"]>, recipe: Recipe) =>
-        recipe.utensils.find((tag) => values.has(tag)) ? 1 : 0,
+        (recipe.utensils || []).find((tag) => values.has(tag)) ? 1 : 0,
     },
     liked: {
       match: (values: Set<Preference["id"]>, recipe: Recipe) =>
@@ -323,7 +363,6 @@ function getRecipeStep(step: any): RecipeStep {
       (stepImage: any) =>
         `https://img.hellofresh.com/w_{w},q_auto,f_auto,c_limit,fl_lossy/hellofresh_s3${stepImage.path}`
     ),
-    ingredients: step.ingredients,
     timers: step.timers
       .map((timer: any) => getStepTimer(timer))
       .filter((timer: any) => !!timer),

@@ -1,12 +1,11 @@
-import React, { useContext, useEffect, useState } from "react";
-import { Spinner } from "../../components/atoms/Spinner";
-import { HistoryTemplate } from "./HistoryTemplate";
-import { HistoryItem } from "../../data/recipe-history";
-import { getRecipes, Recipe, RecipesCollection } from "../../data/recipes";
-import { useSubscription } from "../../util/use-subscription";
+import { Spinner } from "components/atoms/Spinner";
 import { AuthStateContext } from "data/auth-state";
+import { HistoryItem } from "data/recipe-history";
+import { useRecipes } from "data/recipes";
 import firebase from "firebase";
+import React, { useContext, useEffect, useState } from "react";
 import ReactVisibilitySensor from "react-visibility-sensor";
+import { HistoryTemplate } from "./HistoryTemplate";
 
 const parseHistory = (
   snapshot: firebase.firestore.QuerySnapshot<firebase.firestore.DocumentData>
@@ -36,9 +35,7 @@ export function HistoryPage() {
       });
   }, [household]);
 
-  const recipes = useSubscription<Recipe[]>((setRecipes) =>
-    RecipesCollection.subscribe((recipes) => setRecipes(getRecipes(recipes)))
-  );
+  const recipes = useRecipes();
   if (!history || recipes === undefined) return <Spinner />;
   return (
     <>

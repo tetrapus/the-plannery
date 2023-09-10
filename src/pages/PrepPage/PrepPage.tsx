@@ -1,15 +1,13 @@
-import { useContext } from "react";
-import { MealPlanContext } from "data/meal-plan";
-import React from "react";
-import { Stack } from "components/atoms/Stack";
-import { Spinner } from "components/atoms/Spinner";
-import { useSubscription } from "util/use-subscription";
-import { getRecipes, Recipe, RecipesCollection } from "data/recipes";
-import { RecipeStep } from "pages/RecipePage/RecipeStep/RecipeStep";
-import { Link } from "react-router-dom";
 import { Card } from "components/atoms/Card";
+import { Spinner } from "components/atoms/Spinner";
+import { Stack } from "components/atoms/Stack";
 import { IngredientList } from "components/organisms/IngredientList";
 import { Darkmode } from "components/styles/Darkmode";
+import { MealPlanContext } from "data/meal-plan";
+import { useRecipes } from "data/recipes";
+import { RecipeStep } from "pages/RecipePage/RecipeStep/RecipeStep";
+import React, { useContext } from "react";
+import { Link } from "react-router-dom";
 
 const PREP_WORDS = new Set(
   `chop peel crush halve grate slice cut deseed bowl soak`.split(" ")
@@ -17,9 +15,7 @@ const PREP_WORDS = new Set(
 
 export function PrepPage() {
   const mealPlan = useContext(MealPlanContext);
-  const recipes = useSubscription<Recipe[]>((setState) =>
-    RecipesCollection.subscribe((value) => setState(getRecipes(value)))
-  );
+  const recipes = useRecipes();
 
   return (
     <Card css={{ maxWidth: 800, margin: "auto", marginTop: 8 }}>

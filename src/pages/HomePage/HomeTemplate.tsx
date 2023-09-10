@@ -4,9 +4,8 @@ import { Stack } from "components/atoms/Stack";
 import { Breakpoint } from "components/styles/Breakpoint";
 import { MealPlanContext } from "data/meal-plan";
 import { PantryContext } from "data/pantry";
-import { getRecipes, Recipe, RecipesCollection } from "data/recipes";
+import { useRecipes } from "data/recipes";
 import React, { useContext } from "react";
-import { useSubscription } from "util/use-subscription";
 import { MealPlanSection } from "./MealPlanSection";
 import { NowCookingSection } from "./NowCookingSection";
 import PantrySection from "./PantrySection";
@@ -17,9 +16,7 @@ export default function HomeTemplate() {
 
   const mealPlan = useContext(MealPlanContext);
 
-  const recipes = useSubscription<Recipe[]>((setState) =>
-    RecipesCollection.subscribe((value) => setState(getRecipes(value)))
-  );
+  const recipes = useRecipes();
 
   return (
     <Flex>

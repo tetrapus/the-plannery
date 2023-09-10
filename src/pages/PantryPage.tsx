@@ -1,3 +1,4 @@
+import styled, { CSSObject } from "@emotion/styled";
 import { Flex } from "components/atoms/Flex";
 import { Spinner } from "components/atoms/Spinner";
 import { Stack } from "components/atoms/Stack";
@@ -8,15 +9,13 @@ import {
 } from "data/auth-state";
 import { MealPlanContext } from "data/meal-plan";
 import { Product, trimProduct } from "data/product";
-import { Recipe, RecipesCollection, getRecipes } from "data/recipes";
+import { useRecipes } from "data/recipes";
+import firebase from "firebase";
+import { useFirestoreDoc } from "init/firebase";
 import React, { useContext, useEffect, useState } from "react";
 import BarcodeScannerComponent from "react-qr-barcode-scanner";
-import { useSubscription } from "util/use-subscription";
 import { playSound } from "../util/play-sound";
 import { ProductCard } from "./ShoppingListPage/ProductCard";
-import styled, { CSSObject } from "@emotion/styled";
-import { useFirestoreDoc } from "init/firebase";
-import firebase from "firebase";
 
 function debounce<T>(func: (...args: T[]) => void, timeout = 300) {
   let timer: number;
@@ -379,9 +378,7 @@ function ProductProperties({
 export function PantryPage() {
   const mealPlan = useContext(MealPlanContext);
 
-  const recipes = useSubscription<Recipe[]>((setRecipes) =>
-    RecipesCollection.subscribe((recipes) => setRecipes(getRecipes(recipes)))
-  );
+  const recipes = useRecipes();
 
   const [barcodes, setBarcodes] = useState<{
     [key: string]: { complete: boolean; data?: Product };

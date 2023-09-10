@@ -27,6 +27,7 @@ export function initFirebase() {
 initFirebase();
 
 export const db = firebase.firestore();
+export const storage = firebase.storage();
 
 db.enablePersistence().catch((err) => {
   if (err.code === "failed-precondition") {

@@ -221,6 +221,7 @@ export default function SuggestedRecipesSection({ recipes }: Props) {
       <TextButton
         onClick={() => setLimit(limit + 12)}
         css={{
+          margin: "auto",
           marginBottom: 128,
           [Breakpoint.TABLET]: {
             margin: 16,
