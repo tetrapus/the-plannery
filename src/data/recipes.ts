@@ -1,6 +1,5 @@
 import firebase from "firebase";
 import SeedRandom from "seed-random";
-import { ExternalCollectionFactory } from "./CollectionFactory";
 import Ingredient, { IngredientType, normaliseIngredient } from "./ingredients";
 import { Like } from "./likes";
 import { enoughInPantry, PantryItem } from "./pantry";
