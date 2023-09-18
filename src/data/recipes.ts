@@ -67,17 +67,16 @@ export interface Recipe {
 }
 
 export function useRecipes() {
-  const { currentUser } = useContext(AuthStateContext);
+  const { currentUser, household } = useContext(AuthStateContext);
   const [recipes, setRecipes] = useState<Recipe[] | undefined>(undefined);
-  const uid = currentUser?.uid;
   useEffect(() => {
-    if (!uid) {
+    if (!household) {
       return;
     }
     (async () => {
       const paths = [
         `collections/default/hf.json`,
-        `collections/${uid}/saved.json`,
+        `collections/${household.id}/saved.json`,
       ];
 
       for (const path of paths) {
@@ -103,7 +102,7 @@ export function useRecipes() {
         ]);
       }
     })();
-  }, [uid]);
+  }, [household]);
   return recipes;
 }
 
