@@ -67,7 +67,7 @@ export interface Recipe {
 }
 
 export function useRecipes() {
-  const { currentUser, household } = useContext(AuthStateContext);
+  const { household } = useContext(AuthStateContext);
   const [recipes, setRecipes] = useState<Recipe[] | undefined>(undefined);
   useEffect(() => {
     if (!household) {
