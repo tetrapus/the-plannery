@@ -37,9 +37,9 @@ const globalNormalisers: { [unit: string]: Amount } = {
   l: { unit: "ml", qty: 1000 },
   kg: { unit: "g", qty: 1000 },
   each: { unit: "unit", qty: 1, alias },
-  ounce: { unit: "ml", qty: 30 },
-  oz: { unit: "ml", qty: 30 },
-  pound: { unit: "g", qty: 500 },
+  ounce: { unit: "ml", qty: 30, alias },
+  oz: { unit: "ml", qty: 30, alias },
+  pound: { unit: "g", qty: 500, alias },
 };
 
 const ingredientNormalisers: { [name: string]: { [unit: string]: Amount } } = {
