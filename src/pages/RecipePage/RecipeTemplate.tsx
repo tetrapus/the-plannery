@@ -38,7 +38,7 @@ const Section = styled.div`
 `;
 
 export default function RecipeTemplate({ recipe, isDraft = false }: Props) {
-  const { household, currentUser, insertMeta } = useContext(AuthStateContext);
+  const { household, insertMeta } = useContext(AuthStateContext);
   const [session, setSession] = useState<Session | undefined>();
   const users = useHouseholdCollection(
     (household) => household.collection("users"),
