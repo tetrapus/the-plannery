@@ -94,10 +94,10 @@ export default function RecipeTemplate({ recipe, isDraft = false }: Props) {
   }
 
   const onSave = async () => {
-    if (!currentUser?.uid) {
+    if (!household?.id) {
       return;
     }
-    const path = `collections/${currentUser.uid}/saved.json`;
+    const path = `collections/${household.id}/saved.json`;
     // check if saved.json exists in firebase storage
     const savedRef = firebase.storage().ref(path);
     const savedSnapshot = await savedRef.getDownloadURL().catch(() => null);
@@ -275,6 +275,7 @@ export default function RecipeTemplate({ recipe, isDraft = false }: Props) {
               e.currentTarget.classList.add("busy");
               await onSave();
               e.currentTarget.classList.remove("busy");
+              window.location.href = `/recipes/${recipe.slug}`;
             }}
           >
             Save Recipe

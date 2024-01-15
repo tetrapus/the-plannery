@@ -74,7 +74,7 @@ export function RecipePage(props: Props) {
             subtitle: author ? `By ${author}` : "",
             description: value.description,
             slug: makeSlug(`${value.name}-${author}`),
-            sourceUrl: window.location.href,
+            sourceUrl: value.url,
             imageUrl: value.image[0] || value.image.url, // todo: configurable
             ingredients: value.recipeIngredient.map((ingredient: string) => {
               const ingredientPattern =
